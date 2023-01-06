@@ -1,9 +1,9 @@
 # For more information: https://laravel.com/docs/sail
 version: '3'
 services:
-    laravel.test:
+    app:
         build:
-            context: ./vendor/laravel/sail/runtimes/8.1
+            context: ./docker/tesseract-ocr
             dockerfile: Dockerfile
             args:
                 WWWGROUP: '${WWWGROUP}'
