@@ -30,4 +30,9 @@ class Imageditor extends Component
         $this->dispatchBrowserEvent('editor.cancel.'.$this->editMode);
         $this->editMode = false;
     }
+    public function broadcastEditComplete()
+    {
+        $this->editMode = false;
+        $this->dispatchBrowserEvent('editor.complete');
+    }
 }
