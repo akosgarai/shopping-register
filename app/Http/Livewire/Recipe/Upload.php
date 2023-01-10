@@ -49,6 +49,7 @@ class Upload extends Component
     }
 
     public function parseText() {
+        $this->initReceipt();
         $this->parseSparReceipt();
         $this->showEditor = true;
     }
@@ -71,16 +72,16 @@ class Upload extends Component
         $nextIsDate = false;
         for ($i = $firstLineAfterItems; $i < count($lines); $i++) {
             if ($nextIsDate) {
-                $this->receipt['date'] = substr($lines[$i], strpos($lines[$i], ': ')+2);
+                $this->receipt['date'] = $lines[$i];
                 $nextIsDate = false;
             }
-            if (strpos($lines[$i], 'BANKKARTYA') !== false || strpos($lines[$i], 'ÖSSZESEN:') !== false) {
+            if (strpos($lines[$i], 'BANKKARTYA') !== false || strpos($lines[$i], 'ÖSSZESEN') !== false) {
                 $firstSpace = strpos($lines[$i], ' ');
                 $lastSpace = strrpos($lines[$i], ' ');
                 $this->receipt['total'] = substr($lines[$i], $firstSpace, $lastSpace-$firstSpace);
             }
-            if (strpos($lines[$i], 'NYUGTASZAM:') !== false) {
-                $this->receipt['id'] = substr($lines[$i], strpos($lines[$i], ': ')+2);
+            if (strpos($lines[$i], 'NYUGTASZAM') !== false) {
+                $this->receipt['id'] = substr($lines[$i], strpos($lines[$i], ' ')+2);
                 $nextIsDate = true;
             }
         }
@@ -114,5 +115,17 @@ class Upload extends Component
     {
         $ocr = app()->make(OcrAbstract::class);
         $this->parsedText = $ocr->scan(public_path('storage/recipes/'.$fileName));
+    }
+
+    private function initReceipt() {
+        $this->receipt = [
+            'id' => '',
+            'taxNumber' => '',
+            'address' => '',
+            'name' => '',
+            'date' => '',
+            'total' => '',
+            'items' => [],
+        ];
     }
 }
