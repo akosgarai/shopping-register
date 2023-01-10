@@ -92,16 +92,29 @@ class SparParserService
     {
         // The lines containing the items are following the next pattern:
         // a prefix (3 character) followed by a space. The next characters are the name of the item, followed by a space and the price.
-        // Start with the 7.th line. If we found the first line that does not match the pattern, set the itemParsing flag to true.
+        // If we found the first line that does not match the pattern, set the itemParsing flag to true.
         // The items are finished, when the itemParsing flag is true and the next line does not match the pattern.
         $itemParsing = false;
         $item = [];
         for ($i = $from; $i < count($lines); $i++) {
-            if (preg_match('/^[A-Z0-9]{3} /', $lines[$i])) {
+            if (preg_match('/^[A-Z0-9]{1,3} /', $lines[$i])) {
                 $itemParsing = true;
                 $lastSpaceIndex = strrpos($lines[$i], ' ');
-                $item['name'] = substr($lines[$i], 4, $lastSpaceIndex-4);
-                $item['price'] = substr($lines[$i], $lastSpaceIndex+1);
+                $priceCandidate = trim(substr($lines[$i], $lastSpaceIndex+1));
+                // replace every not digit character with empty string
+                $priceCandidate = preg_replace('/[^0-9]/', '', $priceCandidate);
+                if (is_numeric($priceCandidate)) {
+                    $item['price'] = $priceCandidate;
+                    $item['name'] = trim(substr($lines[$i], 4, $lastSpaceIndex-4));
+                } else {
+                    $item['name'] = trim(substr($lines[$i], 4));
+                    // find the next not empty line
+                    while (empty(trim($lines[$i+1]))) {
+                        $i++;
+                    }
+                    $item['price'] = trim(substr($lines[$i+1], strrpos($lines[$i+1], ' ')+1));
+                    $i++;
+                }
                 $this->receipt['items'][] = $item;
             } else {
                 if ($itemParsing) {
