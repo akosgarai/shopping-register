@@ -82,7 +82,7 @@
                 resizeEditor();
             });
         });
-        document.addEventListener('editor.cancel.crop', function (e) {
+        document.addEventListener('editor.cancel', function (e) {
             instance.stopDrawingMode();
         });
         document.addEventListener('editor.complete', function (e) {
@@ -91,6 +91,13 @@
             // Hide the editor with triggering a click event on the editor accordion item
             document.querySelector('#headingFixData button').click();
             Livewire.emit('edit.finished', imageFile, instance.toDataURL());
+        });
+        document.addEventListener('editor.filter', function (e) {
+            if (e.detail.value) {
+                instance.applyFilter(e.detail.filter, null);
+            } else {
+                instance.removeFilter(e.detail.filter);
+            }
         });
     });
 </script>
