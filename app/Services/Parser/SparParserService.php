@@ -97,7 +97,7 @@ class SparParserService
         $itemParsing = false;
         $item = [];
         for ($i = $from; $i < count($lines); $i++) {
-            if (preg_match('/^[A-Z]{3} /', $lines[$i])) {
+            if (preg_match('/^[A-Z0-9]{3} /', $lines[$i])) {
                 $itemParsing = true;
                 $lastSpaceIndex = strrpos($lines[$i], ' ');
                 $item['name'] = substr($lines[$i], 4, $lastSpaceIndex-4);
