@@ -16,8 +16,16 @@ class Address extends Model
     /**
      * Get the companies that are located on this address.
      */
-    public function company()
+    public function companies()
     {
         return $this->belongsTo(Company::class);
+    }
+
+    /**
+     * Get the shops that are located on this address.
+     */
+    public function shops()
+    {
+        return $this->belongsTo(Shop::class);
     }
 }

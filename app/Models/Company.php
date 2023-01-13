@@ -24,4 +24,12 @@ class Company extends Model
     {
         return $this->hasOne(Address::class);
     }
+
+    /**
+     * Get the shops of this company.
+     */
+    public function shops()
+    {
+        return $this->hasMany(Shop::class);
+    }
 }
