@@ -12,4 +12,12 @@ class Address extends Model
     protected $fillable = [
         'raw',
     ];
+
+    /**
+     * Get the companies that are located on this address.
+     */
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
 }
