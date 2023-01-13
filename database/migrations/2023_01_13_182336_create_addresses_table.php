@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('addresses', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->string('raw');
+            $table->string('raw')->nullable(false)->unique();
         });
     }
 
