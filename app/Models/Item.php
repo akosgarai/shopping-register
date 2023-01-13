@@ -12,4 +12,12 @@ class Item extends Model
     protected $fillable = [
         'name',
     ];
+
+    /**
+     * Get the basket items of this item.
+     */
+    public function basketItems()
+    {
+        return $this->hasMany(BasketItem::class);
+    }
 }
