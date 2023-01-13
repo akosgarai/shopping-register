@@ -29,4 +29,12 @@ class Shop extends Model
     {
         return $this->hasOne(Company::class);
     }
+
+    /**
+     * Get the baskets of this shop.
+     */
+    public function baskets()
+    {
+        return $this->hasMany(Basket::class);
+    }
 }
