@@ -16,11 +16,12 @@ return new class extends Migration
         Schema::create('baskets', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->foreignId('shop_id')->constrained();
-            $table->foreignId('user_id')->constrained();
-            $table->dateTime('date');
-            $table->decimal('total', 8, 2);
-            $table->string('receipt_id');
+            $table->foreignId('shop_id')->constrained()->nullable(false);
+            $table->foreignId('user_id')->constrained()->nullable(false);
+            $table->dateTime('date')->nullable(false);
+            $table->decimal('total', 8, 2)->nullable(false);
+            $table->string('receipt_id')->nullable(false);
+            $table->string('receipt_url')->nullable();
         });
     }
 
