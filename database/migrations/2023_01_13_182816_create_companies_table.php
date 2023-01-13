@@ -16,9 +16,9 @@ return new class extends Migration
         Schema::create('companies', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->string('name');
-            $table->char('tax_number', 11);
-            $table->foreignId('address_id')->constrained();
+            $table->string('name')->nullable(false);
+            $table->char('tax_number', 11)->nullable(false)->unique();
+            $table->foreignId('address_id')->constrained()->nullable(false);
         });
     }
 
