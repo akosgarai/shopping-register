@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire\Recipe;
+namespace App\Http\Livewire\Receipt;
 
 use Alimranahmed\LaraOCR\Services\OcrAbstract;
 use Illuminate\Support\Facades\Storage;
@@ -30,7 +30,7 @@ class Upload extends Component
 
     public function render()
     {
-        return view('livewire.recipe.upload');
+        return view('livewire.receipt.upload');
     }
 
     public function storeEditedImage($filepath, $imageData)
@@ -40,8 +40,8 @@ class Upload extends Component
         $image = str_replace(' ', '+', $image);
 
         $fileName = basename($filepath);
-        $result = Storage::disk('public')->put('recipes/'.$fileName, base64_decode($image));
-        $this->uploadedImageUrl = Storage::disk('public')->url('recipes/'.$fileName);
+        $result = Storage::disk('public')->put('receipts/'.$fileName, base64_decode($image));
+        $this->uploadedImageUrl = Storage::disk('public')->url('receipts/'.$fileName);
         // Delete the temporary file
         $this->parsedText = $filepath;
         Storage::disk('public')->delete('tmp/'.$fileName);
@@ -58,7 +58,7 @@ class Upload extends Component
     private function extractText($fileName)
     {
         $ocr = app()->make(OcrAbstract::class);
-        $this->parsedText = $ocr->scan(public_path('storage/recipes/'.$fileName));
+        $this->parsedText = $ocr->scan(public_path('storage/receipts/'.$fileName));
     }
 
     private function initReceipt() {

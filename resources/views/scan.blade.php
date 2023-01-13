@@ -37,7 +37,7 @@
                 </h2>
                 <div id="collapseFixData" class="accordion-collapse collapse" aria-labelledby="headingFixData" data-bs-parent="#imageAccordion">
                     <div class="accordion-body">
-                        <livewire:recipe.upload />
+                        <livewire:receipt.upload />
                     </div>
                 </div>
             </div>
