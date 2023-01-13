@@ -16,9 +16,9 @@ return new class extends Migration
         Schema::create('shops', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->string('name');
-            $table->foreignId('address_id')->constrained();
-            $table->foreignId('company_id')->constrained();
+            $table->string('name')->nullable(false);
+            $table->foreignId('address_id')->constrained()->nullable(false);
+            $table->foreignId('company_id')->constrained()->nullable(false);
         });
     }
 
