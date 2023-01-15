@@ -15,8 +15,10 @@ class SparParserService
     private $receipt = [
         'id' => '',
         'taxNumber' => '',
-        'address' => '',
-        'name' => '',
+        'marketAddress' => '',
+        'marketName' => '',
+        'companyAddress' => '',
+        'companyName' => '',
         'date' => '',
         'total' => '',
         'items' => [],
@@ -38,7 +40,10 @@ class SparParserService
         $this->receipt = [
             'id' => '',
             'taxNumber' => '',
-            'address' => '',
+            'marketAddress' => '',
+            'marketName' => '',
+            'companyAddress' => '',
+            'companyName' => '',
             'name' => '',
             'date' => '',
             'total' => '',
@@ -51,16 +56,23 @@ class SparParserService
         // Extract the receipt parameters
         $lines = explode("\n", $this->rawText);
         // the first line is the name of the store
-        $this->receipt['name'] = trim($lines[0]);
+        $this->receipt['companyName'] = trim($lines[0]);
         // Everything before the line that starts with the MARKET_NAME_PATTERN is the address
-        $address = '';
+        $companyAddress = '';
         $marketNameLine = $this->getLineIndexWithLowestLevenshteinDistance($lines, self::MARKET_NAME_PATTERN);
+        $this->receipt['marketName'] = trim($lines[$marketNameLine]);
         for ($index = 1; $index < $marketNameLine; $index++) {
-            $address .= $lines[$index] . ' ';
+            $companyAddress .= $lines[$index] . ' ';
         }
-        $this->receipt['address'] = trim($address);
+        $this->receipt['companyAddress'] = trim($companyAddress);
         $taxNumberLine = $this->getLineIndexWithLowestLevenshteinDistance($lines, self::TAX_NUMBER_PATTERN);
         $this->receipt['taxNumber'] = trim(substr($lines[$taxNumberLine], strpos($lines[$taxNumberLine], ' ')+1));
+        // The market address are in the lines between the MARKET_NAME_PATTERN and the TAX_NUMBER_PATTERN
+        $marketAddress = '';
+        for ($index = $marketNameLine + 1; $index < $taxNumberLine; $index++) {
+            $marketAddress .= $lines[$index] . ' ';
+        }
+        $this->receipt['marketAddress'] = trim($marketAddress);
         $firstLineAfterItems = $this->parseSparItemLines($lines, 7);
         // The total price could be extracted from the line that starts with 'BANKKARTYA' or 'ÖSSZESEN:'
         $totalLineIndex = $this->getLineIndexWithLowestLevenshteinDistance($lines, self::TOTAL_PATTERN, $firstLineAfterItems);

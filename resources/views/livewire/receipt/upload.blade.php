@@ -14,16 +14,24 @@
     @if ($showEditor)
         <div class="col-12">
             <div class="mb-3">
-                <label for="receiptName" class="form-label">{{ __('Name') }}</label>
-                <input type="text" class="form-control" wire:model="receipt.name" id="receiptName">
+                <label for="receiptName" class="form-label">{{ __('Company name') }}</label>
+                <input type="text" class="form-control" wire:model="receipt.companyName" id="receiptName">
             </div>
             <div class="mb-3">
-                <label for="receiptAddress" class="form-label">{{ __('Address') }}</label>
-                <input type="text" class="form-control" wire:model="receipt.address" id="receiptAddress">
+                <label for="receiptAddress" class="form-label">{{ __('Company address') }}</label>
+                <input type="text" class="form-control" wire:model="receipt.companyAddress" id="receiptAddress">
             </div>
             <div class="mb-3">
                 <label for="receiptTaxNumber" class="form-label">{{ __('Tax number') }}</label>
                 <input type="text" class="form-control" wire:model="receipt.taxNumber" id="receiptTaxNumber">
+            </div>
+            <div class="mb-3">
+                <label for="receiptName" class="form-label">{{ __('Market name') }}</label>
+                <input type="text" class="form-control" wire:model="receipt.marketName" id="receiptName">
+            </div>
+            <div class="mb-3">
+                <label for="receiptAddress" class="form-label">{{ __('Market address') }}</label>
+                <input type="text" class="form-control" wire:model="receipt.marketAddress" id="receiptAddress">
             </div>
             <!-- loop over receipt.items -->
             @foreach ($receipt['items'] as $index => $item)
