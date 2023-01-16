@@ -120,6 +120,7 @@ class Upload extends Component
                 ]);
             }
         }
+        return redirect()->route('receipts.view', [ 'id' => $basket->id ]);
     }
 
     private function extractText($fileName)
