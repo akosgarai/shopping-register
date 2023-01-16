@@ -20,14 +20,14 @@ class Shop extends Model
      */
     public function address()
     {
-        return $this->hasOne(Address::class);
+        return $this->belongsTo(Address::class);
     }
     /**
      * Get the company of this shop.
      */
     public function company()
     {
-        return $this->hasOne(Company::class);
+        return $this->belongsTo(Company::class);
     }
 
     /**

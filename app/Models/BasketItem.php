@@ -30,6 +30,6 @@ class BasketItem extends Model
      */
     public function item()
     {
-        return $this->hasOne(Item::class);
+        return $this->belongsTo(Item::class);
     }
 }
