@@ -23,7 +23,7 @@ class Basket extends Model
      */
     public function user()
     {
-        return $this->hasOne(User::class);
+        return $this->belongsTo(User::class);
     }
 
     /**
@@ -31,7 +31,7 @@ class Basket extends Model
      */
     public function shop()
     {
-        return $this->hasOne(Shop::class);
+        return $this->belongsTo(Shop::class);
     }
 
     /**
