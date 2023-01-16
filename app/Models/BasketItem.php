@@ -9,6 +9,8 @@ class BasketItem extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     protected $fillable = [
         'basket_id',
         'item_id',
