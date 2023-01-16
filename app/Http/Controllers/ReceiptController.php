@@ -28,4 +28,12 @@ class ReceiptController extends Controller
         $baskets = Basket::where('user_id', auth()->user()->id)->get();
         return view('receipts', ['baskets' => $baskets]);
     }
+    /**
+     * Show the details of the given receipt.
+     */
+    public function view($id)
+    {
+        $basket = Basket::where('id', '=', $id)->where('user_id', auth()->user()->id)->first();
+        return view('receipt', ['basket' => $basket]);
+    }
 }
