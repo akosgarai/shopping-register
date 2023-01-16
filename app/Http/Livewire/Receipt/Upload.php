@@ -105,6 +105,7 @@ class Upload extends Component
             'total' => $this->receipt['total'],
             'receipt_id' => $this->receipt['id'],
             'user_id' => auth()->user()->id,
+            'receipt_url' => $this->uploadedImageUrl,
         ]);
         // If we have items, handle them
         // then create the basket items.

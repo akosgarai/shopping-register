@@ -30,4 +30,5 @@
             <div>{{ $basket->date }}</div>
         </div>
     </div>
+    <img src="{{ $basket->receipt_url }}" class="img-fluid" />
 </div>
