@@ -7,6 +7,7 @@
                 <th scope="col">Address</th>
                 <th scope="col">Created</th>
                 <th scope="col">Updated</th>
+                <th scope="col"></th>
             </tr>
         </thead>
         <tbody>
@@ -16,6 +17,9 @@
                 <td>{{ $address->raw }}</td>
                 <td>{{ $address->created_at }}</td>
                 <td>{{ $address->updated_at }}</td>
+                <td>
+                    <a class="btn btn-primary" href="{{ route('address', ['action' => 'update', 'id' => $address->id]) }}" role="button">{{ __('Edit') }}</a>
+                </td>
             </tr>
             @endforeach
         </tbody>
