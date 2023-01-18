@@ -66,6 +66,9 @@ Stores the items that were in a given basket
 	- company?id=$id&action=update - edit
 	- company?a=new - add new
 - Shops
+	- shop - list
+	- shop?id=$id&action=update - edit
+	- shop?a=new - add new
 - Items
 	- item - list
 	- item?id=$id&action=edit - edit
