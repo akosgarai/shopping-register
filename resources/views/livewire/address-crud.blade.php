@@ -18,7 +18,10 @@
                 <td>{{ $address->created_at }}</td>
                 <td>{{ $address->updated_at }}</td>
                 <td>
-                    <a class="btn btn-primary" href="{{ route('address', ['action' => 'update', 'id' => $address->id]) }}" role="button">{{ __('Edit') }}</a>
+                    <button class="btn btn-primary mb-3" type="button"
+                        data-bs-toggle="offcanvas" data-bs-target="#updateAddress"
+                        aria-controls="updateAddress" wire:click="loadAddress({{ $address->id }})">{{ __('Edit') }}
+                    </button>
                 </td>
             </tr>
             @endforeach

@@ -22,13 +22,21 @@ class AddressCrud extends Component
 
     public function mount()
     {
-        $this->addressId = request()->query('id', '');
-        if ($this->addressId != '') {
-            $address = Address::find($this->addressId);
-            $this->addressRaw = $address->raw;
-            $this->createdAt = $address->created_at;
-            $this->updatedAt = $address->updated_at;
+        $this->action = request()->query('action', '');
+        $id = request()->query('id', '');
+        if ($id != '') {
+            $this->loadAddress($id);
         }
+    }
+
+    public function loadAddress($id)
+    {
+        $this->addressId = $id;
+        $this->action = 'update';
+        $address = Address::find($this->addressId);
+        $this->addressRaw = $address->raw;
+        $this->createdAt = $address->created_at;
+        $this->updatedAt = $address->updated_at;
     }
 
     public function render()
