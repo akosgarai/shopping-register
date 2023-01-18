@@ -59,10 +59,12 @@ Stores the items that were in a given basket
 ## Need to be able to add/view/edit manually:
 - Addresses
 	- address - list
-	- address?id=$id - view
 	- address?id=$id&action=edit - edit
 	- address?a=new - add new
 - Companies
 - Shops
 - Items
+	- item - list
+	- item?id=$id&action=edit - edit
+	- item?a=new - add new
 - Baskets (with optional items)

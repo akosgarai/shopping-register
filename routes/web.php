@@ -27,4 +27,5 @@ Route::get('/receipt/{id}', [App\Http\Controllers\ReceiptController::class, 'vie
 // the following routes are behind auth middleware
 Route::middleware(['auth'])->group(function () {
     Route::get('/address', App\Http\Livewire\AddressCrud::class)->name('address');
+    Route::get('/item', App\Http\Livewire\ItemCrud::class)->name('item');
 });
