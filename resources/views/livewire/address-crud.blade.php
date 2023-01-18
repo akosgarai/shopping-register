@@ -5,6 +5,8 @@
             <tr class="table-dark">
                 <th scope="col">#</th>
                 <th scope="col">Address</th>
+                <th scope="col">Created</th>
+                <th scope="col">Updated</th>
             </tr>
         </thead>
         <tbody>
@@ -12,6 +14,8 @@
             <tr>
                 <th scope="row">{{ $address->id }}</th>
                 <td>{{ $address->raw }}</td>
+                <td>{{ $address->created_at }}</td>
+                <td>{{ $address->updated_at }}</td>
             </tr>
             @endforeach
         </tbody>
