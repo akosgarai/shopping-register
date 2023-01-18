@@ -18,7 +18,7 @@ class Address extends Model
      */
     public function companies()
     {
-        return $this->belongsTo(Company::class);
+        return $this->hasMany(Company::class);
     }
 
     /**
@@ -26,6 +26,6 @@ class Address extends Model
      */
     public function shops()
     {
-        return $this->belongsTo(Shop::class);
+        return $this->hasMany(Shop::class);
     }
 }
