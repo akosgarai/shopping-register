@@ -18,10 +18,14 @@
                 <td>{{ $address->created_at }}</td>
                 <td>{{ $address->updated_at }}</td>
                 <td>
-                    <button class="btn btn-primary mb-3" type="button"
+                    <button class="btn btn-primary" type="button"
                         data-bs-toggle="offcanvas" data-bs-target="#updateAddress"
                         aria-controls="updateAddress" wire:click="loadAddress({{ $address->id }})">{{ __('Edit') }}
                     </button>
+                    @if($address->companies->count() == 0 && $address->shops->count() == 0)
+                        <button class="btn btn-danger" type="button" wire:click="deleteAddress({{ $address->id }})">{{ __('Delete') }}
+                        </button>
+                    @endif
                 </td>
             </tr>
             @endforeach

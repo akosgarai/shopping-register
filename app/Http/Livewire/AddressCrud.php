@@ -39,6 +39,14 @@ class AddressCrud extends Component
         $this->updatedAt = $address->updated_at;
     }
 
+    public function deleteAddress($id)
+    {
+        $address = Address::find($id);
+        if ($address != null && $address->companies->count() == 0 && $address->shops->count() == 0) {
+            $address->delete();
+        }
+    }
+
     public function render()
     {
         return view('livewire.address-crud', [ 'addresses' =>  Address::all() ])
