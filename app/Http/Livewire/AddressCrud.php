@@ -10,6 +10,8 @@ class AddressCrud extends Component
 {
     public $action = '';
 
+    public $addressRaw = '';
+
     protected $queryString = [
         'action' => ['except' => ''],
     ];
@@ -23,5 +25,16 @@ class AddressCrud extends Component
     public function setAction($action)
     {
         $this->action = $action;
+    }
+
+    public function saveNewAddress()
+    {
+        $validated = $this->validate([
+            'addressRaw' => 'required|string',
+        ]);
+        Address::create([
+            'raw' => $this->addressRaw,
+        ]);
+        $this->addressRaw = '';
     }
 }

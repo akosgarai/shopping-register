@@ -1,5 +1,5 @@
 <div class="container">
-    <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#newAddress" aria-controls="newAddress" wire:click="setAction('new')">{{ __('New Address') }}</button>
+    <button class="btn btn-primary mb-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#newAddress" aria-controls="newAddress" wire:click="setAction('new')">{{ __('New Address') }}</button>
     <table class="table table-striped table-hover">
         <thead>
             <tr class="table-dark">
@@ -29,8 +29,9 @@
             <div class="offcanvas-body">
                 <div class="mb-3">
                     <label for="addressRaw" class="form-label">{{ __('Address') }}</label>
-                    <input type="text" class="form-control" id="addressRaw">
+                    <input type="text" class="form-control" id="addressRaw" wire:model="addressRaw">
                 </div>
+                <button type="button" class="btn btn-primary" wire:click="saveNewAddress">{{ __('Save') }}</button>
             </div>
         </div>
     </div>
