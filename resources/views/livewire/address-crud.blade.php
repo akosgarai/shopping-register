@@ -35,4 +35,27 @@
             </div>
         </div>
     </div>
+    <div wire:ignore>
+        <div class="offcanvas offcanvas-start @if($action == 'update') show @endif" data-bs-scroll="true" tabindex="-1" id="updateAddress" aria-labelledby="updateAddressLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="updateAddressLabel">{{ __('Update Address') }}</h5>
+                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" wire:click="setAction('')"></button>
+            </div>
+            <div class="offcanvas-body">
+                <div class="mb-3">
+                    <label for="addressRaw" class="form-label">{{ __('Address') }}</label>
+                    <input type="text" class="form-control" id="addressRaw" wire:model="addressRaw">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">{{ __('Created') }}</label>
+                    <input type="text" class="form-control" wire:model="createdAt" readonly disabled>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">{{ __('Updated') }}</label>
+                    <input type="text" class="form-control" wire:model="updatedAt" readonly disabled>
+                </div>
+                <button type="button" class="btn btn-primary" wire:click="updateAddress">{{ __('Update') }}</button>
+            </div>
+        </div>
+    </div>
 </div>

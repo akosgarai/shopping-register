@@ -11,10 +11,25 @@ class AddressCrud extends Component
     public $action = '';
 
     public $addressRaw = '';
+    public $addressId = '';
+    public $createdAt = '';
+    public $updatedAt = '';
 
     protected $queryString = [
         'action' => ['except' => ''],
+        'addressId' => ['except' => '', 'as' => 'id'],
     ];
+
+    public function mount()
+    {
+        $this->addressId = request()->query('id', '');
+        if ($this->addressId != '') {
+            $address = Address::find($this->addressId);
+            $this->addressRaw = $address->raw;
+            $this->createdAt = $address->created_at;
+            $this->updatedAt = $address->updated_at;
+        }
+    }
 
     public function render()
     {
@@ -25,16 +40,33 @@ class AddressCrud extends Component
     public function setAction($action)
     {
         $this->action = $action;
+        if ($action != 'update') {
+            $this->addressId = '';
+            $this->addressRaw = '';
+            $this->createdAt = '';
+            $this->updatedAt = '';
+        }
     }
 
     public function saveNewAddress()
     {
-        $validated = $this->validate([
+        $this->validate([
             'addressRaw' => 'required|string',
         ]);
-        Address::create([
+        $address = Address::firstOrCreate([
             'raw' => $this->addressRaw,
         ]);
-        $this->addressRaw = '';
+        return redirect()->route('address', ['action' => 'update', 'id' => $address->id]);
+    }
+    public function updateAddress()
+    {
+        $this->validate([
+            'addressRaw' => 'required|string',
+            'addressId' => 'required|integer',
+        ]);
+        Address::where('id', $this->addressId)->update([
+            'raw' => $this->addressRaw,
+        ]);
+        return redirect()->route('address', ['action' => 'update', 'id' => $this->addressId]);
     }
 }
