@@ -28,4 +28,5 @@ Route::get('/receipt/{id}', [App\Http\Controllers\ReceiptController::class, 'vie
 Route::middleware(['auth'])->group(function () {
     Route::get('/address', App\Http\Livewire\AddressCrud::class)->name('address');
     Route::get('/item', App\Http\Livewire\ItemCrud::class)->name('item');
+    Route::get('/company', App\Http\Livewire\CompanyCrud::class)->name('company');
 });
