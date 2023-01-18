@@ -23,4 +23,8 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 Route::get('/scan', [App\Http\Controllers\ScanController::class, 'index'])->name('scan');
 Route::get('/receipts', [App\Http\Controllers\ReceiptController::class, 'index'])->name('receipts');
 Route::get('/receipt/{id}', [App\Http\Controllers\ReceiptController::class, 'view'])->name('receipts.view');
-Route::get('/address', App\Http\Livewire\AddressCrud::class)->name('address');
+
+// the following routes are behind auth middleware
+Route::middleware(['auth'])->group(function () {
+    Route::get('/address', App\Http\Livewire\AddressCrud::class)->name('address');
+});
