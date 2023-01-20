@@ -2,13 +2,12 @@
 
 namespace App\Http\Livewire;
 
-use Livewire\Component;
 use Livewire\WithFileUploads;
 
 use App\Models\Basket;
 use App\Models\Shop;
 
-class BasketCrud extends Component
+class BasketCrud extends OffcanvasPage
 {
     use WithFileUploads;
 
@@ -30,16 +29,7 @@ class BasketCrud extends Component
         'basketId' => ['except' => '', 'as' => 'id'],
     ];
 
-    public function mount()
-    {
-        $this->action = request()->query('action', '');
-        $id = request()->query('id', '');
-        if ($id != '') {
-            $this->loadBasket($id);
-        }
-    }
-
-    public function loadBasket($id)
+    public function load($id)
     {
         $this->basketId = $id;
         $this->action = 'update';
@@ -61,28 +51,20 @@ class BasketCrud extends Component
         ])->extends('layouts.app');
     }
 
-    public function setAction($action)
+    public function initialize()
     {
-        $this->action = $action;
-        if ($action != 'update') {
-            $this->basketId = '';
-            $this->basketShop = '';
-            $this->basketDate = '';
-            $this->basketTotal = '';
-            $this->basketReceiptId = '';
-            $this->basketImageURL = '';
-            $this->createdAt = '';
-            $this->updatedAt = '';
-            $this->basketImage = null;
-        }
+        $this->basketId = '';
+        $this->basketShop = '';
+        $this->basketDate = '';
+        $this->basketTotal = '';
+        $this->basketReceiptId = '';
+        $this->basketImageURL = '';
+        $this->basketImage = null;
+        $this->createdAt = '';
+        $this->updatedAt = '';
     }
 
-    public function offcanvasClose()
-    {
-        $this->setAction('');
-    }
-
-    public function saveNewBasket()
+    public function saveNew()
     {
         $this->validate([
             'basketShop' => 'required|integer|exists:shops,id',
@@ -106,7 +88,7 @@ class BasketCrud extends Component
         return redirect()->route('basket', ['action' => 'update', 'id' => $basket->id]);
     }
 
-    public function updateBasket()
+    public function update()
     {
         $this->validate([
             'basketId' => 'required|integer|exists:baskets,id',
@@ -129,7 +111,7 @@ class BasketCrud extends Component
         return redirect()->route('basket', ['action' => 'update', 'id' => $this->basketId]);
     }
 
-    public function deleteBasket($id)
+    public function delete($id)
     {
         $basket = Basket::find($id);
         if ($basket != null && $basket->basketItems->count() == 0) {

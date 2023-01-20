@@ -28,10 +28,10 @@
                 <td>
                     <button class="btn btn-primary mb-1" type="button"
                         data-bs-toggle="offcanvas" data-bs-target="#updateBasket"
-                        aria-controls="updateBasket" wire:click="loadBasket({{ $basket->id }})">{{ __('Edit') }}
+                        aria-controls="updateBasket" wire:click="load({{ $basket->id }})">{{ __('Edit') }}
                     </button>
                     @if($basket->basketItems->count() == 0)
-                        <button class="btn btn-danger mb-1" type="button" wire:click="deleteBasket({{ $basket->id }})">{{ __('Delete') }}
+                        <button class="btn btn-danger mb-1" type="button" wire:click="delete({{ $basket->id }})">{{ __('Delete') }}
                         </button>
                     @endif
                 </td>
@@ -46,7 +46,7 @@
                 <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" wire:click="setAction('')"></button>
             </div>
             <div class="offcanvas-body">
-                <form wire:submit.prevent="saveNewBasket">
+                <form wire:submit.prevent="saveNew">
                     <div class="mb-3">
                         <label for="basketShop" class="form-label">{{ __('Shop') }}</label>
                         <select class="form-select" wire:model="basketShop" id="basketShop">
@@ -84,7 +84,7 @@
                 <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" wire:click="setAction('')"></button>
             </div>
             <div class="offcanvas-body">
-                <form wire:submit.prevent="updateBasket">
+                <form wire:submit.prevent="update">
                     <div class="mb-3">
                         <label for="basketShop" class="form-label">{{ __('Shop') }}</label>
                         <select class="form-select" wire:model="basketShop" id="basketShop">
