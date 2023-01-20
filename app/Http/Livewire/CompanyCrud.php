@@ -2,40 +2,26 @@
 
 namespace App\Http\Livewire;
 
-use Livewire\Component;
+use Illuminate\Validation\ValidationException;
 
 use App\Models\Address;
 use App\Models\Company;
 
-class CompanyCrud extends Component
+class CompanyCrud extends OffcanvasPage
 {
-    public $action = '';
-    public $companyId = '';
+    public $templateName = 'livewire.company-crud';
+
     public $companyName = '';
     public $companyTaxNumber = '';
     public $companyAddress = '';
-    public $createdAt = '';
-    public $updatedAt = '';
 
-    protected $queryString = [
-        'action' => ['except' => ''],
-        'companyId' => ['except' => '', 'as' => 'id'],
-    ];
+    protected $listeners = ['offcanvasClose'];
 
-    public function mount()
+    public function load($id)
     {
-        $this->action = request()->query('action', '');
-        $id = request()->query('id', '');
-        if ($id != '') {
-            $this->loadCompany($id);
-        }
-    }
-
-    public function loadCompany($id)
-    {
-        $this->companyId = $id;
-        $this->action = 'update';
-        $company = Company::find($this->companyId);
+        $this->modelId = $id;
+        $this->action = parent::ACTION_UPDATE;
+        $company = Company::find($this->modelId);
         $this->companyName = $company->name;
         $this->companyTaxNumber = $company->tax_number;
         $this->companyAddress = $company->address_id;
@@ -43,32 +29,37 @@ class CompanyCrud extends Component
         $this->updatedAt = $company->updated_at;
     }
 
-    public function render()
+    public function getTemplateParameters()
     {
-        return view('livewire.company-crud', [ 'companies' =>  Company::all(), 'addresses' =>  Address::all() ])
-            ->extends('layouts.app');
+        return [
+            'companies' =>  Company::all(),
+            'addresses' =>  Address::all()
+        ];
     }
 
-    public function setAction($action)
+    public function initialize()
     {
-        $this->action = $action;
-        if ($action != 'update') {
-            $this->companyId = '';
+            $this->modelId = '';
             $this->companyName = '';
             $this->companyTaxNumber = '';
             $this->companyAddress = '';
             $this->createdAt = '';
             $this->updatedAt = '';
-        }
     }
 
-    public function saveNewCompany()
+    public function saveNew()
     {
-        $this->validate([
-            'companyName' => 'required|string',
-            'companyTaxNumber' => 'required|string|unique:companies,tax_number|digits:11',
-            'companyAddress' => 'required|string|exists:addresses,id',
-        ]);
+        try {
+            $this->validate([
+                'companyName' => 'required|string',
+                'companyTaxNumber' => 'required|string|unique:companies,tax_number|digits:11',
+                'companyAddress' => 'required|string|exists:addresses,id',
+            ]);
+        } catch (ValidationException $e) {
+            $messages = $e->validator->getMessageBag();
+            $this->dispatchBrowserEvent('model.validation', ['type' => 'new', 'model' => 'Company', 'messages' => $messages]);
+            return;
+        }
         $company = Company::firstOrCreate([
             'name' => $this->companyName,
             'tax_number' => $this->companyTaxNumber,
@@ -77,23 +68,29 @@ class CompanyCrud extends Component
         return redirect()->route('company', ['action' => 'update', 'id' => $company->id]);
     }
 
-    public function updateCompany()
+    public function update()
     {
-        $this->validate([
-            'companyId' => 'required|integer|exists:companies,id',
-            'companyName' => 'required|string',
-            'companyTaxNumber' => 'required|string|digits:11',
-            'companyAddress' => 'required|integer|exists:addresses,id',
-        ]);
-        Company::where('id', $this->companyId)->update([
+        try {
+            $this->validate([
+                'modelId' => 'required|integer|exists:companies,id',
+                'companyName' => 'required|string',
+                'companyTaxNumber' => 'required|string|digits:11',
+                'companyAddress' => 'required|integer|exists:addresses,id',
+            ]);
+        } catch (ValidationException $e) {
+            $messages = $e->validator->getMessageBag();
+            $this->dispatchBrowserEvent('model.validation', ['type' => 'update', 'model' => 'Company', 'messages' => $messages]);
+            return;
+        }
+        Company::where('id', $this->modelId)->update([
             'name' => $this->companyName,
             'tax_number' => $this->companyTaxNumber,
             'address_id' => $this->companyAddress,
         ]);
-        return redirect()->route('company', ['action' => 'update', 'id' => $this->companyId]);
+        return redirect()->route('company', ['action' => 'update', 'id' => $this->modelId]);
     }
 
-    public function deleteCompany($id)
+    public function delete($id)
     {
         $company = Company::find($id);
         if ($company != null && $company->shops->count() == 0) {

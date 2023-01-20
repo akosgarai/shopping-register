@@ -24,10 +24,10 @@
                 <td>
                     <button class="btn btn-primary mb-1" type="button"
                         data-bs-toggle="offcanvas" data-bs-target="#updateCompany"
-                        aria-controls="updateCompany" wire:click="loadCompany({{ $company->id }})">{{ __('Edit') }}
+                        aria-controls="updateCompany" wire:click="load({{ $company->id }})">{{ __('Edit') }}
                     </button>
                     @if($company->shops->count() == 0)
-                        <button class="btn btn-danger mb-1" type="button" wire:click="deleteCompany({{ $company->id }})">{{ __('Delete') }}
+                        <button class="btn btn-danger mb-1" type="button" wire:click="delete({{ $company->id }})">{{ __('Delete') }}
                         </button>
                     @endif
                 </td>
@@ -42,24 +42,10 @@
                 <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" wire:click="setAction('')"></button>
             </div>
             <div class="offcanvas-body">
-                <form wire:submit.prevent="saveNewCompany">
-                    <div class="mb-3">
-                        <label for="companyName" class="form-label">{{ __('Company Name') }}</label>
-                        <input type="text" class="form-control" id="companyName" wire:model="companyName">
-                    </div>
-                    <div class="mb-3">
-                        <label for="companyTaxNumber" class="form-label">{{ __('Tax Number') }}</label>
-                        <input type="text" class="form-control" id="companyTaxNumber" wire:model="companyTaxNumber">
-                    </div>
-                    <div class="mb-3">
-                        <label for="companyAddress" class="form-label">{{ __('Address') }}</label>
-                        <select class="form-select" wire:model="companyAddress" id="companyAddress">
-                            <option value="" @if($companyAddress == "") selected @endif>{{ __('Select Address') }}</option>
-                            @foreach ($addresses as $address)
-                                <option value="{{ $address['id'] }}" @if($companyAddress == $address['id']) selected @endif>{{ $address['raw'] }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                <form wire:submit.prevent="saveNew">
+                    @include('livewire.component.textinput', ['modelId' => 'companyName', 'formLabel' => __('Company Name')])
+                    @include('livewire.component.textinput', ['modelId' => 'companyTaxNumber', 'formLabel' => __('Tax Number')])
+                    @include('livewire.component.selectoraddress', ['modelId' => 'companyAddress', 'addresses' => $addresses, 'selected' => $companyAddress])
                     <button type="submit" class="btn btn-primary">{{ __('Save') }}</button>
                 </form>
             </div>
@@ -72,34 +58,16 @@
                 <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" wire:click="setAction('')"></button>
             </div>
             <div class="offcanvas-body">
-                <form wire:submit.prevent="updateCompany">
-                    <div class="mb-3">
-                        <label for="companyName" class="form-label">{{ __('Company Name') }}</label>
-                        <input type="text" class="form-control" id="companyName" wire:model="companyName">
-                    </div>
-                    <div class="mb-3">
-                        <label for="companyTaxNumber" class="form-label">{{ __('Tax Number') }}</label>
-                        <input type="text" class="form-control" id="companyTaxNumber" wire:model="companyTaxNumber">
-                    </div>
-                    <div class="mb-3">
-                        <label for="companyAddress" class="form-label">{{ __('Address') }}</label>
-                        <select class="form-select" wire:model="companyAddress" id="companyAddress">
-                            @foreach ($addresses as $address)
-                                <option value="{{ $address['id'] }}" @if($companyAddress == $address['id']) selected @endif>{{ $address['raw'] }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">{{ __('Created') }}</label>
-                        <input type="text" class="form-control" wire:model="createdAt" readonly disabled>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">{{ __('Updated') }}</label>
-                        <input type="text" class="form-control" wire:model="updatedAt" readonly disabled>
-                    </div>
+                <form wire:submit.prevent="update">
+                    @include('livewire.component.textinput', ['modelId' => 'companyName', 'formLabel' => __('Company Name')])
+                    @include('livewire.component.textinput', ['modelId' => 'companyTaxNumber', 'formLabel' => __('Tax Number')])
+                    @include('livewire.component.selectoraddress', ['modelId' => 'companyAddress', 'addresses' => $addresses, 'selected' => $companyAddress])
+                    @include('livewire.component.textinput', ['modelId' => 'createdAt', 'formLabel' => __('Created'), 'readonly' => true])
+                    @include('livewire.component.textinput', ['modelId' => 'updatedAt', 'formLabel' => __('Updated'), 'readonly' => true])
                     <button type="submit" class="btn btn-primary">{{ __('Update') }}</button>
                 </form>
             </div>
         </div>
     </div>
+    @include('livewire.component.offcanvasscipts')
 </div>
