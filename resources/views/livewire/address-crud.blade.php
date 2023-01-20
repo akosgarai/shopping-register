@@ -20,10 +20,10 @@
                 <td>
                     <button class="btn btn-primary" type="button"
                         data-bs-toggle="offcanvas" data-bs-target="#updateAddress"
-                        aria-controls="updateAddress" wire:click="loadAddress({{ $address->id }})">{{ __('Edit') }}
+                        aria-controls="updateAddress" wire:click="load({{ $address->id }})">{{ __('Edit') }}
                     </button>
                     @if($address->companies->count() == 0 && $address->shops->count() == 0)
-                        <button class="btn btn-danger" type="button" wire:click="deleteAddress({{ $address->id }})">{{ __('Delete') }}
+                        <button class="btn btn-danger" type="button" wire:click="delete({{ $address->id }})">{{ __('Delete') }}
                         </button>
                     @endif
                 </td>
@@ -42,7 +42,7 @@
                     <label for="addressRaw" class="form-label">{{ __('Address') }}</label>
                     <input type="text" class="form-control" id="addressRaw" wire:model="addressRaw">
                 </div>
-                <button type="button" class="btn btn-primary" wire:click="saveNewAddress">{{ __('Save') }}</button>
+                <button type="button" class="btn btn-primary" wire:click="saveNew">{{ __('Save') }}</button>
             </div>
         </div>
     </div>
@@ -65,7 +65,7 @@
                     <label class="form-label">{{ __('Updated') }}</label>
                     <input type="text" class="form-control" wire:model="updatedAt" readonly disabled>
                 </div>
-                <button type="button" class="btn btn-primary" wire:click="updateAddress">{{ __('Update') }}</button>
+                <button type="button" class="btn btn-primary" wire:click="update">{{ __('Update') }}</button>
             </div>
         </div>
     </div>

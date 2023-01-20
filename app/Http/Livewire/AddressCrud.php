@@ -2,13 +2,11 @@
 
 namespace App\Http\Livewire;
 
-use Livewire\Component;
-
 use App\Models\Address;
 
-class AddressCrud extends Component
+class AddressCrud extends OffcanvasPage
 {
-    public $action = '';
+    public $templateName = 'livewire.address-crud';
 
     public $addressRaw = '';
     public $addressId = '';
@@ -20,16 +18,7 @@ class AddressCrud extends Component
         'addressId' => ['except' => '', 'as' => 'id'],
     ];
 
-    public function mount()
-    {
-        $this->action = request()->query('action', '');
-        $id = request()->query('id', '');
-        if ($id != '') {
-            $this->loadAddress($id);
-        }
-    }
-
-    public function loadAddress($id)
+    public function load($id)
     {
         $this->addressId = $id;
         $this->action = 'update';
@@ -39,7 +28,7 @@ class AddressCrud extends Component
         $this->updatedAt = $address->updated_at;
     }
 
-    public function deleteAddress($id)
+    public function delete($id)
     {
         $address = Address::find($id);
         if ($address != null && $address->companies->count() == 0 && $address->shops->count() == 0) {
@@ -47,24 +36,22 @@ class AddressCrud extends Component
         }
     }
 
-    public function render()
+    public function getTemplateParameters()
     {
-        return view('livewire.address-crud', [ 'addresses' =>  Address::all() ])
-            ->extends('layouts.app');
+        return [
+            'addresses' =>  Address::all()
+        ];
     }
 
-    public function setAction($action)
+    public function initialize()
     {
-        $this->action = $action;
-        if ($action != 'update') {
             $this->addressId = '';
             $this->addressRaw = '';
             $this->createdAt = '';
             $this->updatedAt = '';
-        }
     }
 
-    public function saveNewAddress()
+    public function saveNew()
     {
         $this->validate([
             'addressRaw' => 'required|string',
@@ -74,7 +61,7 @@ class AddressCrud extends Component
         ]);
         return redirect()->route('address', ['action' => 'update', 'id' => $address->id]);
     }
-    public function updateAddress()
+    public function update()
     {
         $this->validate([
             'addressRaw' => 'required|string',
