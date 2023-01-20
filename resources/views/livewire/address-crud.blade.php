@@ -38,7 +38,7 @@
                 <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" wire:click="setAction('')"></button>
             </div>
             <div class="offcanvas-body">
-                @include('livewire.component.textinput', ['modelId' => 'addressRaw', 'formLabel' => __('Address')])
+                @include('livewire.component.offcanvasform.textinput', ['modelId' => 'addressRaw', 'formLabel' => __('Address')])
                 <button type="button" class="btn btn-primary" wire:click="saveNew">{{ __('Save') }}</button>
             </div>
         </div>
@@ -50,9 +50,9 @@
                 <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" wire:click="setAction('')"></button>
             </div>
             <div class="offcanvas-body">
-                @include('livewire.component.textinput', ['modelId' => 'addressRaw', 'formLabel' => __('Address')])
-                @include('livewire.component.textinput', ['modelId' => 'createdAt', 'formLabel' => __('Created'), 'readonly' => true])
-                @include('livewire.component.textinput', ['modelId' => 'updatedAt', 'formLabel' => __('Updated'), 'readonly' => true])
+                @include('livewire.component.offcanvasform.textinput', ['modelId' => 'addressRaw', 'formLabel' => __('Address')])
+                @include('livewire.component.offcanvasform.textinput', ['modelId' => 'createdAt', 'formLabel' => __('Created'), 'readonly' => true])
+                @include('livewire.component.offcanvasform.textinput', ['modelId' => 'updatedAt', 'formLabel' => __('Updated'), 'readonly' => true])
                 <button type="button" class="btn btn-primary" wire:click="update">{{ __('Update') }}</button>
             </div>
         </div>

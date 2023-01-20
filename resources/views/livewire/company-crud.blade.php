@@ -43,9 +43,9 @@
             </div>
             <div class="offcanvas-body">
                 <form wire:submit.prevent="saveNew">
-                    @include('livewire.component.textinput', ['modelId' => 'companyName', 'formLabel' => __('Company Name')])
-                    @include('livewire.component.textinput', ['modelId' => 'companyTaxNumber', 'formLabel' => __('Tax Number')])
-                    @include('livewire.component.selectoraddress', ['modelId' => 'companyAddress', 'addresses' => $addresses, 'selected' => $companyAddress])
+                    @include('livewire.component.offcanvasform.textinput', ['modelId' => 'companyName', 'formLabel' => __('Company Name')])
+                    @include('livewire.component.offcanvasform.textinput', ['modelId' => 'companyTaxNumber', 'formLabel' => __('Tax Number')])
+                    @include('livewire.component.offcanvasform.selectoraddress', ['modelId' => 'companyAddress', 'addresses' => $addresses, 'selected' => $companyAddress])
                     <button type="submit" class="btn btn-primary">{{ __('Save') }}</button>
                 </form>
             </div>
@@ -59,11 +59,11 @@
             </div>
             <div class="offcanvas-body">
                 <form wire:submit.prevent="update">
-                    @include('livewire.component.textinput', ['modelId' => 'companyName', 'formLabel' => __('Company Name')])
-                    @include('livewire.component.textinput', ['modelId' => 'companyTaxNumber', 'formLabel' => __('Tax Number')])
-                    @include('livewire.component.selectoraddress', ['modelId' => 'companyAddress', 'addresses' => $addresses, 'selected' => $companyAddress])
-                    @include('livewire.component.textinput', ['modelId' => 'createdAt', 'formLabel' => __('Created'), 'readonly' => true])
-                    @include('livewire.component.textinput', ['modelId' => 'updatedAt', 'formLabel' => __('Updated'), 'readonly' => true])
+                    @include('livewire.component.offcanvasform.textinput', ['modelId' => 'companyName', 'formLabel' => __('Company Name')])
+                    @include('livewire.component.offcanvasform.textinput', ['modelId' => 'companyTaxNumber', 'formLabel' => __('Tax Number')])
+                    @include('livewire.component.offcanvasform.selectoraddress', ['modelId' => 'companyAddress', 'addresses' => $addresses, 'selected' => $companyAddress])
+                    @include('livewire.component.offcanvasform.textinput', ['modelId' => 'createdAt', 'formLabel' => __('Created'), 'readonly' => true])
+                    @include('livewire.component.offcanvasform.textinput', ['modelId' => 'updatedAt', 'formLabel' => __('Updated'), 'readonly' => true])
                     <button type="submit" class="btn btn-primary">{{ __('Update') }}</button>
                 </form>
             </div>
