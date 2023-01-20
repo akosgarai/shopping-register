@@ -10,6 +10,8 @@ class AddressCrud extends OffcanvasPage
 
     public $addressRaw = '';
 
+    protected $listeners = ['offcanvasClose'];
+
     public function load($id)
     {
         $this->modelId = $id;
