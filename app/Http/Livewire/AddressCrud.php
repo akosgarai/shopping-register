@@ -65,10 +65,16 @@ class AddressCrud extends OffcanvasPage
     }
     public function update()
     {
-        $this->validate([
-            'addressRaw' => 'required|string',
-            'modelId' => 'required|integer',
-        ]);
+        try {
+            $this->validate([
+                'addressRaw' => 'required|string',
+                'modelId' => 'required|integer',
+            ]);
+        } catch (ValidationException $e) {
+            $messages = $e->validator->getMessageBag();
+            $this->dispatchBrowserEvent('model.validation', ['type' => 'update', 'model' => 'Address', 'messages' => $messages]);
+            return;
+        }
         Address::where('id', $this->modelId)->update([
             'raw' => $this->addressRaw,
         ]);
