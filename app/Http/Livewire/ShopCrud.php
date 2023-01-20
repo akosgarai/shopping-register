@@ -2,41 +2,27 @@
 
 namespace App\Http\Livewire;
 
-use Livewire\Component;
+use Illuminate\Validation\ValidationException;
 
 use App\Models\Address;
 use App\Models\Company;
 use App\Models\Shop;
 
-class ShopCrud extends Component
+class ShopCrud extends OffcanvasPage
 {
-    public $action = '';
-    public $shopId = '';
+    public $templateName = 'livewire.shop-crud';
+
     public $shopName = '';
     public $shopAddress = '';
     public $shopCompany = '';
-    public $createdAt = '';
-    public $updatedAt = '';
 
-    protected $queryString = [
-        'action' => ['except' => ''],
-        'shopId' => ['except' => '', 'as' => 'id'],
-    ];
+    protected $listeners = ['offcanvasClose'];
 
-    public function mount()
+    public function load($id)
     {
-        $this->action = request()->query('action', '');
-        $id = request()->query('id', '');
-        if ($id != '') {
-            $this->loadShop($id);
-        }
-    }
-
-    public function loadShop($id)
-    {
-        $this->shopId = $id;
-        $this->action = 'update';
-        $shop = Shop::find($this->shopId);
+        $this->modelId = $id;
+        $this->action = parent::ACTION_UPDATE;
+        $shop = Shop::find($this->modelId);
         $this->shopName = $shop->name;
         $this->shopAddress = $shop->address_id;
         $this->shopCompany = $shop->company_id;
@@ -44,32 +30,38 @@ class ShopCrud extends Component
         $this->updatedAt = $shop->updated_at;
     }
 
-    public function render()
+    public function getTemplateParameters()
     {
-        return view('livewire.shop-crud', [ 'companies' =>  Company::all(), 'addresses' =>  Address::all(), 'shops' =>  Shop::all() ])
-            ->extends('layouts.app');
+        return [
+            'shops' =>  Shop::all(),
+            'addresses' =>  Address::all(),
+            'companies' =>  Company::all()
+        ];
     }
 
-    public function setAction($action)
+    public function initialize()
     {
-        $this->action = $action;
-        if ($action != 'update') {
-            $this->shopId = '';
+            $this->modelId = '';
             $this->shopName = '';
-            $this->shopCompany = '';
             $this->shopAddress = '';
+            $this->shopCompany = '';
             $this->createdAt = '';
             $this->updatedAt = '';
-        }
     }
 
-    public function saveNewShop()
+    public function saveNew()
     {
-        $this->validate([
-            'shopName' => 'required|string',
-            'shopCompany' => 'required|integer|exists:companies,id',
-            'shopAddress' => 'required|integer|exists:addresses,id',
-        ]);
+        try {
+            $this->validate([
+                'shopName' => 'required|string',
+                'shopCompany' => 'required|integer|exists:companies,id',
+                'shopAddress' => 'required|integer|exists:addresses,id',
+            ]);
+        } catch (ValidationException $e) {
+            $messages = $e->validator->getMessageBag();
+            $this->dispatchBrowserEvent('model.validation', ['type' => 'new', 'model' => 'Shop', 'messages' => $messages]);
+            return;
+        }
         $shop = Shop::firstOrCreate([
             'name' => $this->shopName,
             'address_id' => $this->shopAddress,
@@ -78,23 +70,29 @@ class ShopCrud extends Component
         return redirect()->route('shop', ['action' => 'update', 'id' => $shop->id]);
     }
 
-    public function updateShop()
+    public function update()
     {
-        $this->validate([
-            'shopId' => 'required|integer|exists:shops,id',
-            'shopName' => 'required|string',
-            'shopCompany' => 'required|integer|exists:companies,id',
-            'shopAddress' => 'required|integer|exists:addresses,id',
-        ]);
-        Shop::where('id', $this->shopId)->update([
+        try {
+            $this->validate([
+                'modelId' => 'required|integer|exists:shops,id',
+                'shopName' => 'required|string',
+                'shopCompany' => 'required|integer|exists:companies,id',
+                'shopAddress' => 'required|integer|exists:addresses,id',
+            ]);
+        } catch (ValidationException $e) {
+            $messages = $e->validator->getMessageBag();
+            $this->dispatchBrowserEvent('model.validation', ['type' => 'update', 'model' => 'Shop', 'messages' => $messages]);
+            return;
+        }
+        Shop::where('id', $this->modelId)->update([
             'name' => $this->shopName,
             'address_id' => $this->shopAddress,
             'company_id' => $this->shopCompany,
         ]);
-        return redirect()->route('shop', ['action' => 'update', 'id' => $this->shopId]);
+        return redirect()->route('shop', ['action' => 'update', 'id' => $this->modelId]);
     }
 
-    public function deleteShop($id)
+    public function delete($id)
     {
         $shop = Shop::find($id);
         if ($shop != null && $shop->baskets->count() == 0) {
