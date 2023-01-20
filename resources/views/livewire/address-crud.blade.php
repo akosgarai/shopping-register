@@ -41,6 +41,7 @@
                 <div class="mb-3">
                     <label for="addressRaw" class="form-label">{{ __('Address') }}</label>
                     <input type="text" class="form-control" id="addressRaw" wire:model="addressRaw">
+                    <span id="errors-addressRaw" class="text-danger" style="display: none;"></span>
                 </div>
                 <button type="button" class="btn btn-primary" wire:click="saveNew">{{ __('Save') }}</button>
             </div>
@@ -56,6 +57,7 @@
                 <div class="mb-3">
                     <label for="addressRaw" class="form-label">{{ __('Address') }}</label>
                     <input type="text" class="form-control" id="addressRaw" wire:model="addressRaw">
+                    <span id="errors-addressRaw" class="text-danger" style="display: none;"></span>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">{{ __('Created') }}</label>
@@ -69,4 +71,5 @@
             </div>
         </div>
     </div>
+    @include('livewire.component.offcanvasscipts')
 </div>

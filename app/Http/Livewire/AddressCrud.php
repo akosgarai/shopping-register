@@ -2,6 +2,8 @@
 
 namespace App\Http\Livewire;
 
+use Illuminate\Validation\ValidationException;
+
 use App\Models\Address;
 
 class AddressCrud extends OffcanvasPage
@@ -47,9 +49,15 @@ class AddressCrud extends OffcanvasPage
 
     public function saveNew()
     {
-        $this->validate([
-            'addressRaw' => 'required|string',
-        ]);
+        try {
+            $this->validate([
+                'addressRaw' => 'required|string',
+            ]);
+        } catch (ValidationException $e) {
+            $messages = $e->validator->getMessageBag();
+            $this->dispatchBrowserEvent('model.validation', ['type' => 'new', 'model' => 'Address', 'messages' => $messages]);
+            return;
+        }
         $address = Address::firstOrCreate([
             'raw' => $this->addressRaw,
         ]);
