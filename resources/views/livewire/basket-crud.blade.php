@@ -68,6 +68,10 @@
                         <label for="basketReceiptId" class="form-label">{{ __('Receipt ID') }}</label>
                         <input type="text" class="form-control" id="basketReceiptId" wire:model="basketReceiptId">
                     </div>
+                    <div class="mb-3">
+                        <label for="basketImage" class="form-label">{{ __('Receipt ID') }}</label>
+                        <input type="file" class="form-control" id="basketImage" wire:model="basketImage">
+                    </div>
                     <button type="submit" class="btn btn-primary">{{ __('Save') }}</button>
                 </form>
             </div>
@@ -110,9 +114,19 @@
                         <label class="form-label">{{ __('Updated') }}</label>
                         <input type="text" class="form-control" wire:model="updatedAt" readonly disabled>
                     </div>
-                    <button type="submit" class="btn btn-primary">{{ __('Update') }}</button>
+                    <button type="submit" class="btn btn-primary mb-3">{{ __('Update') }}</button>
                 </form>
+                @if($basketImageURL != "")
+                    <img src="{{ $basketImageURL }}" class="img-fluid" />
+                @endif
             </div>
         </div>
     </div>
+    <script>
+        document.querySelectorAll('.offcanvas').forEach((element) => {
+            element.addEventListener('hidden.bs.offcanvas', event => {
+                Livewire.emit('offcanvasClose');
+            });
+        });
+    </script>
 </div>
