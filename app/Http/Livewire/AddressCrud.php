@@ -9,20 +9,12 @@ class AddressCrud extends OffcanvasPage
     public $templateName = 'livewire.address-crud';
 
     public $addressRaw = '';
-    public $addressId = '';
-    public $createdAt = '';
-    public $updatedAt = '';
-
-    protected $queryString = [
-        'action' => ['except' => ''],
-        'addressId' => ['except' => '', 'as' => 'id'],
-    ];
 
     public function load($id)
     {
-        $this->addressId = $id;
-        $this->action = 'update';
-        $address = Address::find($this->addressId);
+        $this->modelId = $id;
+        $this->action = parent::ACTION_UPDATE;
+        $address = Address::find($this->modelId);
         $this->addressRaw = $address->raw;
         $this->createdAt = $address->created_at;
         $this->updatedAt = $address->updated_at;
@@ -45,7 +37,7 @@ class AddressCrud extends OffcanvasPage
 
     public function initialize()
     {
-            $this->addressId = '';
+            $this->modelId = '';
             $this->addressRaw = '';
             $this->createdAt = '';
             $this->updatedAt = '';
@@ -65,11 +57,11 @@ class AddressCrud extends OffcanvasPage
     {
         $this->validate([
             'addressRaw' => 'required|string',
-            'addressId' => 'required|integer',
+            'modelId' => 'required|integer',
         ]);
-        Address::where('id', $this->addressId)->update([
+        Address::where('id', $this->modelId)->update([
             'raw' => $this->addressRaw,
         ]);
-        return redirect()->route('address', ['action' => 'update', 'id' => $this->addressId]);
+        return redirect()->route('address', ['action' => 'update', 'id' => $this->modelId]);
     }
 }

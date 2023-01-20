@@ -15,6 +15,19 @@ abstract class OffcanvasPage extends Component
     // The name of the rendered view.
     public $templateName = '';
 
+    // The id of the entity to be updated.
+    public $modelId = '';
+
+    // the timestamps of the entity.
+    public $createdAt = '';
+    public $updatedAt = '';
+
+    // The query string parameters.
+    protected $queryString = [
+        'action' => ['except' => ''],
+        'modelId' => ['except' => '', 'as' => 'id'],
+    ];
+
     // It sets the action parameter to the value passed in
     // then calls the initialize() method.
     public function setAction($action)
