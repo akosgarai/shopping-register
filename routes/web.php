@@ -30,4 +30,5 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/item', App\Http\Livewire\ItemCrud::class)->name('item');
     Route::get('/company', App\Http\Livewire\CompanyCrud::class)->name('company');
     Route::get('/shop', App\Http\Livewire\ShopCrud::class)->name('shop');
+    Route::get('/basket', App\Http\Livewire\BasketCrud::class)->name('basket');
 });
