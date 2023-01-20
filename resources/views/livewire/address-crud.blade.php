@@ -4,9 +4,9 @@
         <thead>
             <tr class="table-dark">
                 <th scope="col">#</th>
-                <th scope="col">Address</th>
-                <th scope="col">Created</th>
-                <th scope="col">Updated</th>
+                <th scope="col">{{ __('Address') }}</th>
+                <th scope="col">{{ __('Created') }}</th>
+                <th scope="col">{{ __('Updated') }}</th>
                 <th scope="col"></th>
             </tr>
         </thead>
