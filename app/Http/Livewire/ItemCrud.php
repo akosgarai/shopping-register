@@ -2,83 +2,79 @@
 
 namespace App\Http\Livewire;
 
-use Livewire\Component;
+use Illuminate\Validation\ValidationException;
 
 use App\Models\Item;
 
-class ItemCrud extends Component
+class ItemCrud extends OffcanvasPage
 {
-    public $action = '';
-    public $itemId = '';
+    public $templateName = 'livewire.item-crud';
+
     public $itemName = '';
-    public $createdAt = '';
-    public $updatedAt = '';
 
-    protected $queryString = [
-        'action' => ['except' => ''],
-        'itemId' => ['except' => '', 'as' => 'id'],
-    ];
+    protected $listeners = ['offcanvasClose'];
 
-    public function mount()
+    public function load($id)
     {
-        $this->action = request()->query('action', '');
-        $id = request()->query('id', '');
-        if ($id != '') {
-            $this->loadItem($id);
-        }
-    }
-
-    public function loadItem($id)
-    {
-        $this->itemId = $id;
-        $this->action = 'update';
-        $item = Item::find($this->itemId);
+        $this->modelId = $id;
+        $this->action = parent::ACTION_UPDATE;
+        $item = Item::find($this->modelId);
         $this->itemName = $item->name;
         $this->createdAt = $item->created_at;
         $this->updatedAt = $item->updated_at;
     }
 
-    public function render()
+    public function getTemplateParameters()
     {
-        return view('livewire.item-crud', [ 'items' =>  Item::all() ])
-            ->extends('layouts.app');
+        return [
+            'items' =>  Item::all()
+        ];
     }
 
-    public function setAction($action)
+    public function initialize()
     {
-        $this->action = $action;
-        if ($action != 'update') {
-            $this->itemId = '';
+            $this->modelId = '';
             $this->itemName = '';
             $this->createdAt = '';
             $this->updatedAt = '';
-        }
     }
 
-    public function saveNewItem()
+    public function saveNew()
     {
-        $this->validate([
-            'itemName' => 'required|string',
-        ]);
+        try {
+            $this->validate([
+                'itemName' => 'required|string',
+            ]);
+        } catch (ValidationException $e) {
+            $messages = $e->validator->getMessageBag();
+            $this->dispatchBrowserEvent('model.validation', ['type' => 'new', 'model' => 'Item', 'messages' => $messages]);
+            return;
+        }
         $item = Item::firstOrCreate([
             'name' => $this->itemName,
         ]);
         return redirect()->route('item', ['action' => 'update', 'id' => $item->id]);
     }
 
-    public function updateItem()
+    public function update()
     {
-        $this->validate([
-            'itemName' => 'required|string',
-            'itemId' => 'required|integer',
-        ]);
-        Item::where('id', $this->itemId)->update([
+        try {
+            $this->validate([
+                'itemName' => 'required|string',
+                'itemId' => 'required|integer',
+            ]);
+        } catch (ValidationException $e) {
+            $messages = $e->validator->getMessageBag();
+            $this->dispatchBrowserEvent('model.validation', ['type' => 'update', 'model' => 'Item', 'messages' => $messages]);
+            return;
+        }
+        Item::where('id', $this->modelId)->update([
             'name' => $this->itemName,
         ]);
-        return redirect()->route('item', ['action' => 'update', 'id' => $this->itemId]);
+        return redirect()->route('item', ['action' => 'update', 'id' => $this->modelId]);
     }
 
-    public function deleteItem($id)
+    public function delete($id)
     {
         $item = Item::find($id);
         if ($item != null && $item->basketItems->count() == 0) {

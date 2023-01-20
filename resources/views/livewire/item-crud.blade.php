@@ -20,10 +20,10 @@
                 <td>
                     <button class="btn btn-primary" type="button"
                         data-bs-toggle="offcanvas" data-bs-target="#updateItem"
-                        aria-controls="updateItem" wire:click="loadItem({{ $item->id }})">{{ __('Edit') }}
+                        aria-controls="updateItem" wire:click="load({{ $item->id }})">{{ __('Edit') }}
                     </button>
                     @if($item->basketItems->count() == 0)
-                        <button class="btn btn-danger" type="button" wire:click="deleteItem({{ $item->id }})">{{ __('Delete') }}
+                        <button class="btn btn-danger" type="button" wire:click="delete({{ $item->id }})">{{ __('Delete') }}
                         </button>
                     @endif
                 </td>
@@ -38,11 +38,8 @@
                 <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" wire:click="setAction('')"></button>
             </div>
             <div class="offcanvas-body">
-                <div class="mb-3">
-                    <label for="itemName" class="form-label">{{ __('Item Name') }}</label>
-                    <input type="text" class="form-control" id="itemName" wire:model="itemName">
-                </div>
-                <button type="button" class="btn btn-primary" wire:click="saveNewItem">{{ __('Save') }}</button>
+                @include('livewire.component.textinput', ['modelId' => 'itemName', 'formLabel' => __('Item Name')])
+                <button type="button" class="btn btn-primary" wire:click="saveNew">{{ __('Save') }}</button>
             </div>
         </div>
     </div>
@@ -53,20 +50,12 @@
                 <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" wire:click="setAction('')"></button>
             </div>
             <div class="offcanvas-body">
-                <div class="mb-3">
-                    <label for="itemName" class="form-label">{{ __('Item Name') }}</label>
-                    <input type="text" class="form-control" id="itemName" wire:model="itemName">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">{{ __('Created') }}</label>
-                    <input type="text" class="form-control" wire:model="createdAt" readonly disabled>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">{{ __('Updated') }}</label>
-                    <input type="text" class="form-control" wire:model="updatedAt" readonly disabled>
-                </div>
-                <button type="button" class="btn btn-primary" wire:click="updateItem">{{ __('Update') }}</button>
+                @include('livewire.component.textinput', ['modelId' => 'itemName', 'formLabel' => __('Item Name')])
+                @include('livewire.component.textinput', ['modelId' => 'createdAt', 'formLabel' => __('Created'), 'readonly' => true])
+                @include('livewire.component.textinput', ['modelId' => 'updatedAt', 'formLabel' => __('Updated'), 'readonly' => true])
+                <button type="button" class="btn btn-primary" wire:click="update">{{ __('Update') }}</button>
             </div>
         </div>
     </div>
+    @include('livewire.component.offcanvasscipts')
 </div>
