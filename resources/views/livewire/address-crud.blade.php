@@ -38,11 +38,7 @@
                 <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" wire:click="setAction('')"></button>
             </div>
             <div class="offcanvas-body">
-                <div class="mb-3">
-                    <label for="addressRaw" class="form-label">{{ __('Address') }}</label>
-                    <input type="text" class="form-control" id="addressRaw" wire:model="addressRaw">
-                    <span id="errors-addressRaw" class="text-danger" style="display: none;"></span>
-                </div>
+                @include('livewire.component.textinput', ['modelId' => 'addressRaw', 'formLabel' => __('Address')])
                 <button type="button" class="btn btn-primary" wire:click="saveNew">{{ __('Save') }}</button>
             </div>
         </div>
@@ -54,19 +50,9 @@
                 <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" wire:click="setAction('')"></button>
             </div>
             <div class="offcanvas-body">
-                <div class="mb-3">
-                    <label for="addressRaw" class="form-label">{{ __('Address') }}</label>
-                    <input type="text" class="form-control" id="addressRaw" wire:model="addressRaw">
-                    <span id="errors-addressRaw" class="text-danger" style="display: none;"></span>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">{{ __('Created') }}</label>
-                    <input type="text" class="form-control" wire:model="createdAt" readonly disabled>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">{{ __('Updated') }}</label>
-                    <input type="text" class="form-control" wire:model="updatedAt" readonly disabled>
-                </div>
+                @include('livewire.component.textinput', ['modelId' => 'addressRaw', 'formLabel' => __('Address')])
+                @include('livewire.component.textinput', ['modelId' => 'createdAt', 'formLabel' => __('Created'), 'readonly' => true])
+                @include('livewire.component.textinput', ['modelId' => 'updatedAt', 'formLabel' => __('Updated'), 'readonly' => true])
                 <button type="button" class="btn btn-primary" wire:click="update">{{ __('Update') }}</button>
             </div>
         </div>
