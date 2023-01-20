@@ -11,6 +11,8 @@ class BasketCrud extends OffcanvasPage
 {
     use WithFileUploads;
 
+    public $templateName = 'livewire.basket-crud';
+
     public $action = '';
     public $basketId = '';
     public $basketShop = '';
@@ -43,12 +45,12 @@ class BasketCrud extends OffcanvasPage
         $this->updatedAt = $basket->updated_at;
     }
 
-    public function render()
+    public function getTemplateParameters()
     {
-        return view('livewire.basket-crud', [
+        return [
             'baskets' =>  Basket::where('user_id', auth()->user()->id)->get(),
             'shops' =>  Shop::all()
-        ])->extends('layouts.app');
+        ];
     }
 
     public function initialize()

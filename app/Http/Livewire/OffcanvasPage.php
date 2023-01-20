@@ -12,6 +12,9 @@ abstract class OffcanvasPage extends Component
     // If it is empty then no offcanvas is shown.
     public $action = '';
 
+    // The name of the rendered view.
+    public $templateName = '';
+
     // It sets the action parameter to the value passed in
     // then calls the initialize() method.
     public function setAction($action)
@@ -41,6 +44,13 @@ abstract class OffcanvasPage extends Component
         }
     }
 
+    // Render function. It extends the app layout and renders the template.
+    public function render()
+    {
+        return view($this->templateName, $this->getTemplateParameters())
+            ->extends('layouts.app');
+    }
+
     // This method is called when the action parameter is set to empty.
     abstract public function initialize();
 
@@ -55,4 +65,8 @@ abstract class OffcanvasPage extends Component
 
     // This method is called when a model needs to be loaded.
     abstract public function load($id);
+
+    // This method has to return the parameters that needs to be added to the
+    // rendered template.
+    abstract public function getTemplateParameters();
 }
