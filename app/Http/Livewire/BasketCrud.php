@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire;
 
+use Illuminate\Validation\ValidationException;
 use Livewire\WithFileUploads;
 
 use App\Models\Basket;
@@ -13,29 +14,20 @@ class BasketCrud extends OffcanvasPage
 
     public $templateName = 'livewire.basket-crud';
 
-    public $action = '';
-    public $basketId = '';
     public $basketShop = '';
     public $basketDate = '';
     public $basketTotal = '';
     public $basketReceiptId = '';
     public $basketImageURL = '';
     public $basketImage = null;
-    public $createdAt = '';
-    public $updatedAt = '';
 
     protected $listeners = ['offcanvasClose'];
 
-    protected $queryString = [
-        'action' => ['except' => ''],
-        'basketId' => ['except' => '', 'as' => 'id'],
-    ];
-
     public function load($id)
     {
-        $this->basketId = $id;
-        $this->action = 'update';
-        $basket = Basket::find($this->basketId);
+        $this->modelId = $id;
+        $this->action = parent::ACTION_UPDATE;
+        $basket = Basket::find($this->modelId);
         $this->basketShop = $basket->shop_id;
         $this->basketDate = $basket->date;
         $this->basketTotal = $basket->total;
@@ -68,13 +60,19 @@ class BasketCrud extends OffcanvasPage
 
     public function saveNew()
     {
-        $this->validate([
-            'basketShop' => 'required|integer|exists:shops,id',
-            'basketDate' => 'required|date',
-            'basketTotal' => 'required|numeric',
-            'basketReceiptId' => 'required|string',
-            'basketImage' => 'image',
-        ]);
+        try {
+            $this->validate([
+                'basketShop' => 'required|integer|exists:shops,id',
+                'basketDate' => 'required|date',
+                'basketTotal' => 'required|numeric',
+                'basketReceiptId' => 'required|string',
+                'basketImage' => 'nullable|image',
+            ]);
+        } catch (ValidationException $e) {
+            $messages = $e->validator->getMessageBag();
+            $this->dispatchBrowserEvent('model.validation', ['type' => 'new', 'model' => 'Basket', 'messages' => $messages]);
+            return;
+        }
         $receiptUrl = null;
         if ($this->basketImage) {
             $receiptUrl = '/storage/'.$this->basketImage->store('receipts', 'public');
@@ -92,17 +90,23 @@ class BasketCrud extends OffcanvasPage
 
     public function update()
     {
-        $this->validate([
-            'basketId' => 'required|integer|exists:baskets,id',
-            'basketShop' => 'required|integer|exists:shops,id',
-            'basketDate' => 'required|date',
-            'basketTotal' => 'required|numeric',
-            'basketReceiptId' => 'required|string',
-        ]);
+        try {
+            $this->validate([
+                'modelId' => 'required|integer|exists:baskets,id',
+                'basketShop' => 'required|integer|exists:shops,id',
+                'basketDate' => 'required|date',
+                'basketTotal' => 'required|numeric',
+                'basketReceiptId' => 'required|string',
+            ]);
+        } catch (ValidationException $e) {
+            $messages = $e->validator->getMessageBag();
+            $this->dispatchBrowserEvent('model.validation', ['type' => 'update', 'model' => 'Basket', 'messages' => $messages]);
+            return;
+        }
         if ($this->basketImage) {
             $this->basketImageURL = $this->basketImage->store('receipts', 'public');
         }
-        Basket::where('id', $this->basketId)->where('user_id', auth()->user()->id)->update([
+        Basket::where('id', $this->modelId)->where('user_id', auth()->user()->id)->update([
             'shop_id' => $this->basketShop,
             'date' => $this->basketDate,
             'total' => $this->basketTotal,

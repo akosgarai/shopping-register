@@ -47,27 +47,10 @@
             </div>
             <div class="offcanvas-body">
                 <form wire:submit.prevent="saveNew">
-                    <div class="mb-3">
-                        <label for="basketShop" class="form-label">{{ __('Shop') }}</label>
-                        <select class="form-select" wire:model="basketShop" id="basketShop">
-                            <option value="" @if($basketShop == "") selected @endif>{{ __('Select Shop') }}</option>
-                            @foreach ($shops as $shop)
-                                <option value="{{ $shop['id'] }}" @if($basketShop == $shop['id']) selected @endif>{{ $shop['name'] }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="basketDate" class="form-label">{{ __('Date') }}</label>
-                        <input type="datetime-local" class="form-control" id="basketDate" wire:model="basketDate">
-                    </div>
-                    <div class="mb-3">
-                        <label for="basketTotal" class="form-label">{{ __('Total') }}</label>
-                        <input type="number" class="form-control" id="basketTotal" step="0.01" wire:model="basketTotal">
-                    </div>
-                    <div class="mb-3">
-                        <label for="basketReceiptId" class="form-label">{{ __('Receipt ID') }}</label>
-                        <input type="text" class="form-control" id="basketReceiptId" wire:model="basketReceiptId">
-                    </div>
+                    @include('livewire.component.offcanvasform.selectorshop', ['modelId' => 'basketShop', 'shops' => $shops, 'selected' => $basketShop])
+                    @include('livewire.component.offcanvasform.datetimelocalinput', ['modelId' => 'basketDate', 'formLabel' => __('Date'), 'selected' => $basketShop])
+                    @include('livewire.component.offcanvasform.numberinputmoney', ['modelId' => 'basketTotal', 'formLabel' => __('Total')])
+                    @include('livewire.component.offcanvasform.textinput', ['modelId' => 'basketReceiptId', 'formLabel' => __('Receipt ID')])
                     <div class="mb-3">
                         <label for="basketImage" class="form-label">{{ __('Receipt ID') }}</label>
                         <input type="file" class="form-control" id="basketImage" wire:model="basketImage">
@@ -85,35 +68,12 @@
             </div>
             <div class="offcanvas-body">
                 <form wire:submit.prevent="update">
-                    <div class="mb-3">
-                        <label for="basketShop" class="form-label">{{ __('Shop') }}</label>
-                        <select class="form-select" wire:model="basketShop" id="basketShop">
-                            <option value="" @if($basketShop == "") selected @endif>{{ __('Select Shop') }}</option>
-                            @foreach ($shops as $shop)
-                                <option value="{{ $shop['id'] }}" @if($basketShop == $shop['id']) selected @endif>{{ $shop->name }}, {{ $shop->address->raw }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="basketDate" class="form-label">{{ __('Date') }}</label>
-                        <input type="datetime-local" class="form-control" id="basketDate" wire:model="basketDate">
-                    </div>
-                    <div class="mb-3">
-                        <label for="basketTotal" class="form-label">{{ __('Total') }}</label>
-                        <input type="number" class="form-control" id="basketTotal" step="0.01" wire:model="basketTotal">
-                    </div>
-                    <div class="mb-3">
-                        <label for="basketReceiptId" class="form-label">{{ __('Receipt ID') }}</label>
-                        <input type="text" class="form-control" id="basketReceiptId" wire:model="basketReceiptId">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">{{ __('Created') }}</label>
-                        <input type="text" class="form-control" wire:model="createdAt" readonly disabled>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">{{ __('Updated') }}</label>
-                        <input type="text" class="form-control" wire:model="updatedAt" readonly disabled>
-                    </div>
+                    @include('livewire.component.offcanvasform.selectorshop', ['modelId' => 'basketShop', 'shops' => $shops, 'selected' => $basketShop])
+                    @include('livewire.component.offcanvasform.datetimelocalinput', ['modelId' => 'basketDate', 'formLabel' => __('Date')])
+                    @include('livewire.component.offcanvasform.numberinputmoney', ['modelId' => 'basketTotal', 'formLabel' => __('Total')])
+                    @include('livewire.component.offcanvasform.textinput', ['modelId' => 'basketReceiptId', 'formLabel' => __('Receipt ID')])
+                    @include('livewire.component.offcanvasform.textinput', ['modelId' => 'createdAt', 'formLabel' => __('Created'), 'readonly' => true])
+                    @include('livewire.component.offcanvasform.textinput', ['modelId' => 'updatedAt', 'formLabel' => __('Updated'), 'readonly' => true])
                     <button type="submit" class="btn btn-primary mb-3">{{ __('Update') }}</button>
                 </form>
                 @if($basketImageURL != "")
@@ -122,5 +82,5 @@
             </div>
         </div>
     </div>
-    @include('livewire.component.offcanvasclose')
+    @include('livewire.component.offcanvasscipts')
 </div>
