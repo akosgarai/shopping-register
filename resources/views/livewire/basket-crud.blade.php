@@ -76,9 +76,7 @@
                     @include('livewire.component.offcanvasform.textinput', ['modelId' => 'updatedAt', 'formLabel' => __('Updated'), 'readonly' => true])
                     <button type="submit" class="btn btn-primary mb-3">{{ __('Update') }}</button>
                 </form>
-                @if($basketImageURL != "")
-                    <img src="{{ $basketImageURL }}" class="img-fluid" />
-                @endif
+                <img id="basketReceiptImage" src="{{ $basketImageURL }}" class="img-fluid" @if($basketImageURL == "") style="display: none;" @endif />
             </div>
         </div>
     </div>

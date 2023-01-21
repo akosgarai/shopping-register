@@ -20,4 +20,14 @@
             errorField.style.display = 'block';
         });
     });
+    window.addEventListener('basket-image', event => {
+        const url = event.detail.url;
+        const image = document.querySelector('#basketReceiptImage');
+        if (url) {
+            image.src = url;
+            image.style.display = 'block';
+        } else {
+            image.style.display = 'none';
+        }
+    });
 </script>
