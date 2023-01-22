@@ -49,8 +49,8 @@
                 <form wire:submit.prevent="saveNew">
                     @include('livewire.component.offcanvasform.selectorshop', ['modelId' => 'basketShop', 'shops' => $shops, 'selected' => $basketShop])
                     @include('livewire.component.offcanvasform.datetimelocalinput', ['modelId' => 'basketDate', 'formLabel' => __('Date'), 'selected' => $basketShop])
-                    @include('livewire.component.offcanvasform.numberinputmoney', ['modelId' => 'basketTotal', 'formLabel' => __('Total')])
                     @include('livewire.component.offcanvasform.textinput', ['modelId' => 'basketReceiptId', 'formLabel' => __('Receipt ID')])
+                    @include('livewire.component.offcanvasform.numberinputmoney', ['modelId' => 'basketTotal', 'formLabel' => __('Total')])
                     <div class="mb-3">
                         <label for="basketImage" class="form-label">{{ __('Receipt ID') }}</label>
                         <input type="file" class="form-control" id="basketImage" wire:model="basketImage">
@@ -70,8 +70,16 @@
                 <form wire:submit.prevent="update">
                     @include('livewire.component.offcanvasform.selectorshop', ['modelId' => 'basketShop', 'shops' => $shops, 'selected' => $basketShop])
                     @include('livewire.component.offcanvasform.datetimelocalinput', ['modelId' => 'basketDate', 'formLabel' => __('Date')])
-                    @include('livewire.component.offcanvasform.numberinputmoney', ['modelId' => 'basketTotal', 'formLabel' => __('Total')])
                     @include('livewire.component.offcanvasform.textinput', ['modelId' => 'basketReceiptId', 'formLabel' => __('Receipt ID')])
+                    @foreach($basketItems as $key => $basketItem)
+                        @include('livewire.component.offcanvasform.basketitem', [
+                            'itemModelId' => 'basketItems.' . $key. '.item_id',
+                            'items' => $items,
+                            'selected' => $basketItem['item_id'],
+                            'priceModelId' => 'basketItems.' . $key . '.price',
+                        ])
+                    @endforeach
+                    @include('livewire.component.offcanvasform.numberinputmoney', ['modelId' => 'basketTotal', 'formLabel' => __('Total')])
                     @include('livewire.component.offcanvasform.textinput', ['modelId' => 'createdAt', 'formLabel' => __('Created'), 'readonly' => true])
                     @include('livewire.component.offcanvasform.textinput', ['modelId' => 'updatedAt', 'formLabel' => __('Updated'), 'readonly' => true])
                     <button type="submit" class="btn btn-primary mb-3">{{ __('Update') }}</button>

@@ -6,6 +6,7 @@ use Illuminate\Validation\ValidationException;
 use Livewire\WithFileUploads;
 
 use App\Models\Basket;
+use App\Models\Item;
 use App\Models\Shop;
 
 class BasketCrud extends OffcanvasPage
@@ -20,6 +21,7 @@ class BasketCrud extends OffcanvasPage
     public $basketReceiptId = '';
     public $basketImageURL = '';
     public $basketImage = null;
+    public $basketItems = [];
 
     protected $listeners = ['offcanvasClose'];
 
@@ -35,6 +37,7 @@ class BasketCrud extends OffcanvasPage
         $this->basketImageURL = $basket->receipt_url;
         $this->createdAt = $basket->created_at;
         $this->updatedAt = $basket->updated_at;
+        $this->basketItems = $basket->basketItems->toArray();
         // dispatch a browser event to update the image on the offcanvas.
         // The name of the event id 'basket-image' and the parameter is the URL of the image.
         $this->dispatchBrowserEvent('basket-image', ['url' => $basket->receipt_url]);
@@ -44,7 +47,8 @@ class BasketCrud extends OffcanvasPage
     {
         return [
             'baskets' =>  Basket::where('user_id', auth()->user()->id)->get(),
-            'shops' =>  Shop::all()
+            'shops' =>  Shop::all(),
+            'items' => Item::all()
         ];
     }
 
@@ -57,6 +61,7 @@ class BasketCrud extends OffcanvasPage
         $this->basketReceiptId = '';
         $this->basketImageURL = '';
         $this->basketImage = null;
+        $this->basketItems = [];
         $this->createdAt = '';
         $this->updatedAt = '';
     }
