@@ -22,8 +22,10 @@ class BasketCrud extends OffcanvasPage
     public $basketImageURL = '';
     public $basketImage = null;
     public $basketItems = [];
+    public $newBasketItemId = '';
+    public $newBasketItemPrice = '';
 
-    protected $listeners = ['offcanvasClose'];
+    protected $listeners = ['offcanvasClose', 'deleteBasketItem'];
 
     public function load($id)
     {
@@ -64,6 +66,8 @@ class BasketCrud extends OffcanvasPage
         $this->basketItems = [];
         $this->createdAt = '';
         $this->updatedAt = '';
+        $this->newBasketItemId = '';
+        $this->newBasketItemPrice = '';
     }
 
     public function saveNew()
@@ -131,5 +135,39 @@ class BasketCrud extends OffcanvasPage
         if ($basket != null && $basket->basketItems->count() == 0) {
             $basket->delete();
         }
+    }
+
+    public function addBasketItem()
+    {
+        try {
+            $this->validate([
+                'newBasketItemId' => 'required|integer|exists:items,id',
+                'newBasketItemPrice' => 'required|numeric',
+            ]);
+        } catch (ValidationException $e) {
+            $messages = $e->validator->getMessageBag();
+            $this->dispatchBrowserEvent('model.validation', ['type' => 'new', 'model' => 'Basket', 'messages' => $messages]);
+            return;
+        }
+        $this->basketItems[] = [
+            'item_id' => $this->newBasketItemId,
+            'price' => $this->newBasketItemPrice,
+            'basket_id' => $this->modelId,
+        ];
+        $insertedIndex = array_key_last($this->basketItems);
+        $this->dispatchBrowserEvent('basketItem.added', [
+            'basketItemIndex' => $insertedIndex,
+            'selectedItemId' => $this->newBasketItemId,
+            'itemPrice' => $this->newBasketItemPrice,
+            'buttonLabel' => __('Delete'),
+        ]);
+        $this->newBasketItemId = '';
+        $this->newBasketItemPrice = '';
+    }
+
+    public function deleteBasketItem($index)
+    {
+        unset($this->basketItems[$index]);
+        $this->dispatchBrowserEvent('basketItem.removed', ['basketItemIndex' => $index]);
     }
 }

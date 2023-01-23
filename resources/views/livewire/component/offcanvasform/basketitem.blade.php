@@ -1,4 +1,4 @@
-<div class="mb-3">
+<div class="mb-3" id="basketItemTemplate-{{ $templateIndex }}">
     <div class="input-group">
         <select class="form-select" wire:model="{{ $itemModelId }}" id="{{ $itemModelId }}">
             <option value="" @if($selected == "") selected @endif>{{ __('Select Item') }}</option>
@@ -7,6 +7,7 @@
             @endforeach
         </select>
         <input type="number" class="form-control" id="{{ $priceModelId }}" step="0.01" wire:model="{{ $priceModelId }}">
+        <button type="button" class="btn btn-outline-secondary" wire:click="{{ $buttonFunction }}">{{ $buttonLabel }}</button>
     </div>
     <span id="errors-{{ $itemModelId }}" class="text-danger" style="display: none;"></span>
     <span id="errors-{{ $priceModelId }}" class="text-danger" style="display: none;"></span>

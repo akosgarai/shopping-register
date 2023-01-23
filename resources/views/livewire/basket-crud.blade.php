@@ -50,6 +50,17 @@
                     @include('livewire.component.offcanvasform.selectorshop', ['modelId' => 'basketShop', 'shops' => $shops, 'selected' => $basketShop])
                     @include('livewire.component.offcanvasform.datetimelocalinput', ['modelId' => 'basketDate', 'formLabel' => __('Date'), 'selected' => $basketShop])
                     @include('livewire.component.offcanvasform.textinput', ['modelId' => 'basketReceiptId', 'formLabel' => __('Receipt ID')])
+                    <div class="current-basket-items">
+                    </div>
+                    @include('livewire.component.offcanvasform.basketitem', [
+                        'itemModelId' => 'newBasketItemId',
+                        'items' => $items,
+                        'selected' => '',
+                        'priceModelId' => 'newBasketItemPrice',
+                        'buttonFunction' => 'addBasketItem',
+                        'buttonLabel' => __('Add'),
+                        'templateIndex' => 'new',
+                    ])
                     @include('livewire.component.offcanvasform.numberinputmoney', ['modelId' => 'basketTotal', 'formLabel' => __('Total')])
                     <div class="mb-3">
                         <label for="basketImage" class="form-label">{{ __('Receipt ID') }}</label>
@@ -71,14 +82,28 @@
                     @include('livewire.component.offcanvasform.selectorshop', ['modelId' => 'basketShop', 'shops' => $shops, 'selected' => $basketShop])
                     @include('livewire.component.offcanvasform.datetimelocalinput', ['modelId' => 'basketDate', 'formLabel' => __('Date')])
                     @include('livewire.component.offcanvasform.textinput', ['modelId' => 'basketReceiptId', 'formLabel' => __('Receipt ID')])
+                    <div class="current-basket-items">
                     @foreach($basketItems as $key => $basketItem)
                         @include('livewire.component.offcanvasform.basketitem', [
                             'itemModelId' => 'basketItems.' . $key. '.item_id',
                             'items' => $items,
                             'selected' => $basketItem['item_id'],
                             'priceModelId' => 'basketItems.' . $key . '.price',
+                            'buttonFunction' => 'deleteBasketItem(' . $key . ')',
+                            'buttonLabel' => __('Delete'),
+                            'templateIndex' => $key,
                         ])
                     @endforeach
+                    </div>
+                    @include('livewire.component.offcanvasform.basketitem', [
+                        'itemModelId' => 'newBasketItemId',
+                        'items' => $items,
+                        'selected' => '',
+                        'priceModelId' => 'newBasketItemPrice',
+                        'buttonFunction' => 'addBasketItem',
+                        'buttonLabel' => __('Add'),
+                        'templateIndex' => 'new',
+                    ])
                     @include('livewire.component.offcanvasform.numberinputmoney', ['modelId' => 'basketTotal', 'formLabel' => __('Total')])
                     @include('livewire.component.offcanvasform.textinput', ['modelId' => 'createdAt', 'formLabel' => __('Created'), 'readonly' => true])
                     @include('livewire.component.offcanvasform.textinput', ['modelId' => 'updatedAt', 'formLabel' => __('Updated'), 'readonly' => true])
