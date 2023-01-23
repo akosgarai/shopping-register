@@ -155,7 +155,8 @@ class BasketCrud extends OffcanvasPage
             ]);
         } catch (ValidationException $e) {
             $messages = $e->validator->getMessageBag();
-            $this->dispatchBrowserEvent('model.validation', ['type' => 'new', 'model' => 'Basket', 'messages' => $messages]);
+            $type = $this->modelId == '' ? 'new' : 'update';
+            $this->dispatchBrowserEvent('model.validation', ['type' => $type, 'model' => 'Basket', 'messages' => $messages]);
             return;
         }
         $this->basketItems[] = [
@@ -178,6 +179,8 @@ class BasketCrud extends OffcanvasPage
 
     public function deleteBasketItem($index)
     {
+        // decrease the total with the deleted item price.
+        $this->basketTotal -= $this->basketItems[$index]['price'];
         unset($this->basketItems[$index]);
         $this->dispatchBrowserEvent('basketItem.removed', ['basketItemIndex' => $index]);
     }
