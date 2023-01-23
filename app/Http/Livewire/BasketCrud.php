@@ -3,6 +3,7 @@
 namespace App\Http\Livewire;
 
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Storage;
 use Livewire\WithFileUploads;
 
 use App\Models\Basket;
@@ -125,7 +126,7 @@ class BasketCrud extends OffcanvasPage
             return;
         }
         if ($this->basketImage) {
-            $this->basketImageURL = $this->basketImage->store('receipts', 'public');
+            $this->basketImageURL = '/storage/'.$this->basketImage->store('receipts', 'public');
         }
         Basket::where('id', $this->modelId)->where('user_id', auth()->user()->id)->update([
             'shop_id' => $this->basketShop,
@@ -192,5 +193,20 @@ class BasketCrud extends OffcanvasPage
         $this->basketTotal -= $this->basketItems[$index]['price'];
         unset($this->basketItems[$index]);
         $this->dispatchBrowserEvent('basketItem.removed', ['basketItemIndex' => $index]);
+    }
+
+    public function deleteBasketImage()
+    {
+        // delete the image from the storage and the database
+        $basket = Basket::find($this->modelId);
+        if ($basket != null) {
+            // delete from the storage
+            Storage::disk('public')->delete(str_replace('/storage/', '', $basket->receipt_url));
+            $basket->receipt_url = null;
+            $basket->save();
+            $this->basketImageURL = null;
+        }
+        $this->basketImageURL = '';
+        $this->basketImage = null;
     }
 }

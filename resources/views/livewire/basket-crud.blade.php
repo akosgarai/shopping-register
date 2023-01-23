@@ -107,7 +107,12 @@
                     @include('livewire.component.offcanvasform.numberinputmoney', ['modelId' => 'basketTotal', 'formLabel' => __('Total')])
                     @include('livewire.component.offcanvasform.textinput', ['modelId' => 'createdAt', 'formLabel' => __('Created'), 'readonly' => true])
                     @include('livewire.component.offcanvasform.textinput', ['modelId' => 'updatedAt', 'formLabel' => __('Updated'), 'readonly' => true])
+                    <div class="mb-3" @if($basketImageURL != "") style="display: none;" @endif>
+                        <label for="basketImage" class="form-label">{{ __('Receipt ID') }}</label>
+                        <input type="file" class="form-control" id="basketImage" wire:model="basketImage">
+                    </div>
                     <button type="submit" class="btn btn-primary mb-3">{{ __('Update') }}</button>
+                    <button class="btn btn-danger mb-3" wire:click="deleteBasketImage" @if($basketImageURL == "") style="display: none;" @endif >{{ __('Delete Image') }}</button>
                 </form>
                 <img id="basketReceiptImage" src="{{ $basketImageURL }}" class="img-fluid" @if($basketImageURL == "") style="display: none;" @endif />
             </div>
