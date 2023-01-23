@@ -6,6 +6,7 @@ use Illuminate\Validation\ValidationException;
 use Livewire\WithFileUploads;
 
 use App\Models\Basket;
+use App\Models\BasketItem;
 use App\Models\Item;
 use App\Models\Shop;
 
@@ -17,7 +18,7 @@ class BasketCrud extends OffcanvasPage
 
     public $basketShop = '';
     public $basketDate = '';
-    public $basketTotal = '';
+    public $basketTotal = 0.0;
     public $basketReceiptId = '';
     public $basketImageURL = '';
     public $basketImage = null;
@@ -42,7 +43,7 @@ class BasketCrud extends OffcanvasPage
         $this->basketItems = $basket->basketItems->toArray();
         // dispatch a browser event to update the image on the offcanvas.
         // The name of the event id 'basket-image' and the parameter is the URL of the image.
-        $this->dispatchBrowserEvent('basket-image', ['url' => $basket->receipt_url]);
+        $this->dispatchBrowserEvent('basket.loaded', ['url' => $basket->receipt_url, 'items' => $basket->basketItems]);
     }
 
     public function getTemplateParameters()
@@ -59,7 +60,7 @@ class BasketCrud extends OffcanvasPage
         $this->modelId = '';
         $this->basketShop = '';
         $this->basketDate = '';
-        $this->basketTotal = '';
+        $this->basketTotal = 0.0;
         $this->basketReceiptId = '';
         $this->basketImageURL = '';
         $this->basketImage = null;
@@ -97,6 +98,14 @@ class BasketCrud extends OffcanvasPage
             'user_id' => auth()->user()->id,
             'receipt_url' => $receiptUrl,
         ]);
+        // save the basket items
+        foreach ($this->basketItems as $basketItem) {
+            BasketItem::firstOrCreate([
+                'item_id' => $basketItem['item_id'],
+                'price' => $basketItem['price'],
+                'basket_id' => $basket->id,
+            ]);
+        }
         return redirect()->route('basket', ['action' => 'update', 'id' => $basket->id]);
     }
 
@@ -155,6 +164,8 @@ class BasketCrud extends OffcanvasPage
             'basket_id' => $this->modelId,
         ];
         $insertedIndex = array_key_last($this->basketItems);
+        // increase the total with the new item price.
+        $this->basketTotal += $this->newBasketItemPrice;
         $this->dispatchBrowserEvent('basketItem.added', [
             'basketItemIndex' => $insertedIndex,
             'selectedItemId' => $this->newBasketItemId,
