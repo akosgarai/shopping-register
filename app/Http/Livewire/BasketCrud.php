@@ -135,7 +135,16 @@ class BasketCrud extends OffcanvasPage
             'receipt_url' => $this->basketImageURL,
 
         ]);
-        return redirect()->route('basket', ['action' => 'update', 'id' => $this->basketId]);
+        // delete the current basket items and then save the new ones
+        BasketItem::where('basket_id', $this->modelId)->delete();
+        foreach ($this->basketItems as $basketItem) {
+            BasketItem::firstOrCreate([
+                'item_id' => $basketItem['item_id'],
+                'price' => $basketItem['price'],
+                'basket_id' => $this->modelId,
+            ]);
+        }
+        return redirect()->route('basket', ['action' => 'update', 'id' => $this->modelId]);
     }
 
     public function delete($id)
