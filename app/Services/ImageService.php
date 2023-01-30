@@ -15,6 +15,13 @@ class ImageService
     {
         return $image->store(self::RAW_IMAGE_PATH . '/' . $authenticatedUserId, 'private');
     }
+    public function updateTempImageOfUser($imageName, $authenticatedUserId, $imageContent)
+    {
+        $image = str_replace('data:image/png;base64,', '', $imageContent);
+        $image = str_replace(' ', '+', $image);
+
+        Storage::disk('private')->put(self::RAW_IMAGE_PATH . '/' . $authenticatedUserId . '/' . $imageName, base64_decode($image));
+    }
 
     // View the image from the user's temp folder.
     public function viewTempImageFromUserFolder($filename, $authenticatedUserId): string

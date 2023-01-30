@@ -22,6 +22,8 @@ class ReceiptScan extends Component
     public $prevTempImages = [];
     public $imagePath = '';
 
+    protected $listeners = ['edit.finished' => 'saveEditedImage'];
+
     // The query string parameters.
     protected $queryString = [
         'action' => ['except' => ''],
@@ -72,5 +74,10 @@ class ReceiptScan extends Component
         $this->imagePath = $imageName;
         $this->action = self::ACTION_EDIT;
         $this->dispatchBrowserEvent('receiptScan.edit', ['imagePath' => route('image.viewTemp', ['filename' => $this->imagePath])]);
+    }
+    public function saveEditedImage($imageData, ImageService $imageService)
+    {
+        $imageService->updateTempImageOfUser($this->imagePath, auth()->user()->id, $imageData);
+        $this->action = self::ACTION_PARSE;
     }
 }

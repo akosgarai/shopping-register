@@ -61,6 +61,7 @@
         </script>
     </div>
     <div id="image-editor" @if($action != self::ACTION_EDIT) style="display:none;" @endif>
+        <livewire:component.imageditor />
         <div wire:ignore>
             <div id="tui-image-editor"></div>
         </div>
@@ -91,7 +92,33 @@
                     },
                 });
             });
+            // Listen for the editor.* events
+            document.addEventListener('editor.crop', function (e) {
+                instance.startDrawingMode('CROPPER');
+            });
+            document.addEventListener('editor.apply.crop', function (e) {
+                instance.crop(instance.getCropzoneRect()).then(function () {
+                    instance.stopDrawingMode();
+                    resizeEditor();
+                });
+            });
+            document.addEventListener('editor.cancel', function (e) {
+                instance.stopDrawingMode();
+            });
+            document.addEventListener('editor.filter', function (e) {
+                if (e.detail.value) {
+                    instance.applyFilter(e.detail.filter, null);
+                } else {
+                    instance.removeFilter(e.detail.filter);
+                }
+            });
+        document.addEventListener('editor.complete', function (e) {
+            Livewire.emit('edit.finished', instance.toDataURL());
+        });
         </script>
+    </div>
+    <div id="parser-selector" @if($action != self::ACTION_PARSE) style="display:none;" @endif>
+        <img src="{{ $imagePath }}">
     </div>
     @if($action == self::ACTION_PICK)
         <script>
