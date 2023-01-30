@@ -60,6 +60,11 @@
         basketItem.remove();
     });
 
+    window.addEventListener('receiptScan.pick', event => {
+        const offcanvas = new bootstrap.Offcanvas(document.getElementById('pickImageOffcanvas'));
+        offcanvas.show();
+    });
+
     function createBasketItemEditor(data, offcanvas) {
         // clone the basket item template, configure it based on the event data, and append it to the basket items list
         const template = document.querySelector('#basketItemTemplate-new');

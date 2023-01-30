@@ -28,4 +28,13 @@ class ReceiptScan extends Component
     {
         return view('livewire.receipt-scan')->extends('layouts.app');
     }
+
+    // Event handler for the offcanvas open event.
+    // It sets the action parameter to ACTION_PICK
+    // and dispatches the 'receiptScan.pick' browser event to open the offcanvas.
+    public function offcanvasOpen()
+    {
+        $this->action = self::ACTION_PICK;
+        $this->dispatchBrowserEvent('receiptScan.pick');
+    }
 }
