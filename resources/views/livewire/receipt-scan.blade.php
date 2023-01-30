@@ -5,21 +5,23 @@
             'itemActive' => $action == self::ACTION_PICK,
             'itemClick' => 'offcanvasOpen',
             ])
-        @include('livewire.component.navitem', [
-            'itemLabel' => __('Edit Image'),
-            'itemActive' => $action == self::ACTION_EDIT,
-            'itemClick' => '$set("action", "' . self::ACTION_EDIT . '")',
-            ])
-        @include('livewire.component.navitem', [
-            'itemLabel' => __('Select Parser'),
-            'itemActive' => $action == self::ACTION_PARSE,
-            'itemClick' => '$set("action", "' . self::ACTION_PARSE . '")',
-            ])
-        @include('livewire.component.navitem', [
-            'itemLabel' => __('Create Basket'),
-            'itemActive' => $action == self::ACTION_BASKET,
-            'itemClick' => '$set("action", "' . self::ACTION_BASKET . '")',
-            ])
+        @if ($imagePath != '')
+            @include('livewire.component.navitem', [
+                'itemLabel' => __('Edit Image'),
+                'itemActive' => $action == self::ACTION_EDIT,
+                'itemClick' => '$set("action", "' . self::ACTION_EDIT . '")',
+                ])
+            @include('livewire.component.navitem', [
+                'itemLabel' => __('Select Parser'),
+                'itemActive' => $action == self::ACTION_PARSE,
+                'itemClick' => '$set("action", "' . self::ACTION_PARSE . '")',
+                ])
+            @include('livewire.component.navitem', [
+                'itemLabel' => __('Create Basket'),
+                'itemActive' => $action == self::ACTION_BASKET,
+                'itemClick' => '$set("action", "' . self::ACTION_BASKET . '")',
+                ])
+        @endif
     </ul>
     <div wire:ignore>
         <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="pickImageOffcanvas" aria-labelledby="pickImageOffcanvasLabel">
@@ -58,6 +60,39 @@
             }
         </script>
     </div>
+    <div id="image-editor" @if($action != self::ACTION_EDIT) style="display:none;" @endif>
+        <div wire:ignore>
+            <div id="tui-image-editor"></div>
+        </div>
+        <script>
+            let instance = null;
+            function loadImageInstance (url) {
+                instance.loadImageFromURL(url, 'sample').then((result) => {
+                    resizeEditor();
+                });
+            }
+            function resizeEditor() {
+                // setup the editor height based on the canvas-container height
+                const canvasContainer = document.querySelector('.tui-image-editor-canvas-container');
+                const canvasContainerHeight = parseFloat(canvasContainer.style.maxHeight);
+                document.querySelector('#tui-image-editor').style.height = canvasContainerHeight + 'px';
+            }
+            window.addEventListener('receiptScan.edit', event => {
+                document.querySelector('#image-editor').style.display = 'block';
+                loadImageInstance(event.detail.imagePath);
+            });
+            document.addEventListener('livewire:load', function () {
+                instance = new ImageEditor('#tui-image-editor', {
+                    cssMaxWidth: 700,
+                    cssMaxHeight: 1000,
+                    selectionStyle: {
+                        cornerSize: 20,
+                        rotatingPointOffset: 70,
+                    },
+                });
+            });
+        </script>
+    </div>
     @if($action == self::ACTION_PICK)
         <script>
             window.addEventListener('livewire:load', function () {
@@ -67,10 +102,12 @@
             });
         </script>
     @endif
-    @if($action == self::ACTION_EDIT)
-        @if ($imagePath)
-            <img src="{{ route('image.viewTemp', ['filename' => $imagePath]) }}" alt="tempImage" class="img-fluid" style="width: 100%;">
-        @endif
+    @if($action == self::ACTION_EDIT && $imagePath)
+        <script>
+            document.addEventListener('livewire:load', function () {
+                loadImageInstance('{{ route('image.viewTemp', ['filename' => $imagePath]) }}');
+            });
+        </script>
     @endif
     @include('livewire.component.offcanvasscipts')
 </div>
