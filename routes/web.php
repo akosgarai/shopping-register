@@ -23,6 +23,8 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 Route::get('/scan', [App\Http\Controllers\ScanController::class, 'index'])->name('scan');
 Route::get('/receipts', [App\Http\Controllers\ReceiptController::class, 'index'])->name('receipts');
 Route::get('/receipt/{id}', [App\Http\Controllers\ReceiptController::class, 'view'])->name('receipts.view');
+Route::get('/documents/uploads/{filename}', [App\Http\Controllers\ImageController::class, 'viewTemp'])->name('image.viewTemp');
+Route::get('/documents/receipts/{filename}', [App\Http\Controllers\ImageController::class, 'viewReceipt'])->name('image.viewReceipt');
 
 // the following routes are behind auth middleware
 Route::middleware(['auth'])->group(function () {
