@@ -9,7 +9,7 @@
             @include('livewire.component.navitem', [
                 'itemLabel' => __('Edit Image'),
                 'itemActive' => $action == self::ACTION_EDIT,
-                'itemClick' => '$set("action", "' . self::ACTION_EDIT . '")',
+                'itemClick' => 'loadTempImage("' . $imagePath . '")',
                 ])
             @include('livewire.component.navitem', [
                 'itemLabel' => __('Select Parser'),
@@ -43,7 +43,7 @@
                 <div>
                     <h6>{{ __('Or') }}</h6>
                     @foreach($prevTempImages as $image)
-                        <a href="#" wire:click="loadTempImage('{{ $image }}')">
+                        <a href="#" wire:click.prevent="loadTempImage('{{ $image }}')">
                             <img src="{{ route('image.viewTemp', ['filename' => $image]) }}" class="img-thumbnail" style="max-width: 100px; max-height: 100px;"></a>
                     @endforeach
                 </div>
@@ -117,8 +117,19 @@
         });
         </script>
     </div>
-    <div id="parser-selector" @if($action != self::ACTION_PARSE) style="display:none;" @endif>
-        <img src="{{ $imagePath }}">
+    <div id="parser-selector" @if($action != self::ACTION_PARSE) style="display:none;" @endif class="row">
+        @if($imagePath != '')
+            <div class="col-sm-6">
+                <img src="{{ route('image.viewTemp', ['filename' =>  $imagePath]) }}" class="img-fluid img-thumbnail">
+            </div>
+        @endif
+        @if($rawExtractedText != '')
+            <div class="col-sm-6">
+                <pre>
+                        {{ $rawExtractedText }}
+                </pre>
+            </div>
+        @endif
     </div>
     @if($action == self::ACTION_PICK)
         <script>

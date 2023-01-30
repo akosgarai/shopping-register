@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire;
 
+use Alimranahmed\LaraOCR\Services\OcrAbstract;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -21,6 +22,7 @@ class ReceiptScan extends Component
     public $tempImage = null;
     public $prevTempImages = [];
     public $imagePath = '';
+    public $rawExtractedText = '';
 
     protected $listeners = ['edit.finished' => 'saveEditedImage'];
 
@@ -35,6 +37,9 @@ class ReceiptScan extends Component
     {
         $this->action = request()->query('action', '');
         $this->prevTempImages = $imageService->listTempImageeFromUserFolder(auth()->user()->id);
+        if ($this->action == self::ACTION_PARSE) {
+            $this->extractText($imageService);
+        }
     }
 
     public function render()
@@ -78,6 +83,13 @@ class ReceiptScan extends Component
     public function saveEditedImage($imageData, ImageService $imageService)
     {
         $imageService->updateTempImageOfUser($this->imagePath, auth()->user()->id, $imageData);
+        $this->extractText($imageService);
         $this->action = self::ACTION_PARSE;
+    }
+
+    private function extractText(ImageService $imageService)
+    {
+        $ocr = app()->make(OcrAbstract::class);
+        $this->rawExtractedText = $ocr->scan($imageService->tempFilePath($this->imagePath, auth()->user()->id));
     }
 }

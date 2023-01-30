@@ -28,7 +28,12 @@ class ImageService
     {
         $path = storage_path('app/private/' . self::RAW_IMAGE_PATH . '/' . $authenticatedUserId . '/' . $filename);
 
-        return $this->getFile($path);
+        return $this->getFile($this->tempFilePath($filename, $authenticatedUserId));
+    }
+
+    public function tempFilePath($filename, $authenticatedUserId): string
+    {
+        return storage_path('app/private/' . self::RAW_IMAGE_PATH . '/' . $authenticatedUserId . '/' . $filename);
     }
 
     // List all the images from the user's temp folder.
