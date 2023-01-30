@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Storage;
 use Exception;
 
 class ImageService
@@ -21,6 +22,18 @@ class ImageService
         $path = storage_path('app/private/' . self::RAW_IMAGE_PATH . '/' . $authenticatedUserId . '/' . $filename);
 
         return $this->getFile($path);
+    }
+
+    // List all the images from the user's temp folder.
+    public function listTempImageeFromUserFolder($authenticatedUserId): array
+    {
+        $filePaths = Storage::files('private/' . self::RAW_IMAGE_PATH . '/' . $authenticatedUserId);
+        $files = [];
+        foreach ($filePaths as $filePath) {
+            $files[] = basename($filePath);
+        }
+
+        return $files;
     }
 
     // View the image from the user's receipts folder.

@@ -38,6 +38,13 @@
                     </div>
                     <button type="submit" class="btn btn-primary" id="uploadTempImageButton" @if($tempImage == '') style="display:none;" @endif>{{ __('Save') }}</button>
                 </form>
+                <div>
+                    <h6>{{ __('Or') }}</h6>
+                    @foreach($prevTempImages as $image)
+                        <a href="#" wire:click="loadTempImage('{{ $image }}')">
+                            <img src="{{ route('image.viewTemp', ['filename' => $image]) }}" class="img-thumbnail" style="max-width: 100px; max-height: 100px;"></a>
+                    @endforeach
+                </div>
             </div>
         </div>
         <script>

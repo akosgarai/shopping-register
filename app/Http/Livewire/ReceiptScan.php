@@ -19,6 +19,7 @@ class ReceiptScan extends Component
 
     public $action = '';
     public $tempImage = null;
+    public $prevTempImages = [];
     public $imagePath = '';
 
     // The query string parameters.
@@ -28,9 +29,10 @@ class ReceiptScan extends Component
     ];
 
     // Initialize the component based on the query string parameters.
-    public function mount()
+    public function mount(ImageService $imageService)
     {
         $this->action = request()->query('action', '');
+        $this->prevTempImages = $imageService->listTempImageeFromUserFolder(auth()->user()->id);
     }
 
     public function render()
@@ -61,6 +63,13 @@ class ReceiptScan extends Component
         }
         $receiptUrl = $imageService->saveTempImageToUserFolder($this->tempImage, auth()->user()->id);
         $this->imagePath = basename($receiptUrl);
+        $this->action = self::ACTION_EDIT;
+        $this->dispatchBrowserEvent('receiptScan.edit');
+    }
+
+    public function loadTempImage($imageName)
+    {
+        $this->imagePath = $imageName;
         $this->action = self::ACTION_EDIT;
         $this->dispatchBrowserEvent('receiptScan.edit');
     }
