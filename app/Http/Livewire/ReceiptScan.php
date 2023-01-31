@@ -56,6 +56,11 @@ class ReceiptScan extends Component
         $this->imagePath = '';
         $this->dispatchBrowserEvent('receiptScan.pick');
     }
+    public function editStep()
+    {
+        $this->action = self::ACTION_EDIT;
+        $this->dispatchBrowserEvent('receiptScan.edit', ['imagePath' => route('image.viewTemp', ['filename' => $this->imagePath])]);
+    }
 
     public function saveTempImage(ImageService $imageService)
     {
@@ -70,8 +75,7 @@ class ReceiptScan extends Component
         }
         $receiptUrl = $imageService->saveTempImageToUserFolder($this->tempImage, auth()->user()->id);
         $this->imagePath = basename($receiptUrl);
-        $this->action = self::ACTION_EDIT;
-        $this->dispatchBrowserEvent('receiptScan.edit', ['imagePath' => route('image.viewTemp', ['filename' => $this->imagePath])]);
+        $this->editStep();
     }
 
     public function loadTempImage($imageName)

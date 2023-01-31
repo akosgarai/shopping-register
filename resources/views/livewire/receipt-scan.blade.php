@@ -9,7 +9,7 @@
             @include('livewire.component.navitem', [
                 'itemLabel' => __('Edit Image'),
                 'itemActive' => $action == self::ACTION_EDIT,
-                'itemClick' => 'loadTempImage("' . $imagePath . '")',
+                'itemClick' => 'editStep',
                 ])
             @include('livewire.component.navitem', [
                 'itemLabel' => __('Select Parser'),
