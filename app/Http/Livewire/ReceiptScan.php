@@ -56,6 +56,12 @@ class ReceiptScan extends Component
         $this->imagePath = '';
         $this->dispatchBrowserEvent('receiptScan.pick');
     }
+    public function offcanvasClose()
+    {
+        if ($this->action == self::ACTION_PICK) {
+            $this->action = '';
+        }
+    }
     public function editStep()
     {
         $this->action = self::ACTION_EDIT;

@@ -27,7 +27,7 @@
         <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="pickImageOffcanvas" aria-labelledby="pickImageOffcanvasLabel">
             <div class="offcanvas-header">
                 <h5 class="offcanvas-title" id="pickImageOffcanvasLabel">{{ __('Choose Image') }}</h5>
-                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" wire:click='$set("action", "")'></button>
+                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" wire:click='offcanvasClose'></button>
             </div>
             <div class="offcanvas-body">
                 <form wire:submit.prevent="saveTempImage">
