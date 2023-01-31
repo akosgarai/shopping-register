@@ -2,7 +2,10 @@
 
 namespace App\Services\Parser;
 
-class SparParserService
+use App\ScannedBasket;
+use App\Services\AbstractParserService;
+
+class SparParserService extends AbstractParserService
 {
     public const MARKET_NAME_PATTERN = 'SPAR MARKET';
     public const TAX_NUMBER_PATTERN = 'ADÓSZÁM';
@@ -12,43 +15,14 @@ class SparParserService
 
     public $rawText = '';
     // Receipt parameters that has to be extracted from the text.
-    private $receipt = [
-        'id' => '',
-        'taxNumber' => '',
-        'marketAddress' => '',
-        'marketName' => '',
-        'companyAddress' => '',
-        'companyName' => '',
-        'date' => '',
-        'total' => '',
-        'items' => [],
-    ];
+    private ScannedBasket $receipt;
 
-    public function __construct($rawText)
+    public function parse(string $rawText): ScannedBasket
     {
         $this->rawText = $rawText;
-    }
-
-    public function parse()
-    {
-        $this->initReceipt();
+        $this->receipt = new ScannedBasket();
         $this->parseSparReceipt();
         return $this->receipt;
-    }
-
-    private function initReceipt() {
-        $this->receipt = [
-            'id' => '',
-            'taxNumber' => '',
-            'marketAddress' => '',
-            'marketName' => '',
-            'companyAddress' => '',
-            'companyName' => '',
-            'name' => '',
-            'date' => '',
-            'total' => '',
-            'items' => [],
-        ];
     }
 
     private function parseSparReceipt() {
@@ -56,23 +30,23 @@ class SparParserService
         // Extract the receipt parameters
         $lines = explode("\n", $this->rawText);
         // the first line is the name of the store
-        $this->receipt['companyName'] = trim($lines[0]);
+        $this->receipt->companyName = trim($lines[0]);
         // Everything before the line that starts with the MARKET_NAME_PATTERN is the address
         $companyAddress = '';
         $marketNameLine = $this->getLineIndexWithLowestLevenshteinDistance($lines, self::MARKET_NAME_PATTERN);
-        $this->receipt['marketName'] = trim($lines[$marketNameLine]);
+        $this->receipt->marketName = trim($lines[$marketNameLine]);
         for ($index = 1; $index < $marketNameLine; $index++) {
             $companyAddress .= $lines[$index] . ' ';
         }
-        $this->receipt['companyAddress'] = trim($companyAddress);
+        $this->receipt->companyAddress = trim($companyAddress);
         $taxNumberLine = $this->getLineIndexWithLowestLevenshteinDistance($lines, self::TAX_NUMBER_PATTERN);
-        $this->receipt['taxNumber'] = trim(substr($lines[$taxNumberLine], strpos($lines[$taxNumberLine], ' ')+1));
+        $this->receipt->taxNumber = trim(substr($lines[$taxNumberLine], strpos($lines[$taxNumberLine], ' ')+1));
         // The market address are in the lines between the MARKET_NAME_PATTERN and the TAX_NUMBER_PATTERN
         $marketAddress = '';
         for ($index = $marketNameLine + 1; $index < $taxNumberLine; $index++) {
             $marketAddress .= $lines[$index] . ' ';
         }
-        $this->receipt['marketAddress'] = trim($marketAddress);
+        $this->receipt->marketAddress = trim($marketAddress);
         $firstLineAfterItems = $this->parseSparItemLines($lines, 7);
         // The total price could be extracted from the line that starts with 'BANKKARTYA' or 'ÖSSZESEN:'
         $totalLineIndex = $this->getLineIndexWithLowestLevenshteinDistance($lines, self::TOTAL_PATTERN, $firstLineAfterItems);
@@ -86,17 +60,17 @@ class SparParserService
         if ($totalLineSimilarityPercent > 80) {
             $firstSpace = strpos($lines[$totalLineIndex], ' ');
             $lastSpace = strrpos($lines[$totalLineIndex], ' ');
-            $this->receipt['total'] = substr($lines[$totalLineIndex], $firstSpace, $lastSpace-$firstSpace);
+            $this->receipt->total = substr($lines[$totalLineIndex], $firstSpace, $lastSpace-$firstSpace);
         } else if ($creditCardLineSimilarityPercent > 80) {
             $firstSpace = strpos($lines[$creditCardLineIndex], ' ');
             $lastSpace = strrpos($lines[$creditCardLineIndex], ' ');
-            $this->receipt['total'] = substr($lines[$creditCardLineIndex], $firstSpace, $lastSpace-$firstSpace);
+            $this->receipt->total = substr($lines[$creditCardLineIndex], $firstSpace, $lastSpace-$firstSpace);
         }
         // The id could be extracted from the line that starts with 'NYUGTASZAM:'. The id is followed by the ': '.
         // The date could be extracted from line after the id line. The date format is 'YYYY.MM.DD, HH:MM'
         $idLineIndex = $this->getLineIndexWithLowestLevenshteinDistance($lines, self::ID_PATTERN, $firstLineAfterItems);
-        $this->receipt['id'] = substr($lines[$idLineIndex], strpos($lines[$idLineIndex], ' ')+2);
-        $this->receipt['date'] = trim($lines[$idLineIndex+1]);
+        $this->receipt->id = substr($lines[$idLineIndex], strpos($lines[$idLineIndex], ' ')+2);
+        $this->receipt->date = trim($lines[$idLineIndex+1]);
     }
 
     // Returns the first line index that is not item.
@@ -127,7 +101,7 @@ class SparParserService
                     $item['price'] = trim(substr($lines[$i+1], strrpos($lines[$i+1], ' ')+1));
                     $i++;
                 }
-                $this->receipt['items'][] = $item;
+                $this->receipt->items[] = $item;
             } else {
                 if ($itemParsing) {
                     return $i;
