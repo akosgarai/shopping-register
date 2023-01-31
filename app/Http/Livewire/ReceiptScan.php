@@ -56,18 +56,29 @@ class ReceiptScan extends Component
         $this->imagePath = '';
         $this->dispatchBrowserEvent('receiptScan.pick');
     }
+
+    // Event handler for the offcanvas close event.
+    // In case of the action is ACTION_PICK it sets the action parameter to empty.
+    // Otherwise we are in the edit step after submitting the offcanvas, so we have to keep this action.
     public function offcanvasClose()
     {
         if ($this->action == self::ACTION_PICK) {
             $this->action = '';
         }
     }
+
+    // Action and frontend initialization for the edit step.
+    // It sets the action parameter to ACTION_EDIT and dispatches the 'receiptScan.edit' browser event
+    // to initialize the frontend, loads the image to the editor.
     public function editStep()
     {
         $this->action = self::ACTION_EDIT;
         $this->dispatchBrowserEvent('receiptScan.edit', ['imagePath' => route('image.viewTemp', ['filename' => $this->imagePath])]);
     }
 
+    // Event handler for the offcanvas submit event.
+    // It validates the image and if it is valid it saves it to the temp folder and
+    // loads the image to the editor.
     public function saveTempImage(ImageService $imageService)
     {
         try {
@@ -80,16 +91,17 @@ class ReceiptScan extends Component
             return;
         }
         $receiptUrl = $imageService->saveTempImageToUserFolder($this->tempImage, auth()->user()->id);
-        $this->imagePath = basename($receiptUrl);
-        $this->editStep();
+        $this->loadTempImage(basename($receiptUrl));
     }
 
+    // It sets the imagePath parameter to the value passed in and loads the image to the editor.
     public function loadTempImage($imageName)
     {
         $this->imagePath = $imageName;
-        $this->action = self::ACTION_EDIT;
-        $this->dispatchBrowserEvent('receiptScan.edit', ['imagePath' => route('image.viewTemp', ['filename' => $this->imagePath])]);
+        $this->editStep();
     }
+
+    // Event handler for the editor save event.
     public function saveEditedImage($imageData, ImageService $imageService)
     {
         $imageService->updateTempImageOfUser($this->imagePath, auth()->user()->id, $imageData);
