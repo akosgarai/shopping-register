@@ -69,7 +69,7 @@ class SparParserService extends AbstractParserService
         // The id could be extracted from the line that starts with 'NYUGTASZAM:'. The id is followed by the ': '.
         // The date could be extracted from line after the id line. The date format is 'YYYY.MM.DD, HH:MM'
         $idLineIndex = $this->getLineIndexWithLowestLevenshteinDistance($lines, self::ID_PATTERN, $firstLineAfterItems);
-        $this->receipt->id = substr($lines[$idLineIndex], strpos($lines[$idLineIndex], ' ')+2);
+        $this->receipt->id = trim(substr($lines[$idLineIndex], strpos($lines[$idLineIndex], ' ')+1));
         $this->receipt->date = trim($lines[$idLineIndex+1]);
     }
 
