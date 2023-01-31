@@ -7,6 +7,9 @@ use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
+use App\ScannedBasket;
+use App\Services\BasketExtractorService;
+use App\Services\DataPredictionService;
 use App\Services\ImageService;
 
 class ReceiptScan extends Component
@@ -18,11 +21,21 @@ class ReceiptScan extends Component
     const ACTION_PARSE = 'parse';
     const ACTION_BASKET = 'basket';
 
+    const BASKET_TAB_ID = 'basket-id';
+    const BASKET_TAB_SIMILAR = 'basket-same';
+
     public $action = '';
     public $tempImage = null;
     public $prevTempImages = [];
     public $imagePath = '';
     public $rawExtractedText = '';
+    public $parserApplication = '';
+    public $basket = [];
+
+    public $basketSuggestions = null;
+    public $basketPreview = null;
+
+    public $createBasketTab = self::BASKET_TAB_ID;
 
     protected $listeners = ['edit.finished' => 'saveEditedImage'];
 
@@ -30,15 +43,20 @@ class ReceiptScan extends Component
     protected $queryString = [
         'action' => ['except' => ''],
         'imagePath' => ['except' => '', 'as' => 'document'],
+        'parserApplication' => ['except' => '', 'as' => 'parser'],
     ];
 
     // Initialize the component based on the query string parameters.
-    public function mount(ImageService $imageService)
+    public function mount(ImageService $imageService, BasketExtractorService $basketExtractor, DataPredictionService $dataPrediction)
     {
         $this->action = request()->query('action', '');
         $this->prevTempImages = $imageService->listTempImageeFromUserFolder(auth()->user()->id);
-        if ($this->action == self::ACTION_PARSE) {
+        if ($this->action == self::ACTION_PARSE || $this->action == self::ACTION_BASKET) {
             $this->extractText($imageService);
+
+            if ($this->action == self::ACTION_BASKET) {
+                $this->parseText($this->parserApplication, $basketExtractor, $dataPrediction);
+            }
         }
     }
 
@@ -54,6 +72,7 @@ class ReceiptScan extends Component
     {
         $this->action = self::ACTION_PICK;
         $this->imagePath = '';
+        $this->parserApplication = '';
         $this->dispatchBrowserEvent('receiptScan.pick');
     }
 
@@ -73,6 +92,7 @@ class ReceiptScan extends Component
     public function editStep()
     {
         $this->action = self::ACTION_EDIT;
+        $this->parserApplication = '';
         $this->dispatchBrowserEvent('receiptScan.edit', ['imagePath' => route('image.viewTemp', ['filename' => $this->imagePath])]);
     }
 
@@ -107,6 +127,53 @@ class ReceiptScan extends Component
         $imageService->updateTempImageOfUser($this->imagePath, auth()->user()->id, $imageData);
         $this->extractText($imageService);
         $this->action = self::ACTION_PARSE;
+    }
+
+    // It parses the extracted text with the selected parser application.
+    public function parseText($parserApplication, BasketExtractorService $basketExtractor, DataPredictionService $dataPrediction)
+    {
+        $this->parserApplication = $parserApplication;
+        $basket = $basketExtractor->parseTextWith($this->rawExtractedText, $this->parserApplication);
+        $this->basket = $basket->toArray();
+        $this->action = self::ACTION_BASKET;
+        // check the raw receipt id. If we have exact match, display the same baskets tab.
+        $this->basketSuggestions = $dataPrediction->getBasketSuggestions(auth()->user()->id, $this->basket['id'], 10);
+        if ($this->basketSuggestions->count() > 0) {
+            $firstBasket = $this->basketSuggestions->first();
+            if ($firstBasket->distance == 0) {
+                $this->createBasketTab = self::BASKET_TAB_SIMILAR;
+                $this->basketPreview = $firstBasket;
+            }
+        }
+    }
+
+    public function basketIdForm()
+    {
+        $this->createBasketTab = self::BASKET_TAB_ID;
+    }
+
+    public function basketSimilarBaskets(DataPredictionService $dataPrediction)
+    {
+        $this->basketSuggestions = $dataPrediction->getBasketSuggestions(auth()->user()->id, $this->basket['id'], 10);
+        $this->createBasketTab = self::BASKET_TAB_SIMILAR;
+    }
+
+    public function previewBasketOpen($basketIndex, DataPredictionService $dataPrediction)
+    {
+        $this->basketSuggestions = $dataPrediction->getBasketSuggestions(auth()->user()->id, $this->basket['id'], 10);
+        $this->basketPreview = $this->basketSuggestions[$basketIndex];
+    }
+
+    public function previewBasketClose(DataPredictionService $dataPrediction)
+    {
+        $this->basketSuggestions = $dataPrediction->getBasketSuggestions(auth()->user()->id, $this->basket['id'], 10);
+        $this->basketPreview = null;
+    }
+
+    public function addImageToBasket()
+    {
+        // move the image from the temp folder to the receipt folder
+        // and add the image to the basket
     }
 
     private function extractText(ImageService $imageService)

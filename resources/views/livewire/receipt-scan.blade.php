@@ -117,7 +117,54 @@
         });
         </script>
     </div>
-    <div id="parser-selector" @if($action != self::ACTION_PARSE) style="display:none;" @endif class="row">
+    @if($action == self::ACTION_PARSE)
+        <div class="col-sm-12">
+            <button type="button" class="btn btn-primary" wire:click="parseText('spar')">{{ __('Spar') }}</button>
+        </div>
+    @elseif($action == self::ACTION_BASKET)
+        <ul class="nav">
+            @include('livewire.component.navitem', [
+                'itemLabel' => __('Basket ID'),
+                'itemActive' => $createBasketTab == self::BASKET_TAB_ID,
+                'itemClick' => 'basketIdForm',
+                ])
+            @include('livewire.component.navitem', [
+                'itemLabel' => __('Similar Baskets'),
+                'itemActive' => $createBasketTab == self::BASKET_TAB_SIMILAR,
+                'itemClick' => 'basketSimilarBaskets',
+                ])
+            @include('livewire.component.navitem', [
+                'itemLabel' => __('Company'),
+                'itemActive' => $action == self::ACTION_PICK,
+                'itemClick' => 'offcanvasOpen',
+                ])
+            @include('livewire.component.navitem', [
+                'itemLabel' => __('Shop'),
+                'itemActive' => $action == self::ACTION_PICK,
+                'itemClick' => 'offcanvasOpen',
+                ])
+            @include('livewire.component.navitem', [
+                'itemLabel' => __('Items'),
+                'itemActive' => $action == self::ACTION_PICK,
+                'itemClick' => 'offcanvasOpen',
+                ])
+        </ul>
+        <div class="col-sm-12">
+            @if($createBasketTab == self::BASKET_TAB_ID)
+                <form wire:submit.prevent="basketSimilarBaskets">
+                    @include('livewire.component.offcanvasform.textinput', ['modelId' => 'basket.id', 'formLabel' => __('Receipt ID')])
+                    <button type="submit" class="btn btn-primary">{{ __('Next') }}</button>
+                </form>
+            @elseif($createBasketTab == self::BASKET_TAB_SIMILAR)
+                <h4>{{ __('Similar Baskets') }}</h4>
+                @foreach($basketSuggestions as $key => $basketSuggestion)
+                    <span style="margin-right: 10px;" >
+                        <a href="#" wire:click.prevent="previewBasketOpen({{ $key }})" >{{ $basketSuggestion->receipt_id }}</a> ({{ $basketSuggestion->percentage }}%)</span>
+                @endforeach
+            @endif
+        </div>
+    @endif
+    <div id="parser-selector" @if($action != self::ACTION_PARSE && $action != self::ACTION_BASKET) style="display:none;" @endif class="row">
         @if($imagePath != '')
             <div class="col-sm-6">
                 <img src="{{ route('image.viewTemp', ['filename' =>  $imagePath]) }}" class="img-fluid img-thumbnail">
@@ -146,6 +193,48 @@
                 loadImageInstance('{{ route('image.viewTemp', ['filename' => $imagePath]) }}');
             });
         </script>
+    @endif
+    @if($basketPreview)
+    <div wire:ignore>
+        <div class="offcanvas offcanvas-end show" data-bs-scroll="true" tabindex="-1" id="basketPreview" aria-labelledby="basketPreviewLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="basketPreviewLabel">{{ __('Basket Preview') }}</h5>
+                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" wire:click="previewBasketClose"></button>
+            </div>
+            <div class="offcanvas-body">
+                <div class="text-center">
+                    {{ $basketPreview->shop->company->name }}<br>
+                    {{ $basketPreview->shop->company->address->raw }}<br>
+                    {{ $basketPreview->shop->name }}<br>
+                    {{ $basketPreview->shop->address->raw }}<br>
+                    {{ $basketPreview->shop->company->tax_number }}<br>
+                </div>
+                <hr>
+                @foreach($basketPreview->basketItems as $key => $basketItem)
+                    <div class="d-flex justify-content-between flex-wrap">
+                        <div>{{ $basketItem->item->name }}</div>
+                        <div>{{ $basketItem->price }}</div>
+                    </div>
+                @endforeach
+                <hr>
+                <div class="d-flex justify-content-between flex-wrap">
+                    <div>{{ __('Total') }}</div>
+                    <div>{{ $basketPreview->total }}</div>
+                </div>
+                <div class="d-flex justify-content-between flex-wrap">
+                    <div>{{ __('Date') }}</div>
+                    <div>{{ $basketPreview->date }}</div>
+                </div>
+                <div class="d-flex justify-content-between flex-wrap">
+                    <div>{{ __('Receipt ID') }}</div>
+                    <div>{{ $basketPreview->receipt_id }}</div>
+                </div>
+                @if($basketPreview->receipt_url)
+                    <img src="{{ route('image.viewReceipt', ['filename' =>  $basketPreview->receipt_url]) }}" class="img-fluid" />
+                @endif
+            </div>
+        </div>
+    </div>
     @endif
     @include('livewire.component.offcanvasscipts')
 </div>
