@@ -82,7 +82,8 @@ class SparParserService extends AbstractParserService
         // The items are finished, when the itemParsing flag is true and the next line does not match the pattern.
         $itemParsing = false;
         $item = [];
-        for ($i = $from; $i < count($lines); $i++) {
+        $numberOfLines = count($lines);
+        for ($i = $from; $i < $numberOfLines; $i++) {
             if (preg_match('/^[A-Z0-9]{1,3} /', $lines[$i])) {
                 $itemParsing = true;
                 $lastSpaceIndex = strrpos($lines[$i], ' ');
@@ -116,7 +117,8 @@ class SparParserService extends AbstractParserService
     {
         $minDistance = 999999;
         $minDistanceIndex = -1;
-        for ($i = $startIndex; $i < count($lines); $i++) {
+        $numberOfLines = count($lines);
+        for ($i = $startIndex; $i < $numberOfLines ; $i++) {
             // Check only the first $pattern characters of the line.
             $distance = levenshtein(substr($lines[$i], 0, strlen($pattern)), $pattern);
             if ($distance < $minDistance) {
