@@ -179,12 +179,20 @@ class ReceiptScan extends Component
         // move the image from the temp folder to the receipt folder
         $imageService->moveReceiptImageFromTempToReceiptUserFolder($this->imagePath, auth()->user()->id);
         // and add the image to the basket
-        $basket = Basket::find($this->basketPreview->id);
+        $basket = Basket::where('id', $this->basketPreview->id)
+            ->where('user_id', auth()->user()->id)
+            ->first();
         if ($basket) {
-            $basket->receipt_url = ($this->imagePath);
+            $basket->receipt_url = $this->imagePath;
             $basket->save();
         }
         return redirect()->route('basket', ['id' => $this->basketPreview->id]);
+    }
+    public function changeBasketImage(ImageService $imageService)
+    {
+        // delete the current image
+        $imageService->deleteReceiptImageFromUserFolder($this->basketPreview->receipt_url, auth()->user()->id);
+        return $this->addImageToBasket($imageService);
     }
 
     public function deleteTempImage(string $imageName, ImageService $imageService)

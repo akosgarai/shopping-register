@@ -242,6 +242,7 @@
                 </div>
                 @if($basketPreview->receipt_url)
                     <img src="{{ route('image.viewReceipt', ['filename' =>  $basketPreview->receipt_url]) }}" class="img-fluid" />
+                    <button wire:click="changeBasketImage" class="btn btn-primary">{{ __('Change Image') }}</button>
                 @else
                     <button wire:click="addImageToBasket" class="btn btn-primary">{{ __('Add Image') }}</button>
                 @endif

@@ -21,6 +21,11 @@ class ImageService
     {
         Storage::disk('private')->delete(self::RAW_IMAGE_PATH . '/' . $authenticatedUserId . '/' . $imageName);
     }
+    // Remove an image from the user's receipts folder.
+    public function deleteReceiptImageFromUserFolder($imageName, $authenticatedUserId)
+    {
+        Storage::disk('private')->delete(self::FINAL_IMAGE_PATH . '/' . $authenticatedUserId . '/' . $imageName);
+    }
 
     // Updates an image in the user's temp folder.
     public function updateTempImageOfUser($imageName, $authenticatedUserId, $imageContent)
