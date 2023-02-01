@@ -16,11 +16,13 @@
                 'itemActive' => $action == self::ACTION_PARSE,
                 'itemClick' => '$set("action", "' . self::ACTION_PARSE . '")',
                 ])
-            @include('livewire.component.navitem', [
-                'itemLabel' => __('Create Basket'),
-                'itemActive' => $action == self::ACTION_BASKET,
-                'itemClick' => '$set("action", "' . self::ACTION_BASKET . '")',
-                ])
+            @if ($parserApplication != '')
+                @include('livewire.component.navitem', [
+                    'itemLabel' => __('Create Basket'),
+                    'itemActive' => $action == self::ACTION_BASKET,
+                    'itemClick' => '$set("action", "' . self::ACTION_BASKET . '")',
+                    ])
+            @endif
         @endif
     </ul>
     <div wire:ignore>
