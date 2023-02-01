@@ -38,13 +38,14 @@ class BasketCrud extends OffcanvasPage
         $this->basketDate = $basket->date;
         $this->basketTotal = $basket->total;
         $this->basketReceiptId = $basket->receipt_id;
-        $this->basketImageURL = $basket->receipt_url;
+        $imageURL = !empty($basket->receipt_url) ? route('image.viewReceipt', ['filename' =>  $basket->receipt_url]) : '';
+        $this->basketImageURL = $imageURL;
         $this->createdAt = $basket->created_at;
         $this->updatedAt = $basket->updated_at;
         $this->basketItems = $basket->basketItems->toArray();
         // dispatch a browser event to update the image on the offcanvas.
         // The name of the event id 'basket-image' and the parameter is the URL of the image.
-        $this->dispatchBrowserEvent('basket.loaded', ['url' => $basket->receipt_url, 'items' => $basket->basketItems]);
+        $this->dispatchBrowserEvent('basket.loaded', ['url' => $imageURL, 'items' => $basket->basketItems]);
     }
 
     public function getTemplateParameters()
