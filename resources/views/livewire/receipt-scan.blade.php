@@ -69,47 +69,6 @@
                     document.querySelector('#uploadTempImageButton').style.display = 'block';
                 }
             }
-            window.addEventListener('tempImages.refresh', event => {
-                // delete the images from the list then refresh the list
-                // based on the event data
-                const imagesContainer = document.querySelector('#uploaded-temp-images');
-                imagesContainer.innerHTML = '';
-                let images = event.detail.images;
-                images.forEach(image => {
-                    let imageContainer = document.createElement('div');
-                    imageContainer.classList.add('mb-3');
-                    let imageFlex = document.createElement('div');
-                    imageFlex.classList.add('d-flex', 'justify-content-between', 'flex-wrap', 'flex-grow');
-                    let loadAnchor = document.createElement('a');
-                    loadAnchor.href = '#';
-                    loadAnchor.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        @this.loadTempImage(image);
-                    });
-                    let img = document.createElement('img');
-                    img.src = "{{ route('image.viewTemp', ['filename' => ':filename']) }}";
-                    img.src = img.src.replace(':filename', image);
-                    img.classList.add('img-thumbnail');
-                    img.style.maxWidth = '100px';
-                    img.style.maxHeight = '100px';
-                    loadAnchor.appendChild(img);
-                    imageFlex.appendChild(loadAnchor);
-                    let buttonContainer = document.createElement('div');
-                    buttonContainer.classList.add('align-self-center');
-                    let button = document.createElement('button');
-                    button.type = 'button';
-                    button.classList.add('btn', 'btn-danger');
-                    button.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        @this.deleteTempImage(image);
-                    });
-                    button.innerText = '{{ __('Delete') }}';
-                    buttonContainer.appendChild(button);
-                    imageFlex.appendChild(buttonContainer);
-                    imageContainer.appendChild(imageFlex);
-                    imagesContainer.appendChild(imageContainer);
-                });
-            });
         </script>
     </div>
     <div id="image-editor" @if($action != self::ACTION_EDIT) style="display:none;" @endif>
