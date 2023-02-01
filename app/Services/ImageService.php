@@ -37,7 +37,7 @@ class ImageService
     // List all the images from the user's temp folder.
     public function listTempImageeFromUserFolder($authenticatedUserId): array
     {
-        $filePaths = Storage::files('private/' . self::RAW_IMAGE_PATH . '/' . $authenticatedUserId);
+        $filePaths = Storage::disk('private')->files( self::RAW_IMAGE_PATH . '/' . $authenticatedUserId);
         $files = [];
         foreach ($filePaths as $filePath) {
             $files[] = basename($filePath);
@@ -60,7 +60,7 @@ class ImageService
         $oldPath = self::RAW_IMAGE_PATH . '/' . $authenticatedUserId . '/' . $filename;
         $newPath = self::FINAL_IMAGE_PATH . '/' . $authenticatedUserId . '/' . $filename;
 
-        $move = Storage::disc('private')->move($oldPath, $newPath);
+        $move = Storage::disk('private')->move($oldPath, $newPath);
         if (!$move) {
             throw new Exception('Could not move the file from ' . $oldPath . ' to ' . $newPath);
         }
