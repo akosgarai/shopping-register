@@ -169,7 +169,7 @@
     <div id="parser-selector" @if($action != self::ACTION_PARSE && $action != self::ACTION_BASKET) style="display:none;" @endif class="row">
         @if($imagePath != '')
             <div class="col-sm-6">
-                <img src="{{ route('image.viewTemp', ['filename' =>  $imagePath]) }}" class="img-fluid img-thumbnail">
+                <img src="{{ route('image.viewTemp', ['filename' =>  $imagePath, 'v' => time()]) }}" class="img-fluid img-thumbnail">
             </div>
         @endif
         @if($rawExtractedText != '')
