@@ -112,6 +112,8 @@ class ReceiptScan extends Component
             return;
         }
         $receiptUrl = $imageService->saveTempImageToUserFolder($this->tempImage, auth()->user()->id);
+        $this->prevTempImages = $imageService->listTempImagesFromUserFolder(auth()->user()->id);
+        $this->dispatchBrowserEvent('tempImages.refresh', ['images' => $this->prevTempImages]);
         $this->loadTempImage(basename($receiptUrl));
     }
 
@@ -189,6 +191,8 @@ class ReceiptScan extends Component
     {
         $imageService->deleteTempImageFromUserFolder($imageName, auth()->user()->id);
         $this->imagePath = '';
+        $this->prevTempImages = $imageService->listTempImagesFromUserFolder(auth()->user()->id);
+        $this->dispatchBrowserEvent('tempImages.refresh', ['images' => $this->prevTempImages]);
     }
 
     private function extractText(ImageService $imageService)
