@@ -51,7 +51,7 @@ class ReceiptScan extends Component
     public function mount(ImageService $imageService, BasketExtractorService $basketExtractor, DataPredictionService $dataPrediction)
     {
         $this->action = request()->query('action', '');
-        $this->prevTempImages = $imageService->listTempImageeFromUserFolder(auth()->user()->id);
+        $this->prevTempImages = $imageService->listTempImagesFromUserFolder(auth()->user()->id);
         if ($this->action == self::ACTION_PARSE || $this->action == self::ACTION_BASKET) {
             $this->extractText($imageService);
 
@@ -183,6 +183,12 @@ class ReceiptScan extends Component
             $basket->save();
         }
         return redirect()->route('basket', ['id' => $this->basketPreview->id]);
+    }
+
+    public function deleteTempImage(string $imageName, ImageService $imageService)
+    {
+        $imageService->deleteTempImageFromUserFolder($imageName, auth()->user()->id);
+        $this->imagePath = '';
     }
 
     private function extractText(ImageService $imageService)

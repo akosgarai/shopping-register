@@ -15,6 +15,14 @@ class ImageService
     {
         return $image->store(self::RAW_IMAGE_PATH . '/' . $authenticatedUserId, 'private');
     }
+
+    // Remove an image from the user's temp folder.
+    public function deleteTempImageFromUserFolder($imageName, $authenticatedUserId)
+    {
+        Storage::disk('private')->delete(self::RAW_IMAGE_PATH . '/' . $authenticatedUserId . '/' . $imageName);
+    }
+
+    // Updates an image in the user's temp folder.
     public function updateTempImageOfUser($imageName, $authenticatedUserId, $imageContent)
     {
         $image = str_replace('data:image/png;base64,', '', $imageContent);
@@ -35,7 +43,7 @@ class ImageService
     }
 
     // List all the images from the user's temp folder.
-    public function listTempImageeFromUserFolder($authenticatedUserId): array
+    public function listTempImagesFromUserFolder($authenticatedUserId): array
     {
         $filePaths = Storage::disk('private')->files( self::RAW_IMAGE_PATH . '/' . $authenticatedUserId);
         $files = [];

@@ -43,11 +43,20 @@
                     <button type="submit" class="btn btn-primary" id="uploadTempImageButton" @if($tempImage == '') style="display:none;" @endif>{{ __('Save') }}</button>
                 </form>
                 <div>
-                    <h6>{{ __('Or') }}</h6>
-                    @foreach($prevTempImages as $image)
-                        <a href="#" wire:click.prevent="loadTempImage('{{ $image }}')">
-                            <img src="{{ route('image.viewTemp', ['filename' => $image]) }}" class="img-thumbnail" style="max-width: 100px; max-height: 100px;"></a>
-                    @endforeach
+                    <h6>{{ __('Or choose') }}</h6>
+                    <div class="d-flex flex-column flex-wrap align-content-stretch">
+                        @foreach($prevTempImages as $image)
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between flex-wrap flex-grow">
+                                    <a href="#" wire:click.prevent="loadTempImage('{{ $image }}')">
+                                        <img src="{{ route('image.viewTemp', ['filename' => $image]) }}" class="img-thumbnail" style="max-width: 100px; max-height: 100px;"></a>
+                                    <div class="align-self-center">
+                                        <button type="button" class="btn btn-danger" wire:click.prevent="deleteTempImage('{{ $image }}')">{{ __('Delete') }}</button>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
             </div>
         </div>
