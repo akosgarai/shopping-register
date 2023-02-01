@@ -195,7 +195,7 @@
         </script>
     @endif
     @if($basketPreview)
-    <div wire:ignore>
+    <div>
         <div class="offcanvas offcanvas-end show" data-bs-scroll="true" tabindex="-1" id="basketPreview" aria-labelledby="basketPreviewLabel">
             <div class="offcanvas-header">
                 <h5 class="offcanvas-title" id="basketPreviewLabel">{{ __('Basket Preview') }}</h5>
@@ -231,6 +231,8 @@
                 </div>
                 @if($basketPreview->receipt_url)
                     <img src="{{ route('image.viewReceipt', ['filename' =>  $basketPreview->receipt_url]) }}" class="img-fluid" />
+                @else
+                    <button wire:click="addImageToBasket" class="btn btn-primary">{{ __('Add Image') }}</button>
                 @endif
             </div>
         </div>

@@ -26,8 +26,6 @@ class ImageService
     // View the image from the user's temp folder.
     public function viewTempImageFromUserFolder($filename, $authenticatedUserId): string
     {
-        $path = storage_path('app/private/' . self::RAW_IMAGE_PATH . '/' . $authenticatedUserId . '/' . $filename);
-
         return $this->getFile($this->tempFilePath($filename, $authenticatedUserId));
     }
 
@@ -54,6 +52,18 @@ class ImageService
         $path = storage_path('app/private/' . self::FINAL_IMAGE_PATH . '/' . $authenticatedUserId . '/' . $filename);
 
         return $this->getFile($path);
+    }
+
+    // Move the image from the user's temp folder to the user's receipts folder.
+    public function moveReceiptImageFromTempToReceiptUserFolder($filename, $authenticatedUserId)
+    {
+        $oldPath = self::RAW_IMAGE_PATH . '/' . $authenticatedUserId . '/' . $filename;
+        $newPath = self::FINAL_IMAGE_PATH . '/' . $authenticatedUserId . '/' . $filename;
+
+        $move = Storage::disc('private')->move($oldPath, $newPath);
+        if (!$move) {
+            throw new Exception('Could not move the file from ' . $oldPath . ' to ' . $newPath);
+        }
     }
 
     private function getFile($path)

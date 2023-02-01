@@ -7,6 +7,7 @@ use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
+use App\Models\Basket;
 use App\ScannedBasket;
 use App\Services\BasketExtractorService;
 use App\Services\DataPredictionService;
@@ -150,6 +151,7 @@ class ReceiptScan extends Component
     public function basketIdForm()
     {
         $this->createBasketTab = self::BASKET_TAB_ID;
+        $this->basketPreview = null;
     }
 
     public function basketSimilarBaskets(DataPredictionService $dataPrediction)
@@ -170,10 +172,17 @@ class ReceiptScan extends Component
         $this->basketPreview = null;
     }
 
-    public function addImageToBasket()
+    public function addImageToBasket(ImageService $imageService)
     {
         // move the image from the temp folder to the receipt folder
+        $imageService->moveReceiptImageFromTempToReceiptUserFolder($this->imagePath, auth()->user()->id);
         // and add the image to the basket
+        $basket = Basket::find($this->basketPreview->id);
+        if ($basket) {
+            $basket->receipt_url = ($this->imagePath);
+            $basket->save();
+        }
+        return redirect()->route('basket', ['id' => $this->basketPreview->id]);
     }
 
     private function extractText(ImageService $imageService)
