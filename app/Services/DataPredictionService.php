@@ -13,6 +13,7 @@ class DataPredictionService
     {
         $query =  Basket::selectRaw('baskets.*, levenshtein(baskets.receipt_id, ?) as distance', [$basketId])
             ->where('user_id', $userId)
+            ->with('shop', 'shop.address', 'shop.company', 'shop.company.address', 'basketItems.item')
             ->orderBy('distance');
         if ($limit) {
             $query->limit($limit);
