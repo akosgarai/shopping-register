@@ -205,50 +205,10 @@
             });
         </script>
     @endif
-    @if($basketPreview)
-    <div>
-        <div class="offcanvas offcanvas-end show" data-bs-scroll="true" tabindex="-1" id="basketPreview" aria-labelledby="basketPreviewLabel">
-            <div class="offcanvas-header">
-                <h5 class="offcanvas-title" id="basketPreviewLabel">{{ __('Basket Preview') }}</h5>
-                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" wire:click="previewBasketClose"></button>
-            </div>
-            <div class="offcanvas-body">
-                <div class="text-center">
-                    {{ $basketPreview->shop->company->name }}<br>
-                    {{ $basketPreview->shop->company->address->raw }}<br>
-                    {{ $basketPreview->shop->name }}<br>
-                    {{ $basketPreview->shop->address->raw }}<br>
-                    {{ $basketPreview->shop->company->tax_number }}<br>
-                </div>
-                <hr>
-                @foreach($basketPreview->basketItems as $key => $basketItem)
-                    <div class="d-flex justify-content-between flex-wrap">
-                        <div>{{ $basketItem->item->name }}</div>
-                        <div>{{ $basketItem->price }}</div>
-                    </div>
-                @endforeach
-                <hr>
-                <div class="d-flex justify-content-between flex-wrap">
-                    <div>{{ __('Total') }}</div>
-                    <div>{{ $basketPreview->total }}</div>
-                </div>
-                <div class="d-flex justify-content-between flex-wrap">
-                    <div>{{ __('Date') }}</div>
-                    <div>{{ $basketPreview->date }}</div>
-                </div>
-                <div class="d-flex justify-content-between flex-wrap">
-                    <div>{{ __('Receipt ID') }}</div>
-                    <div>{{ $basketPreview->receipt_id }}</div>
-                </div>
-                @if($basketPreview->receipt_url)
-                    <img src="{{ route('image.viewReceipt', ['filename' =>  $basketPreview->receipt_url]) }}" class="img-fluid" />
-                    <button wire:click="changeBasketImage" class="btn btn-primary">{{ __('Change Image') }}</button>
-                @else
-                    <button wire:click="addImageToBasket" class="btn btn-primary">{{ __('Add Image') }}</button>
-                @endif
-            </div>
-        </div>
-    </div>
-    @endif
+    <livewire:component.panel :open="$basketPreview != null" :position="'right'"
+        :panelName="'basketPreviewPanel'"
+        :panelTitle="__('Basket Preview')"
+        :contentTemplate="'livewire.component.basket.view'"
+        :contentParameters="[ 'visibleBasket' => $basketPreview, 'edit' => true]">
     @include('livewire.component.offcanvasscipts')
 </div>

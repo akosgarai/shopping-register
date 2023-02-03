@@ -6,3 +6,47 @@
 
 // Bootstrap
 @import 'bootstrap/scss/bootstrap';
+
+
+// Panel component.
+
+.panel {
+	height: 100%; /* 100% Full-height */
+	width: 0; /* 0 width - change this with the visible class */
+	position: fixed; /* Stay in place */
+	z-index: 1; /* Stay on top */
+	background-color: #ffffff; /* White */
+	overflow-x: hidden; /* Disable horizontal scroll */
+	transition: 0.5s; /* 0.5 second transition effect to slide in the sidenav */
+	-ms-overflow-style: none;  /* IE and Edge */
+	scrollbar-width: none;  /* Firefox */
+
+	/* Hide scrollbar for Chrome, Safari and Opera */
+	&::-webkit-scrollbar {
+		display: none;
+	}
+
+
+	.panel-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin: 20px;
+	}
+	.panel-body {
+		padding: 20px;
+	}
+
+	&.visible {
+		width: 400px;
+	}
+
+	&.left {
+		top: 0;
+		left: 0;
+	}
+	&.right {
+		top: 0;
+		right: 0;
+	}
+}

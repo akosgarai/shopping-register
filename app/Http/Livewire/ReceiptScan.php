@@ -38,7 +38,7 @@ class ReceiptScan extends Component
 
     public $createBasketTab = self::BASKET_TAB_ID;
 
-    protected $listeners = ['edit.finished' => 'saveEditedImage'];
+    protected $listeners = ['edit.finished' => 'saveEditedImage', 'panel.close' => 'closePanel', 'basket.image.add' => 'addImageToBasket', 'basket.image.change' => 'changeBasketImage'];
 
     // The query string parameters.
     protected $queryString = [
@@ -166,12 +166,8 @@ class ReceiptScan extends Component
     {
         $this->basketSuggestions = $dataPrediction->getBasketSuggestions(auth()->user()->id, $this->basket['id'], 10);
         $this->basketPreview = $this->basketSuggestions[$basketIndex];
-    }
-
-    public function previewBasketClose(DataPredictionService $dataPrediction)
-    {
-        $this->basketSuggestions = $dataPrediction->getBasketSuggestions(auth()->user()->id, $this->basket['id'], 10);
-        $this->basketPreview = null;
+        $this->emit('panel.update', 'basketPreviewPanel', [ 'visibleBasket' => $this->basketPreview, 'edit' => true]);
+        $this->emit('panel.open', 'basketPreviewPanel');
     }
 
     public function addImageToBasket(ImageService $imageService)
@@ -201,6 +197,21 @@ class ReceiptScan extends Component
         $this->imagePath = '';
         $this->prevTempImages = $imageService->listTempImagesFromUserFolder(auth()->user()->id);
         $this->dispatchBrowserEvent('tempImages.refresh', ['images' => $this->prevTempImages]);
+    }
+
+    public function closePanel($panelName, DataPredictionService $dataPrediction)
+    {
+        switch ($panelName) {
+            case 'basketPreviewPanel':
+                $this->previewBasketClose($dataPrediction);
+                break;
+        }
+    }
+
+    private function previewBasketClose(DataPredictionService $dataPrediction)
+    {
+        $this->basketSuggestions = $dataPrediction->getBasketSuggestions(auth()->user()->id, $this->basket['id'], 10);
+        $this->basketPreview = null;
     }
 
     private function extractText(ImageService $imageService)

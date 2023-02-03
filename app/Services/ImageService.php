@@ -15,6 +15,10 @@ class ImageService
     {
         return $image->store(self::RAW_IMAGE_PATH . '/' . $authenticatedUserId, 'private');
     }
+    public function saveReceiptImageToUserFolder(&$image, $authenticatedUserId): string
+    {
+        return $image->store(self::FINAL_IMAGE_PATH . '/' . $authenticatedUserId, 'private');
+    }
 
     // Remove an image from the user's temp folder.
     public function deleteTempImageFromUserFolder($imageName, $authenticatedUserId)
@@ -47,6 +51,11 @@ class ImageService
         return storage_path('app/private/' . self::RAW_IMAGE_PATH . '/' . $authenticatedUserId . '/' . $filename);
     }
 
+    public function receiptFilePath($filename, $authenticatedUserId): string
+    {
+        return storage_path('app/private/' . self::FINAL_IMAGE_PATH . '/' . $authenticatedUserId . '/' . $filename);
+    }
+
     // List all the images from the user's temp folder.
     public function listTempImagesFromUserFolder($authenticatedUserId): array
     {
@@ -62,9 +71,7 @@ class ImageService
     // View the image from the user's receipts folder.
     public function viewReceiptImageFromUserFolder($filename, $authenticatedUserId): string
     {
-        $path = storage_path('app/private/' . self::FINAL_IMAGE_PATH . '/' . $authenticatedUserId . '/' . $filename);
-
-        return $this->getFile($path);
+        return $this->getFile($this->receiptFilePath($filename, $authenticatedUserId));
     }
 
     // Move the image from the user's temp folder to the user's receipts folder.
