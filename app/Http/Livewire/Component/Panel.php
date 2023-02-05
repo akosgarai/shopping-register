@@ -27,10 +27,13 @@ class Panel extends Component
         }
     }
 
-    public function closePanel()
+    // If the panel is open, close it and send a close event to the parent component.
+    public function closePanel($name = '')
     {
-        $this->open = false;
-        $this->emitUp('panel.close', $this->panelName);
+        if ($this->open && ($name == '' || $name == $this->panelName)) {
+            $this->open = false;
+            $this->emitUp('panel.close', $this->panelName);
+        }
     }
 
     public function updatePanel($name, $contentParameters)
