@@ -22,6 +22,9 @@ class ReceiptScan extends Component
     const BASKET_TAB_ID = 'basket-id';
     const BASKET_TAB_SIMILAR = 'basket-same';
 
+    const PANEL_PICK_IMAGE = 'pickImagePanel';
+    const PANEL_BASKET_ID = 'basketIDPanel';
+
     // query parameters
     public $action = '';
     public $imagePath = '';
@@ -72,16 +75,16 @@ class ReceiptScan extends Component
     {
         switch ($action) {
             case 'load':
-                $this->emitSelf("panel.close", 'pickImagePanel');
+                $this->emitSelf("panel.close", self::PANEL_PICK_IMAGE);
                 $this->loadTempImage($imageName);
                 break;
             case 'openpanel':
                 // close the basket preview panel if it is open
-                $this->emitTo('component.panel', 'panel.close', 'basketPreviewPanel');
+                $this->emitTo('component.panel', 'panel.close', self::PANEL_BASKET_ID);
                 $this->action = self::ACTION_PICK;
                 $this->parserApplication = '';
                 $this->imagePath = '';
-                $this->emit("panel.open", "pickImagePanel");
+                $this->emit("panel.open", self::PANEL_PICK_IMAGE);
                 break;
         }
     }
@@ -114,8 +117,8 @@ class ReceiptScan extends Component
         switch ($dataName) {
             case 'basketId':
                 $this->createBasketTab = self::BASKET_TAB_ID;
-                $this->emit('panel.update', 'basketIDPanel', [ 'basket' => $this->basket ]);
-                $this->emit("panel.open", "basketIDPanel");
+                $this->emit('panel.update', self::PANEL_BASKET_ID, [ 'basket' => $this->basket ]);
+                $this->emit("panel.open", self::PANEL_BASKET_ID);
                 break;
         }
     }
@@ -128,13 +131,20 @@ class ReceiptScan extends Component
                 break;
         }
     }
+    public function selectParserClickHandler(ImageService $imageService)
+    {
+        // close the basket preview panel if it is open
+        $this->emitTo('component.panel', 'panel.close', self::PANEL_BASKET_ID);
+        $this->parserApplication = '';
+        $this->extractText($imageService);
+        $this->action = self::ACTION_PARSE;
+    }
 
     // Event handler for the editor save event.
     private function saveEditedImage($imageData, ImageService $imageService)
     {
         $imageService->updateTempImageOfUser($this->imagePath, auth()->user()->id, $imageData);
-        $this->extractText($imageService);
-        $this->action = self::ACTION_PARSE;
+        $this->selectParserClickHandler($imageService);
     }
 
     // It parses the extracted text with the selected parser application.
@@ -149,14 +159,14 @@ class ReceiptScan extends Component
         $this->basketDataHandler('basketId');
     }
 
-    public function closePanel($panelName, DataPredictionService $dataPrediction)
+    public function closePanel($panelName)
     {
         switch ($panelName) {
-            case 'basketPreviewPanel':
-                $this->emitTo('component.panel', 'panel.close', 'basketPreviewPanel');
+        case self::PANEL_BASKET_ID:
+                $this->emitTo('component.panel', 'panel.close', self::PANEL_BASKET_ID);
                 break;
-            case 'pickImagePanel':
-                $this->emitTo('component.panel', 'panel.close', 'pickImagePanel');
+            case self::PANEL_PICK_IMAGE:
+                $this->emitTo('component.panel', 'panel.close', self::PANEL_PICK_IMAGE);
                 if ($this->action == self::ACTION_PICK) {
                     $this->action = '';
                 }
@@ -210,6 +220,7 @@ class ReceiptScan extends Component
     private function editStep()
     {
         $this->action = self::ACTION_EDIT;
+        $this->emitTo('component.panel', 'panel.close', self::PANEL_BASKET_ID);
         $this->parserApplication = '';
         $this->dispatchBrowserEvent('receiptScan.edit', ['imagePath' => route('image.viewTemp', ['filename' => $this->imagePath, 'v' => time()])]);
     }

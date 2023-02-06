@@ -14,7 +14,7 @@
             @include('livewire.component.navitem', [
                 'itemLabel' => __('Select Parser'),
                 'itemActive' => $action == self::ACTION_PARSE,
-                'itemClick' => '$set("action", "' . self::ACTION_PARSE . '")',
+                'itemClick' => 'selectParserClickHandler',
                 ])
             @if ($parserApplication != '')
                 @include('livewire.component.navitem', [
@@ -71,12 +71,12 @@
         @endif
     </div>
     <livewire:component.panel :open="$createBasketTab == self::BASKET_TAB_ID" :position="'right'"
-        :panelName="'basketIDPanel'"
+        :panelName="self::PANEL_BASKET_ID"
         :panelTitle="__('Basket ID')"
         :contentTemplate="'livewire.component.scan.receiptid'"
         :contentParameters="[ 'basket' => $basket ]">
     <livewire:component.panel :open="$action == self::ACTION_PICK" :position="'left'"
-        :panelName="'pickImagePanel'"
+        :panelName="self::PANEL_PICK_IMAGE"
         :panelTitle="__('Choose Image')"
         :contentTemplate="'livewire.component.images.temp'"
         :contentParameters="[ ]">
