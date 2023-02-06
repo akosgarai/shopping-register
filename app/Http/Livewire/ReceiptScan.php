@@ -51,6 +51,7 @@ class ReceiptScan extends Component
         'action' => ['except' => ''],
         'imagePath' => ['except' => '', 'as' => 'document'],
         'parserApplication' => ['except' => '', 'as' => 'parser'],
+        'createBasketTab' => ['except' => '', 'as' => 'tab'],
     ];
 
     // Initialize the component based on the query string parameters.
@@ -164,6 +165,7 @@ class ReceiptScan extends Component
         switch ($panelName) {
         case self::PANEL_BASKET_ID:
                 $this->emitTo('component.panel', 'panel.close', self::PANEL_BASKET_ID);
+                $this->createBasketTab = '';
                 break;
             case self::PANEL_PICK_IMAGE:
                 $this->emitTo('component.panel', 'panel.close', self::PANEL_PICK_IMAGE);

@@ -25,7 +25,7 @@
             @endif
         @endif
     </ul>
-    <div id="image-editor" @if($action != self::ACTION_EDIT) style="display:none;" @endif>
+    <div id="image-editor" @if($action != self::ACTION_EDIT) style="display:none;" @endif class="mt-3">
         <livewire:component.image-manipulator :image="$imagePath" />
     </div>
     @if($action == self::ACTION_PARSE)
