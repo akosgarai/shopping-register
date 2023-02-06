@@ -5,7 +5,6 @@ namespace App\Http\Livewire;
 use Alimranahmed\LaraOCR\Services\OcrAbstract;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
-use Livewire\WithFileUploads;
 
 use App\Models\Basket;
 use App\ScannedBasket;
@@ -15,8 +14,6 @@ use App\Services\ImageService;
 
 class ReceiptScan extends Component
 {
-    use WithFileUploads;
-
     const ACTION_PICK = 'pick';
     const ACTION_EDIT = 'edit';
     const ACTION_PARSE = 'parse';
@@ -25,20 +22,26 @@ class ReceiptScan extends Component
     const BASKET_TAB_ID = 'basket-id';
     const BASKET_TAB_SIMILAR = 'basket-same';
 
+    // query parameters
     public $action = '';
-    public $tempImage = null;
-    public $prevTempImages = [];
     public $imagePath = '';
-    public $rawExtractedText = '';
     public $parserApplication = '';
+
+    public $rawExtractedText = '';
     public $basket = [];
 
-    public $basketSuggestions = null;
     public $basketPreview = null;
 
-    public $createBasketTab = self::BASKET_TAB_ID;
+    public $createBasketTab = '';
 
-    protected $listeners = ['edit.finished' => 'saveEditedImage', 'panel.close' => 'closePanel', 'basket.image.add' => 'addImageToBasket', 'basket.image.change' => 'changeBasketImage'];
+    protected $listeners = [
+        'panel.close' => 'closePanel',
+        'basket.image' => 'basketImageHandler',
+        'temp.image' => 'tempImageHandler',
+        'image.editing' => 'imageEditingHandler',
+        'basket.data' => 'basketDataHandler',
+        'basket.data.update' => 'basketDataUpdateHandler',
+    ];
 
     // The query string parameters.
     protected $queryString = [
@@ -51,7 +54,6 @@ class ReceiptScan extends Component
     public function mount(ImageService $imageService, BasketExtractorService $basketExtractor, DataPredictionService $dataPrediction)
     {
         $this->action = request()->query('action', '');
-        $this->prevTempImages = $imageService->listTempImagesFromUserFolder(auth()->user()->id);
         if ($this->action == self::ACTION_PARSE || $this->action == self::ACTION_BASKET) {
             $this->extractText($imageService);
 
@@ -66,66 +68,69 @@ class ReceiptScan extends Component
         return view('livewire.receipt-scan')->extends('layouts.app');
     }
 
-    // Event handler for the offcanvas open event.
-    // It sets the action parameter to ACTION_PICK
-    // and dispatches the 'receiptScan.pick' browser event to open the offcanvas.
-    public function offcanvasOpen()
+    public function tempImageHandler($action, $imageName = null)
     {
-        $this->action = self::ACTION_PICK;
-        $this->imagePath = '';
-        $this->parserApplication = '';
-        $this->dispatchBrowserEvent('receiptScan.pick');
+        switch ($action) {
+            case 'load':
+                $this->emitSelf("panel.close", 'pickImagePanel');
+                $this->loadTempImage($imageName);
+                break;
+            case 'openpanel':
+                // close the basket preview panel if it is open
+                $this->emitTo('component.panel', 'panel.close', 'basketPreviewPanel');
+                $this->action = self::ACTION_PICK;
+                $this->parserApplication = '';
+                $this->imagePath = '';
+                $this->emit("panel.open", "pickImagePanel");
+                break;
+        }
     }
-
-    // Event handler for the offcanvas close event.
-    // In case of the action is ACTION_PICK it sets the action parameter to empty.
-    // Otherwise we are in the edit step after submitting the offcanvas, so we have to keep this action.
-    public function offcanvasClose()
+    public function basketImageHandler($action, $targetBasketId, ImageService $imageService)
     {
-        if ($this->action == self::ACTION_PICK) {
-            $this->action = '';
+        switch ($action) {
+        case 'add':
+            $this->addImageToBasket($targetBasketId, $imageService);
+            break;
+        case 'change':
+            $this->changeBasketImage($targetBasketId, $imageService);
+            break;
         }
     }
 
-    // Action and frontend initialization for the edit step.
-    // It sets the action parameter to ACTION_EDIT and dispatches the 'receiptScan.edit' browser event
-    // to initialize the frontend, loads the image to the editor.
-    public function editStep()
+    public function imageEditingHandler($action, $imageData = '', ImageService $imageService)
     {
-        $this->action = self::ACTION_EDIT;
-        $this->parserApplication = '';
-        $this->dispatchBrowserEvent('receiptScan.edit', ['imagePath' => route('image.viewTemp', ['filename' => $this->imagePath])]);
-    }
-
-    // Event handler for the offcanvas submit event.
-    // It validates the image and if it is valid it saves it to the temp folder and
-    // loads the image to the editor.
-    public function saveTempImage(ImageService $imageService)
-    {
-        try {
-            $this->validate([
-                'tempImage' => 'required|image',
-            ]);
-        } catch (ValidationException $e) {
-            $messages = $e->validator->getMessageBag();
-            $this->dispatchBrowserEvent('model.validation', ['type' => 'pick', 'model' => 'ImageOffcanvas', 'messages' => $messages]);
-            return;
+        switch ($action) {
+            case 'finished':
+                $this->saveEditedImage($imageData, $imageService);
+                break;
+            case 'start':
+                $this->editStep();
+                break;
         }
-        $receiptUrl = $imageService->saveTempImageToUserFolder($this->tempImage, auth()->user()->id);
-        $this->prevTempImages = $imageService->listTempImagesFromUserFolder(auth()->user()->id);
-        $this->dispatchBrowserEvent('tempImages.refresh', ['images' => $this->prevTempImages]);
-        $this->loadTempImage(basename($receiptUrl));
     }
 
-    // It sets the imagePath parameter to the value passed in and loads the image to the editor.
-    public function loadTempImage($imageName)
+    public function basketDataHandler($dataName)
     {
-        $this->imagePath = $imageName;
-        $this->editStep();
+        switch ($dataName) {
+            case 'basketId':
+                $this->createBasketTab = self::BASKET_TAB_ID;
+                $this->emit('panel.update', 'basketIDPanel', [ 'basket' => $this->basket ]);
+                $this->emit("panel.open", "basketIDPanel");
+                break;
+        }
+    }
+
+    public function basketDataUpdateHandler($dataName, $newValue)
+    {
+        switch ($dataName) {
+            case 'basketId':
+                $this->basket['id'] = $newValue;
+                break;
+        }
     }
 
     // Event handler for the editor save event.
-    public function saveEditedImage($imageData, ImageService $imageService)
+    private function saveEditedImage($imageData, ImageService $imageService)
     {
         $imageService->updateTempImageOfUser($this->imagePath, auth()->user()->id, $imageData);
         $this->extractText($imageService);
@@ -133,90 +138,79 @@ class ReceiptScan extends Component
     }
 
     // It parses the extracted text with the selected parser application.
-    public function parseText($parserApplication, BasketExtractorService $basketExtractor, DataPredictionService $dataPrediction)
+    public function parseText($parserApplication, BasketExtractorService $basketExtractor)
     {
         $this->parserApplication = $parserApplication;
         $basket = $basketExtractor->parseTextWith($this->rawExtractedText, $this->parserApplication);
         $this->basket = $basket->toArray();
         $this->action = self::ACTION_BASKET;
-        // check the raw receipt id. If we have exact match, display the same baskets tab.
-        $this->basketSuggestions = $dataPrediction->getBasketSuggestions(auth()->user()->id, $this->basket['id'], 10);
-        if ($this->basketSuggestions->count() > 0) {
-            $firstBasket = $this->basketSuggestions->first();
-            if ($firstBasket->distance == 0) {
-                $this->createBasketTab = self::BASKET_TAB_SIMILAR;
-                $this->basketPreview = $firstBasket;
-            }
-        }
-    }
 
-    public function basketIdForm()
-    {
-        $this->createBasketTab = self::BASKET_TAB_ID;
-        $this->basketPreview = null;
-    }
-
-    public function basketSimilarBaskets(DataPredictionService $dataPrediction)
-    {
-        $this->basketSuggestions = $dataPrediction->getBasketSuggestions(auth()->user()->id, $this->basket['id'], 10);
-        $this->createBasketTab = self::BASKET_TAB_SIMILAR;
-    }
-
-    public function previewBasketOpen($basketIndex, DataPredictionService $dataPrediction)
-    {
-        $this->basketSuggestions = $dataPrediction->getBasketSuggestions(auth()->user()->id, $this->basket['id'], 10);
-        $this->basketPreview = $this->basketSuggestions[$basketIndex];
-        $this->emit('panel.update', 'basketPreviewPanel', [ 'visibleBasket' => $this->basketPreview, 'edit' => true]);
-        $this->emit('panel.open', 'basketPreviewPanel');
-    }
-
-    public function addImageToBasket(ImageService $imageService)
-    {
-        // move the image from the temp folder to the receipt folder
-        $imageService->moveReceiptImageFromTempToReceiptUserFolder($this->imagePath, auth()->user()->id);
-        // and add the image to the basket
-        $basket = Basket::where('id', $this->basketPreview->id)
-            ->where('user_id', auth()->user()->id)
-            ->first();
-        if ($basket) {
-            $basket->receipt_url = $this->imagePath;
-            $basket->save();
-        }
-        return redirect()->route('basket', ['id' => $this->basketPreview->id]);
-    }
-    public function changeBasketImage(ImageService $imageService)
-    {
-        // delete the current image
-        $imageService->deleteReceiptImageFromUserFolder($this->basketPreview->receipt_url, auth()->user()->id);
-        return $this->addImageToBasket($imageService);
-    }
-
-    public function deleteTempImage(string $imageName, ImageService $imageService)
-    {
-        $imageService->deleteTempImageFromUserFolder($imageName, auth()->user()->id);
-        $this->imagePath = '';
-        $this->prevTempImages = $imageService->listTempImagesFromUserFolder(auth()->user()->id);
-        $this->dispatchBrowserEvent('tempImages.refresh', ['images' => $this->prevTempImages]);
+        $this->emit('basket.data.extracted', $this->basket);
+        $this->basketDataHandler('basketId');
     }
 
     public function closePanel($panelName, DataPredictionService $dataPrediction)
     {
         switch ($panelName) {
             case 'basketPreviewPanel':
-                $this->previewBasketClose($dataPrediction);
+                $this->emitTo('component.panel', 'panel.close', 'basketPreviewPanel');
+                break;
+            case 'pickImagePanel':
+                $this->emitTo('component.panel', 'panel.close', 'pickImagePanel');
+                if ($this->action == self::ACTION_PICK) {
+                    $this->action = '';
+                }
                 break;
         }
-    }
-
-    private function previewBasketClose(DataPredictionService $dataPrediction)
-    {
-        $this->basketSuggestions = $dataPrediction->getBasketSuggestions(auth()->user()->id, $this->basket['id'], 10);
-        $this->basketPreview = null;
     }
 
     private function extractText(ImageService $imageService)
     {
         $ocr = app()->make(OcrAbstract::class);
         $this->rawExtractedText = $ocr->scan($imageService->tempFilePath($this->imagePath, auth()->user()->id));
+    }
+
+    // It sets the imagePath parameter to the value passed in and loads the image to the editor.
+    private function loadTempImage($imageName)
+    {
+        $this->imagePath = $imageName;
+        $this->editStep();
+    }
+
+    private function addImageToBasket($targetBasketId, ImageService $imageService)
+    {
+        // move the image from the temp folder to the receipt folder
+        $imageService->moveReceiptImageFromTempToReceiptUserFolder($this->imagePath, auth()->user()->id);
+        // and add the image to the basket
+        $basket = Basket::where('id', $targetBasketId)
+            ->where('user_id', auth()->user()->id)
+            ->first();
+        if ($basket) {
+            $basket->receipt_url = $this->imagePath;
+            $basket->save();
+        }
+        return redirect()->route('basket', ['id' => $targetBasketId]);
+    }
+    private function changeBasketImage($targetBasketId, ImageService $imageService)
+    {
+        $userId = auth()->user()->id;
+        // delete the current image
+        $basket = Basket::where('id', $targetBasketId)
+            ->where('user_id', $userId)
+            ->first();
+        if ($basket) {
+            $imageService->deleteReceiptImageFromUserFolder($basket->receipt_url, $userId);
+        }
+        return $this->addImageToBasket($targetBasketId, $imageService);
+    }
+
+    // Action and frontend initialization for the edit step.
+    // It sets the action parameter to ACTION_EDIT and dispatches the 'receiptScan.edit' browser event
+    // to initialize the frontend, loads the image to the editor.
+    private function editStep()
+    {
+        $this->action = self::ACTION_EDIT;
+        $this->parserApplication = '';
+        $this->dispatchBrowserEvent('receiptScan.edit', ['imagePath' => route('image.viewTemp', ['filename' => $this->imagePath, 'v' => time()])]);
     }
 }
