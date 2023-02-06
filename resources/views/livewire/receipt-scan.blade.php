@@ -41,8 +41,8 @@
                 ])
             @include('livewire.component.navitem', [
                 'itemLabel' => __('Company'),
-                'itemActive' => $action == self::ACTION_PICK,
-                'itemClick' => '$emitSelf("basket.data", "basketId")',
+                'itemActive' => $createBasketTab == self::BASKET_TAB_COMPANY,
+                'itemClick' => '$emitSelf("basket.data", "companyId")',
                 ])
             @include('livewire.component.navitem', [
                 'itemLabel' => __('Shop'),
@@ -74,6 +74,11 @@
         :panelName="self::PANEL_BASKET_ID"
         :panelTitle="__('Basket ID')"
         :contentTemplate="'livewire.component.scan.receiptid'"
+        :contentParameters="[ 'basket' => $basket ]">
+    <livewire:component.panel :open="$createBasketTab == self::PANEL_BASKET_COMPANY" :position="'right'"
+        :panelName="self::PANEL_BASKET_COMPANY"
+        :panelTitle="__('Company')"
+        :contentTemplate="'livewire.component.scan.companyid'"
         :contentParameters="[ 'basket' => $basket ]">
     <livewire:component.panel :open="$action == self::ACTION_PICK" :position="'left'"
         :panelName="self::PANEL_PICK_IMAGE"
