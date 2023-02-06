@@ -29,9 +29,9 @@
     </div>
     @if($visibleBasket['receipt_url'])
         <img src="{{ route('image.viewReceipt', ['filename' =>  $visibleBasket['receipt_url']]) }}" class="img-fluid" />
-        @if($edit) <button wire:click="$emitUp('basket.image.change')" class="btn btn-primary">{{ __('Change Image') }}</button> @endif
+        @if($edit) <button wire:click="$emitUp('basket.image', 'change', {{ $visibleBasket['id'] }})" class="btn btn-primary">{{ __('Change Image') }}</button> @endif
     @else
-        @if($edit) <button wire:click="$emitUp('basket.image.add')" class="btn btn-primary">{{ __('Add Image') }}</button> @endif
+        @if($edit) <button wire:click="$emitUp('basket.image', 'add', {{ $visibleBasket['id'] }})" class="btn btn-primary">{{ __('Add Image') }}</button> @endif
     @endif
 @endif
 </div>
