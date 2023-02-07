@@ -1,7 +1,9 @@
 <div>
-    <form wire:submit.prevent="$emitUp('basket.data.update', 'basketId', @this.basketId)">
+    <form wire:submit.prevent="validateInputs">
         @include('livewire.component.offcanvasform.textinput', ['modelId' => 'basketId', 'formLabel' => __('Receipt ID')])
-        <button type="submit" class="btn btn-primary">{{ __('Next') }}</button>
+        <div class="d-flex flex-row-reverse">
+            <button type="submit" class="btn btn-success">{{ __('Setup Company') }}</button>
+        </div>
     </form>
 @if(count($suggestions) > 0)
     <h4>{{ __('Similar Baskets') }}</h4>

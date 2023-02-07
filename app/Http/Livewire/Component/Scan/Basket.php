@@ -52,6 +52,14 @@ class Basket extends Component
         $this->basketPreview = $this->suggestions[$index];
     }
 
+    public function validateInputs()
+    {
+        $this->validate([
+            'basketId' => 'required|string',
+        ]);
+        $this->emitUp('basket.data.update', 'basketId', $this->basketId);
+    }
+
     /*
      * It is called to get the suggestions for the basketId.
      * */
