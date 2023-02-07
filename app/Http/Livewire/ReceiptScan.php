@@ -7,6 +7,8 @@ use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 
 use App\Models\Basket;
+use App\Models\Company;
+use App\Models\Shop;
 use App\ScannedBasket;
 use App\Services\BasketExtractorService;
 use App\Services\ImageService;
@@ -20,15 +22,18 @@ class ReceiptScan extends Component
 
     const BASKET_TAB_ID = 'basket-id';
     const BASKET_TAB_COMPANY = 'basket-company';
+    const BASKET_TAB_SHOP = 'basket-shop';
 
     const PANEL_PICK_IMAGE = 'pickImagePanel';
     const PANEL_BASKET_ID = 'basketIDPanel';
     const PANEL_BASKET_COMPANY = 'basketCompanyPanel';
+    const PANEL_BASKET_SHOP = 'basketShopPanel';
 
     const PANELS = [
         self::PANEL_PICK_IMAGE,
         self::PANEL_BASKET_ID,
-        self::PANEL_BASKET_COMPANY
+        self::PANEL_BASKET_COMPANY,
+        self::PANEL_BASKET_SHOP,
     ];
 
     // query parameters
@@ -133,6 +138,12 @@ class ReceiptScan extends Component
                 $this->emit('panel.update', self::PANEL_BASKET_COMPANY, [ 'basket' => $this->basket ]);
                 $this->emit("panel.open", self::PANEL_BASKET_COMPANY);
                 break;
+            case 'shopId':
+                $this->closePanelsExcept(self::PANEL_BASKET_SHOP);
+                $this->createBasketTab = self::BASKET_TAB_SHOP;
+                $this->emit('panel.update', self::PANEL_BASKET_SHOP, [ 'basket' => $this->basket ]);
+                $this->emit("panel.open", self::PANEL_BASKET_SHOP);
+                break;
         }
     }
 
@@ -144,7 +155,20 @@ class ReceiptScan extends Component
                 break;
             case 'companyId':
                 $this->basket['company_id'] = $newValue;
+                $company = Company::where('id', $newValue)->with('address')->first();
+                $this->basket['companyName'] = $company->name;
+                $this->basket['companyAddress'] = $company->address->raw;
+                $this->basket['taxNumber'] = $company->tax_number;
+                break;
+            case 'shopId':
+                $this->basket['shop_id'] = $newValue;
+                $shop = Shop::where('id', $newValue)->with('address')->first();
+                $this->basket['marketName'] = $shop->name;
+                $this->basket['marketAddress'] = $shop->address->raw;
+                break;
         }
+        // Notify the components about the changes.
+        $this->emit('basket.data.extracted', $this->basket);
     }
     public function selectParserClickHandler(ImageService $imageService)
     {
