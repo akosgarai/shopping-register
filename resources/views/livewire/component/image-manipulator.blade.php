@@ -54,7 +54,7 @@
             }
         });
         document.addEventListener('editor.complete', function (e) {
-            Livewire.emit('image.editing', 'finished', instance.toDataURL());
+            Livewire.emit('image.editing', instance.toDataURL());
         });
     </script>
 </div>
