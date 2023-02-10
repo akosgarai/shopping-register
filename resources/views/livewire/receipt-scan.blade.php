@@ -90,4 +90,7 @@
         :panelTitle="__('Choose Image')"
         :contentTemplate="'livewire.component.images.temp'"
         :contentParameters="[ ]">
+    <div wire:loading.flex class="loading">
+        @include('components.loader-tesseract')
+    </div>
 </div>
