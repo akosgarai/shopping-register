@@ -13,7 +13,7 @@
             @if (!$allowSaveCompany && !$allowSaveAddress && $selectedCompany != "")
                 <button type="submit" class="btn btn-success">{{ __('Setup Shop') }}</button>
             @endif
-            <button wire:click.prevent='$emitUp("basket.data", "basketId")' class="btn btn-info me-auto">{{ __('Back to Basket ID') }}</button>
+            <input type="button" wire:click="$emitUp('action.back');" class="btn btn-info me-auto" value="{{ __('Back to Basket ID') }}">
         </div>
     </form>
     <hr>
