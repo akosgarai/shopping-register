@@ -13,7 +13,7 @@
             @foreach($uploadedImages as $image)
                 <div class="mb-3">
                     <div class="d-flex justify-content-between flex-wrap flex-grow">
-                        <a href="#" wire:click.prevent="$emitUp('temp.image', 'load', '{{ $image }}')">
+                        <a href="#" wire:click.prevent="$emitUp('temp.image.load', '{{ $image }}')">
                             <img src="{{ route('image.viewTemp', ['filename' => $image]) }}" class="img-thumbnail" style="max-width: 100px; max-height: 100px;"></a>
                         <div class="align-self-center">
                             <button type="button" class="btn btn-danger" wire:click.prevent="deleteImage('{{ $image }}')">{{ __('Delete') }}</button>
