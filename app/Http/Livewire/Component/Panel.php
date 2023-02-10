@@ -13,7 +13,11 @@ class Panel extends Component
     public $contentTemplate = '';
     public $contentParameters = [];
 
-    protected $listeners = ['panel.open' => 'openPanel', 'panel.close' => 'closePanel', 'panel.update' => 'updatePanel'];
+    protected $listeners = [
+        'panel.open' => 'openPanel',
+        'panel.close' => 'closePanel',
+        'panel.update' => 'updatePanel',
+    ];
 
     public function render()
     {
@@ -32,10 +36,12 @@ class Panel extends Component
     {
         if ($this->open && ($name == '' || $name == $this->panelName)) {
             $this->open = false;
-            $this->emitUp('panel.close', $this->panelName);
+            $this->emitUp('panel.closed', $this->panelName);
         }
     }
 
+
+    // It updates the content parameters of the blade template if the panel name matches.
     public function updatePanel($name, $contentParameters)
     {
         if ($name == $this->panelName) {
