@@ -32,7 +32,7 @@ class TempImages extends Component
         $receiptUrl = $imageService->saveTempImageToUserFolder($this->newImage, auth()->user()->id);
         $this->uploadedImages = $imageService->listTempImagesFromUserFolder(auth()->user()->id);
 
-        $this->emitUp('temp.image', 'load', basename($receiptUrl));
+        $this->emitUp('temp.image.load', basename($receiptUrl));
     }
 
     public function deleteImage(string $imageName, ImageService $imageService)
