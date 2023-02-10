@@ -85,6 +85,15 @@ class Company extends Component
         }
     }
 
+    public function validateInputs()
+    {
+        $this->validate([
+            'name' => 'required|string',
+            'taxNumber' => 'required|string|exists:companies,tax_number|digits:11',
+        ]);
+        $this->emitUp('basket.data.update', 'companyId', $this->companySuggestions[0]['id']);
+    }
+
     private function updateAddress(DataPredictionService $dataPrediction)
     {
         $this->address = $this->selectedAddress;
