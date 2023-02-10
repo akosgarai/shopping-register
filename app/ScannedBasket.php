@@ -4,7 +4,7 @@ namespace App;
 
 class ScannedBasket
 {
-    public $id = '';
+    public $basketId = '';
     public $taxNumber = '';
     public $marketAddress = '';
     public $marketName = '';
@@ -14,10 +14,14 @@ class ScannedBasket
     public $total = '';
     public $items = [];
 
+    // The following parameters are added during the manual data correction
+    public $companyId = '';
+    public $marketId = '';
+
     public function toArray(): array
     {
         return [
-            'id' => $this->id,
+            'basketId' => $this->basketId,
             'taxNumber' => $this->taxNumber,
             'marketAddress' => $this->marketAddress,
             'marketName' => $this->marketName,

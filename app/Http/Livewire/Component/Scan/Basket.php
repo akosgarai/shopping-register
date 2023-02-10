@@ -36,8 +36,8 @@ class Basket extends Component
 
     public function basketDataHandler($basket, DataPredictionService $dataPrediction)
     {
-        $this->scannedBasketId = $basket['id'];
-        $this->basketId = $basket['id'];
+        $this->scannedBasketId = $basket['basketId'];
+        $this->basketId = $basket['basketId'];
         $this->getBasketPredictions($dataPrediction);
     }
 
