@@ -2,6 +2,9 @@
 
 namespace App;
 
+use App\Models\Company;
+use App\Models\Shop;
+
 class ScannedBasket
 {
     public $basketId = '';
@@ -20,7 +23,7 @@ class ScannedBasket
 
     public function toArray(): array
     {
-        return [
+        $data = [
             'basketId' => $this->basketId,
             'taxNumber' => $this->taxNumber,
             'marketAddress' => $this->marketAddress,
@@ -31,5 +34,40 @@ class ScannedBasket
             'total' => $this->total,
             'items' => $this->items,
         ];
+        if ($this->companyId) {
+            $data['companyId'] = $this->companyId;
+            $company = Company::where('id', $this->companyId)->with('address')->first();
+            $data['companyName'] = $company->name;
+            $data['companyAddress'] = $company->address->raw;
+            $data['taxNumber'] = $company->tax_number;
+        }
+        if ($this->marketId) {
+            $data['marketId'] = $this->marketId;
+            $shop = Shop::where('id', $this->marketId)->with('address')->first();
+            $data['marketName'] = $shop->name;
+            $data['marketAddress'] = $shop->address->raw;
+        }
+        return $data;
+    }
+
+    public static function fromArray(array $data): ScannedBasket
+    {
+        $basket = new ScannedBasket();
+        $basket->basketId = $data['basketId'];
+        $basket->taxNumber = $data['taxNumber'];
+        $basket->marketAddress = $data['marketAddress'];
+        $basket->marketName = $data['marketName'];
+        $basket->companyAddress = $data['companyAddress'];
+        $basket->companyName = $data['companyName'];
+        $basket->date = $data['date'];
+        $basket->total = $data['total'];
+        $basket->items = $data['items'];
+        if (isset($data['companyId'])) {
+            $basket->companyId = $data['companyId'];
+        }
+        if (isset($data['marketId'])) {
+            $basket->marketId = $data['marketId'];
+        }
+        return $basket;
     }
 }
