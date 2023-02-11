@@ -44,7 +44,7 @@ class Shop extends Component
     {
         $this->scannedName = $basket['marketName'];
         $this->scannedAddress = $basket['marketAddress'];
-        $this->shopCompany = $basket['company_id'] ?? '';
+        $this->shopCompany = $basket['companyId'] ?? '';
         $this->mount();
         $this->getPredictions($dataPrediction);
     }

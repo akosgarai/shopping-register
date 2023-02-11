@@ -4,15 +4,18 @@
     @else
         @include('livewire.component.offcanvasform.textinput', ['modelId' => 'name', 'formLabel' => __('Shop Name')])
         @include('livewire.component.offcanvasform.textinput', ['modelId' => 'address', 'formLabel' => __('Address')])
-        @if ($allowSaveAddress)
-            <button wire:click="insertNew('{{ self::DATA_TYPE_ADDRESS }}')" class="btn btn-primary">{{ __('New Address') }}</button>
-        @endif
-        @if ($allowSaveShop)
-            <button wire:click="insertNew('{{ self::DATA_TYPE_SHOP }}')" class="btn btn-primary">{{ __('New Shop') }}</button>
-        @endif
-        @if (!$allowSaveShop && !$allowSaveAddress)
-            <button wire:click="$emitUp('basket.data.update', 'shopId', @this.shopSuggestions[0]['id'])" class="btn btn-primary">{{ __('Next') }}</button>
-        @endif
+        <div class="d-flex flex-row-reverse">
+            @if ($allowSaveAddress)
+                <button wire:click="insertNew('{{ self::DATA_TYPE_ADDRESS }}')" class="btn btn-primary">{{ __('New Address') }}</button>
+            @endif
+            @if ($allowSaveShop)
+                <button wire:click="insertNew('{{ self::DATA_TYPE_SHOP }}')" class="btn btn-primary">{{ __('New Shop') }}</button>
+            @endif
+            @if (!$allowSaveShop && !$allowSaveAddress)
+                <button wire:click="$emitUp('basket.data.update', 'shopId', @this.selectedShop)" class="btn btn-primary">{{ __('Next') }}</button>
+            @endif
+            <input type="button" wire:click="$emitUp('action.back');" class="btn btn-info me-auto" value="{{ __('Back to Company') }}">
+        </div>
         <hr>
         <div class="mb-3">
             <label for="selectedAddress" class="form-label">{{ __('Address') }}</label>
