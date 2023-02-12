@@ -17,8 +17,13 @@ class Basket extends Component
 {
     // The scanned text that might be a receipt id.
     public $scannedBasketId = '';
+    // The scanned text that might be the date of the event.
+    public $scannedBasketDate = '';
+
     // The receipt id that is editable by the user.
     public $basketId = '';
+    // The receipt date that is editable by the user.
+    public $basketDate = '';
     // Basket suggestions based on the basketId
     public $suggestions = [];
     // Basket choosen from the suggestions that we display.
@@ -31,6 +36,7 @@ class Basket extends Component
     public function mount(DataPredictionService $dataPrediction)
     {
         $this->basketId = $this->scannedBasketId;
+        $this->basketDate = $this->scannedBasketDate;
         $this->getBasketPredictions($dataPrediction);
     }
 
@@ -56,8 +62,9 @@ class Basket extends Component
     {
         $this->validate([
             'basketId' => 'required|string',
+            'basketDate' => 'required|date',
         ]);
-        $this->emitUp('basket.data.update', 'basketId', $this->basketId);
+        $this->emitUp('basket.data.update', [ 'basketId' => $this->basketId, 'date' => $this->basketDate ]);
     }
 
     /*

@@ -56,7 +56,7 @@
         :contentParameters="[ 'parsers' => self::PARSERS ]">
     <livewire:component.panel :open="$action == self::ACTION_BASKET" :position="'right'"
         :panelName="self::PANEL_BASKET_ID"
-        :panelTitle="__('Basket ID')"
+        :panelTitle="__('Basket')"
         :contentTemplate="'livewire.component.scan.receiptid'"
         :contentParameters="[ 'basket' => $basket ]">
     <livewire:component.panel :open="$action == self::ACTION_COMPANY" :position="'right'"

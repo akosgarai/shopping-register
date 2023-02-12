@@ -164,9 +164,11 @@ class ReceiptScan extends Component
         $this->emitSelf('action.next');
     }
 
-    public function basketDataUpdateHandler($dataName, $newValue)
+    public function basketDataUpdateHandler(array $updatedData)
     {
-        $this->basket[$dataName] = $newValue;
+        foreach ($updatedData as $key => $value) {
+            $this->basket[$key] = $value;
+        }
         $this->basket = ScannedBasket::fromArray($this->basket)->toArray();
         // Notify the components about the changes.
         $this->emit('basket.data.extracted', $this->basket);

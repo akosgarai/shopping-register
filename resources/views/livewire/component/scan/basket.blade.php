@@ -1,6 +1,7 @@
 <div>
     <form wire:submit.prevent="validateInputs">
         @include('livewire.component.offcanvasform.textinput', ['modelId' => 'basketId', 'formLabel' => __('Receipt ID')])
+        @include('livewire.component.offcanvasform.datetimelocalinput', ['modelId' => 'basketDate', 'formLabel' => __('Date')])
         <div class="d-flex flex-row-reverse">
             <button type="submit" class="btn btn-success">{{ __('Setup Company') }}</button>
         </div>

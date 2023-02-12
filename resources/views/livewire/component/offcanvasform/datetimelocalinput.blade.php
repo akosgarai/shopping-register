@@ -1,5 +1,5 @@
 <div class="mb-3">
     <label for="{{ $modelId }}" class="form-label">{{ $formLabel }}</label>
     <input type="datetime-local" class="form-control" id="{{ $modelId }}" wire:model="{{ $modelId }}" @if(!empty($readonly)) readonly disabled @endif>
-    <span id="errors-{{ $modelId }}" class="text-danger" style="display: none;"></span>
+    <span id="errors-{{ $modelId }}" class="text-danger">@error($modelId) {{ $message }} @enderror</span>
 </div>
