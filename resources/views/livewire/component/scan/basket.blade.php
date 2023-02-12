@@ -3,7 +3,9 @@
         @include('livewire.component.offcanvasform.textinput', ['modelId' => 'basketId', 'formLabel' => __('Receipt ID')])
         @include('livewire.component.offcanvasform.datetimelocalinput', ['modelId' => 'basketDate', 'formLabel' => __('Date')])
         <div class="d-flex flex-row-reverse">
-            <button type="submit" class="btn btn-success">{{ __('Setup Company') }}</button>
+            @if ($basketId != '' && $basketDate != '')
+                <button type="submit" class="btn btn-success">{{ __('Setup Company') }}</button>
+            @endif
         </div>
     </form>
 @if(count($suggestions) > 0)
