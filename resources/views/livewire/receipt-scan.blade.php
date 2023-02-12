@@ -3,24 +3,24 @@
         @include('livewire.component.navitem', [
             'itemLabel' => __('Choose Image'),
             'itemActive' => $action == self::ACTION_PICK,
-            'itemClick' => '$emitSelf("temp.image", "openpanel")'
+            'itemClick' => '$emitSelf("action.change", "' . self::ACTION_PICK . '")',
             ])
         @if ($imagePath != '')
             @include('livewire.component.navitem', [
                 'itemLabel' => __('Edit Image'),
                 'itemActive' => $action == self::ACTION_EDIT,
-                'itemClick' => '$emitSelf("image.editing", "start", "")',
+                'itemClick' => '$emitSelf("action.change", "' . self::ACTION_EDIT . '")',
                 ])
             @include('livewire.component.navitem', [
                 'itemLabel' => __('Select Parser'),
                 'itemActive' => $action == self::ACTION_PARSE,
-                'itemClick' => 'selectParserClickHandler',
+                'itemClick' => '$emitSelf("action.change", "' . self::ACTION_PARSE . '")',
                 ])
             @if ($parserApplication != '')
                 @include('livewire.component.navitem', [
                     'itemLabel' => __('Create Basket'),
-                    'itemActive' => $action == self::ACTION_BASKET,
-                    'itemClick' => '$set("action", "' . self::ACTION_BASKET . '")',
+                    'itemActive' => array_search($action, self::ACTION_STEP) > 2,
+                    'itemClick' => '$emitSelf("action.change", "' . self::ACTION_BASKET . '")',
                     ])
             @endif
         @endif
@@ -28,59 +28,43 @@
     <div id="image-editor" @if($action != self::ACTION_EDIT) style="display:none;" @endif class="mt-3">
         <livewire:component.image-manipulator :image="$imagePath" />
     </div>
-    @if($action == self::ACTION_PARSE)
+    @if($action == '')
         <div class="col-sm-12">
-            <button type="button" class="btn btn-primary" wire:click="parseText('spar')">{{ __('Spar') }}</button>
+            Default screen. No action has been selected.
         </div>
-    @elseif($action == self::ACTION_BASKET)
-        <ul class="nav">
-            @include('livewire.component.navitem', [
-                'itemLabel' => __('Basket ID'),
-                'itemActive' => $createBasketTab == self::BASKET_TAB_ID,
-                'itemClick' => '$emitSelf("basket.data", "basketId")',
-                ])
-            @include('livewire.component.navitem', [
-                'itemLabel' => __('Company'),
-                'itemActive' => $createBasketTab == self::BASKET_TAB_COMPANY,
-                'itemClick' => '$emitSelf("basket.data", "companyId")',
-                ])
-            @include('livewire.component.navitem', [
-                'itemLabel' => __('Shop'),
-                'itemActive' => $createBasketTab == self::BASKET_TAB_SHOP,
-                'itemClick' => '$emitSelf("basket.data", "shopId")',
-                ])
-            @include('livewire.component.navitem', [
-                'itemLabel' => __('Items'),
-                'itemActive' => $action == self::ACTION_PICK,
-                'itemClick' => '$emitSelf("basket.data", "basketId")',
-                ])
-        </ul>
     @endif
-    <div id="parser-selector" @if($action != self::ACTION_PARSE && $action != self::ACTION_BASKET) style="display:none;" @endif class="row">
-        @if($imagePath != '')
-            <div class="col-sm-6">
-                <img src="{{ route('image.viewTemp', ['filename' =>  $imagePath, 'v' => time()]) }}" class="img-fluid img-thumbnail">
-            </div>
-        @endif
-        @if($rawExtractedText != '')
-            <div class="col-sm-6">
-                <pre>
-                        {{ $rawExtractedText }}
-                </pre>
-            </div>
-        @endif
-    </div>
-    <livewire:component.panel :open="$createBasketTab == self::BASKET_TAB_ID" :position="'right'"
+    @if(array_search($action, self::ACTION_STEP) > 1)
+        <div class="row">
+            @if($imagePath != '')
+                <div class="col-sm-6">
+                    <img src="{{ route('image.viewTemp', ['filename' =>  $imagePath, 'v' => time()]) }}" class="img-fluid img-thumbnail">
+                </div>
+            @endif
+            @if($rawExtractedText != '')
+                <div class="col-sm-6">
+                    <pre>
+                            {{ $rawExtractedText }}
+                    </pre>
+                </div>
+            @endif
+        </div>
+    @endif
+    <livewire:component.panel :open="$action == self::ACTION_PARSE" :position="'right'"
+        :panelName="self::PANEL_PARSER"
+        :panelTitle="__('Select Parser')"
+        :contentTemplate="'livewire.component.scan.parser-template'"
+        :contentParameters="[ 'parsers' => self::PARSERS ]">
+    <livewire:component.panel :open="$action == self::ACTION_BASKET" :position="'right'"
         :panelName="self::PANEL_BASKET_ID"
         :panelTitle="__('Basket ID')"
         :contentTemplate="'livewire.component.scan.receiptid'"
         :contentParameters="[ 'basket' => $basket ]">
-    <livewire:component.panel :open="$createBasketTab == self::PANEL_BASKET_COMPANY" :position="'right'"
+    <livewire:component.panel :open="$action == self::ACTION_COMPANY" :position="'right'"
         :panelName="self::PANEL_BASKET_COMPANY"
         :panelTitle="__('Company')"
         :contentTemplate="'livewire.component.scan.companyid'"
         :contentParameters="[ 'basket' => $basket ]">
-    <livewire:component.panel :open="$createBasketTab == self::BASKET_TAB_SHOP" :position="'right'"
+    <livewire:component.panel :open="$action == self::ACTION_SHOP" :position="'right'"
         :panelName="self::PANEL_BASKET_SHOP"
         :panelTitle="__('Shop')"
         :contentTemplate="'livewire.component.scan.shopid'"
