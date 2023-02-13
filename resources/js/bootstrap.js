@@ -3,6 +3,8 @@ window._ = _;
 
 import * as bootstrap from 'bootstrap';
 window.bootstrap = bootstrap;
+// bootstrap icons
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 /**
  * We'll load the axios HTTP library which allows us to easily issue requests
