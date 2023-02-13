@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Models\Company;
+use App\Models\Item;
 use App\Models\Shop;
 
 class ScannedBasket
@@ -46,6 +47,12 @@ class ScannedBasket
             $shop = Shop::where('id', $this->marketId)->with('address')->first();
             $data['marketName'] = $shop->name;
             $data['marketAddress'] = $shop->address->raw;
+        }
+        foreach ($data['items'] as $key => $item) {
+            if (isset($item['itemId']) && $item['itemId'] !== '') {
+                $storedItem = Item::where('id', $item['itemId'])->first();
+                $data['items'][$key]['name'] = $storedItem->name;
+            }
         }
         return $data;
     }
