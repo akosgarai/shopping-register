@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Collection;
 use App\Models\Address;
 use App\Models\Basket;
 use App\Models\Company;
+use App\Models\Item;
 use App\Models\Shop;
 
 class DataPredictionService
@@ -79,6 +80,22 @@ class DataPredictionService
         $result->each(function ($item) use ($shopName) {
             $item->distance = (int) $item->distance;
             $length = max(strlen($shopName), strlen($item->name));
+            $item->percentage = (int) (100 - ($item->distance / $length) * 100);
+        });
+        return $result;
+    }
+
+    public function getItemSuggestions($itemRaw, $limit = null): Collection
+    {
+        $query = Item::selectRaw('items.*, levenshtein(items.name, ?) as distance', [$itemRaw])
+            ->orderBy('distance');
+        if ($limit) {
+            $query->limit($limit);
+        }
+        $result = $query->get();
+        $result->each(function ($item) use ($itemRaw) {
+            $item->distance = (int) $item->distance;
+            $length = max(strlen($itemRaw), strlen($item->raw));
             $item->percentage = (int) (100 - ($item->distance / $length) * 100);
         });
         return $result;
