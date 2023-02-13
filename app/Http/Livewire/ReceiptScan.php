@@ -25,6 +25,8 @@ class ReceiptScan extends Component
     const ACTION_COMPANY = 'company';
     // The shop panel has to be shown for editing the shop.
     const ACTION_SHOP = 'shop';
+    // The basket item panel has to be shown for editing the basket items.
+    const ACTION_BASKET_ITEMS = 'basket-items';
 
     const ACTION_STEP = [
         self::ACTION_PICK,
@@ -33,6 +35,7 @@ class ReceiptScan extends Component
         self::ACTION_BASKET,
         self::ACTION_COMPANY,
         self::ACTION_SHOP,
+        self::ACTION_BASKET_ITEMS,
     ];
 
     const PANEL_PICK_IMAGE = 'pickImagePanel';
@@ -40,6 +43,7 @@ class ReceiptScan extends Component
     const PANEL_BASKET_ID = 'basketIDPanel';
     const PANEL_BASKET_COMPANY = 'basketCompanyPanel';
     const PANEL_BASKET_SHOP = 'basketShopPanel';
+    const PANEL_BASKET_ITEMS = 'basketItemsPanel';
 
     const PANELS_FOR_ACTION = [
         self::ACTION_PICK => self::PANEL_PICK_IMAGE,
@@ -47,6 +51,7 @@ class ReceiptScan extends Component
         self::ACTION_COMPANY => self::PANEL_BASKET_COMPANY,
         self::ACTION_SHOP => self::PANEL_BASKET_SHOP,
         self::ACTION_PARSE => self::PANEL_PARSER,
+        self::ACTION_BASKET_ITEMS => self::PANEL_BASKET_ITEMS,
     ];
 
     const PARSERS = [
@@ -215,6 +220,7 @@ class ReceiptScan extends Component
         case self::ACTION_BASKET:
         case self::ACTION_COMPANY:
         case self::ACTION_SHOP:
+        case self::ACTION_BASKET_ITEMS:
             $panel = self::PANELS_FOR_ACTION[$this->action];
             $this->emit('panel.update', $panel, [ 'basket' => $this->basket ]);
             $this->emit("panel.open", $panel);

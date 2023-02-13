@@ -69,6 +69,11 @@
         :panelTitle="__('Shop')"
         :contentTemplate="'livewire.component.scan.shopid'"
         :contentParameters="[ 'basket' => $basket ]">
+    <livewire:component.panel :open="$action == self::ACTION_BASKET_ITEMS" :position="'right'"
+        :panelName="self::PANEL_BASKET_ITEMS"
+        :panelTitle="__('Select Items')"
+        :contentTemplate="'livewire.component.scan.basket-item-template'"
+        :contentParameters="[ 'basket' => $basket ]">
     <livewire:component.panel :open="$action == self::ACTION_PICK" :position="'left'"
         :panelName="self::PANEL_PICK_IMAGE"
         :panelTitle="__('Choose Image')"
