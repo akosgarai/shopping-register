@@ -113,7 +113,8 @@ class ReceiptScan extends Component
     public function actionNextHandler(ImageService $imageService)
     {
         $currentActionIndex = array_search($this->action, self::ACTION_STEP);
-        $this->actionChangeHandler(self::ACTION_STEP[$currentActionIndex + 1], $imageService);
+        $nextActionIndex = min($currentActionIndex + 1, count(self::ACTION_STEP) - 1);
+        $this->actionChangeHandler(self::ACTION_STEP[$nextActionIndex], $imageService);
     }
     // action next closes the current action and moves to the next action
     public function actionBackHandler(ImageService $imageService)
