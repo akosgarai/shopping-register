@@ -1,4 +1,7 @@
 <div>
+    @if(!$date)
+        <h3>{{ __('You have to setup the basket to be able to set the company.') }}</h3>
+    @else
     <form wire:submit.prevent="validateInputs">
         @include('livewire.component.offcanvasform.textinput', ['modelId' => 'name', 'formLabel' => __('Company Name')])
         @include('livewire.component.offcanvasform.textinput', ['modelId' => 'taxNumber', 'formLabel' => __('Tax Number')])
@@ -37,4 +40,5 @@
             @endforeach
         </select>
     </div>
+    @endif
 </div>

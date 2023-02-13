@@ -24,6 +24,9 @@ class Company extends Component
     public $address = '';
     public $taxNumber = '';
 
+    // The date for validation.
+    public $date = '';
+
     public $addressSuggestions = [];
     public $companySuggestions = [];
 
@@ -44,6 +47,7 @@ class Company extends Component
         $this->scannedName = $basket['companyName'];
         $this->scannedAddress = $basket['companyAddress'];
         $this->scannedTaxNumber = $basket['taxNumber'];
+        $this->date = $basket['date'];
         $this->mount();
         $this->getPredictions($dataPrediction);
     }
