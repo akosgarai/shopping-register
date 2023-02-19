@@ -77,6 +77,14 @@ class BasketItem extends Component
         $this->emitUp('basket.data.update', ['items' => $this->items, 'total' => $this->total]);
     }
 
+    public function finished()
+    {
+        // calculate the total from the items.
+        $this->total = array_sum(array_column($this->items, 'price'));
+        $this->emitUp('basket.data.update', ['items' => $this->items, 'total' => $this->total]);
+        $this->emitUp('basket.data.done');
+    }
+
     private function getPredictions(DataPredictionService $dataPrediction)
     {
         foreach ($this->items as $key => $item) {

@@ -28,7 +28,7 @@
             <hr>
         @endforeach
         <div class="d-flex flex-row-reverse">
-            <input type="button" wire:click="$emitUp('basket.data.done');" class="btn btn-success" value="{{ __('Done') }}">
+            <input type="button" wire:click="finished" class="btn btn-success" value="{{ __('Done') }}">
             <input type="button" wire:click="addItem" class="btn btn-info me-2" value="{{ __('New Item') }}">
             <input type="button" wire:click="$emitUp('action.back');" class="btn btn-info me-auto" value="{{ __('Back to Shop') }}">
         </div>

@@ -7,6 +7,7 @@ use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 
 use App\Models\Basket;
+use App\Models\BasketItem;
 use App\ScannedBasket;
 use App\Services\BasketExtractorService;
 use App\Services\ImageService;
@@ -77,6 +78,7 @@ class ReceiptScan extends Component
         'temp.image.load' => 'tempImageHandler',
         'image.editing' => 'imageEditingHandler',
         'basket.data.update' => 'basketDataUpdateHandler',
+        'basket.data.done' => 'basketDataFinishedHandler',
         'parse.text.with' => 'parseTextHandler',
     ];
 
@@ -179,6 +181,29 @@ class ReceiptScan extends Component
         // Notify the components about the changes.
         $this->emit('basket.data.extracted', $this->basket);
         $this->emitSelf('action.next');
+    }
+    public function basketDataFinishedHandler(ImageService $imageService)
+    {
+        // Create the basket
+        $basket = Basket::create([
+            'shop_id' => $this->basket['marketId'],
+            'date' => $this->basket['date'],
+            'total' => $this->basket['total'],
+            'receipt_id' => $this->basket['basketId'],
+            'user_id' => auth()->user()->id,
+        ]);
+        // If we have items, then create the basket items.
+        if (count($this->basket['items']) > 0) {
+            foreach ($this->basket['items'] as $item) {
+                BasketItem::create([
+                    'basket_id' => $basket->id,
+                    'item_id' => $item['itemId'],
+                    'price' => $item['price'],
+                ]);
+            }
+        }
+        // redirect to basket edit page
+        return $this->addImageToBasket($basket->id, $imageService);
     }
 
     // It parses the extracted text with the selected parser application.
