@@ -62,7 +62,7 @@ class BasketItem extends Component
 
     public function deleteItem($index)
     {
-        unset($this->items[$index]);
+        array_splice($this->items, $index, 1);
         $this->emitUp('basket.data.update', ['items' => $this->items, 'total' => $this->total]);
     }
 

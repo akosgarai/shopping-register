@@ -11,7 +11,7 @@
                     <input class="btn btn-outline-secondary" type="button" value="{{ __('Add new') }}" wire:click="insertNew({{ $index }})">
                 </div>
             @endif
-            <div class="input-group mb-3" wire:key="'basket-item-editor-'.$index">
+            <div class="input-group mb-3" wire:key="'basket-item-{{ $index }}">
                 <select class="form-select" id="selectedAddress-{{ $index }}" wire:model="items.{{ $index }}.itemId">
                     <option value="" @if($item['itemId'] == '') selected @endif>{{ __('Scanned text') }}</option>
                     @foreach ($item['suggestions'] as $itemSuggestion)
