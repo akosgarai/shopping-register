@@ -11,7 +11,7 @@
                     <input class="btn btn-outline-secondary" type="button" value="{{ __('Add new') }}" wire:click="insertNew({{ $index }})">
                 </div>
             @endif
-            <div class="input-group mb-3">
+            <div class="input-group mb-3" wire:key="'basket-item-editor-'.$index">
                 <select class="form-select" id="selectedAddress-{{ $index }}" wire:model="items.{{ $index }}.itemId">
                     <option value="" @if($item['itemId'] == '') selected @endif>{{ __('Scanned text') }}</option>
                     @foreach ($item['suggestions'] as $itemSuggestion)
@@ -27,5 +27,10 @@
             @error('items.{{ $index }}.price') <span class="error">{{ $message }}</span> @enderror
             <hr>
         @endforeach
+        <div class="d-flex flex-row-reverse">
+            <input type="button" wire:click="$emitUp('basket.data.done');" class="btn btn-success" value="{{ __('Done') }}">
+            <input type="button" wire:click="addItem" class="btn btn-info me-2" value="{{ __('New Item') }}">
+            <input type="button" wire:click="$emitUp('action.back');" class="btn btn-info me-auto" value="{{ __('Back to Shop') }}">
+        </div>
     @endif
 </div>

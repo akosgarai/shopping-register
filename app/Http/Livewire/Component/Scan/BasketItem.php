@@ -66,14 +66,24 @@ class BasketItem extends Component
         $this->emitUp('basket.data.update', ['items' => $this->items, 'total' => $this->total]);
     }
 
-    public function finishedEdition()
+    public function addItem()
     {
-        $this->emitUp('basket.data.done');
+        $this->items[] = [
+            'name' => '',
+            'price' => '',
+            'itemId' => '',
+            'suggestions' => [],
+        ];
+        $this->emitUp('basket.data.update', ['items' => $this->items, 'total' => $this->total]);
     }
 
     private function getPredictions(DataPredictionService $dataPrediction)
     {
         foreach ($this->items as $key => $item) {
+            if ($item['name'] == '') {
+                $this->items[$key]['suggestions'] = Item::selectRaw("items.*, '' as distance, '' as percentage")->get();
+                continue;
+            }
             $this->items[$key]['suggestions'] = $dataPrediction->getItemSuggestions($item['name']);
             // if the current selection is not set and the first suggestion has 0 distance, set it.
             if ($item['itemId'] == '' && count($this->items[$key]['suggestions']) > 0 && $this->items[$key]['suggestions'][0]['distance'] == 0) {
