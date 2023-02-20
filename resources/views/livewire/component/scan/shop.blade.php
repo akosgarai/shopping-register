@@ -12,7 +12,7 @@
                 <button wire:click="insertNew('{{ self::DATA_TYPE_SHOP }}')" class="btn btn-primary">{{ __('New Shop') }}</button>
             @endif
             @if (!$allowSaveShop && !$allowSaveAddress)
-                <button wire:click="$emitUp('basket.data.update', { 'marketId' : '{{ $selectedShop }}' })" class="btn btn-primary">{{ __('Next') }}</button>
+                <button wire:click="$emitUp('basket.data.update', { 'marketId' : '{{ $selectedShop }}' })" class="btn btn-primary">{{ __('Setup Items') }}</button>
             @endif
             <input type="button" wire:click="$emitUp('action.back');" class="btn btn-info me-auto" value="{{ __('Back to Company') }}">
         </div>
