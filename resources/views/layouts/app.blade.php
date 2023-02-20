@@ -61,6 +61,7 @@
                                     <a class="dropdown-item" href="{{ route('company') }}">{{ __('Companies') }}</a>
                                     <a class="dropdown-item" href="{{ route('shop') }}">{{ __('Shops') }}</a>
                                     <a class="dropdown-item" href="{{ route('basket') }}">{{ __('Baskets') }}</a>
+                                    <a class="dropdown-item" href="{{ route('receipt-scan') }}">{{ __('Receipt Scan') }}</a>
 
                                     <a class="dropdown-item" href="{{ route('logout') }}"
                                        onclick="event.preventDefault();
