@@ -1,5 +1,5 @@
 <div class="container">
-    <button class="btn btn-primary mb-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#newItem" aria-controls="newItem" wire:click="setAction('new')">{{ __('New Item') }}</button>
+    <button class="btn btn-primary mb-3" type="button" wire:click="setAction('{{ parent::ACTION_CREATE }}')"><i class="bi bi-plus-circle me-3"></i>{{ __('New Item') }}</button>
     <table class="table table-striped table-hover">
         <thead>
             <tr class="table-dark">
@@ -14,16 +14,16 @@
             @foreach ($items as $item)
             <tr>
                 <th scope="row">{{ $item->id }}</th>
-                <td>{{ $item->name }}</td>
+                <td><a href="#" wire:click.prevent="loadForView({{ $item->id }})">{{ $item->name }}</a></td>
                 <td>{{ $item->created_at }}</td>
                 <td>{{ $item->updated_at }}</td>
                 <td>
-                    <button class="btn btn-primary" type="button"
-                        data-bs-toggle="offcanvas" data-bs-target="#updateItem"
-                        aria-controls="updateItem" wire:click="load({{ $item->id }})">{{ __('Edit') }}
+                    <button class="btn btn-primary" type="button" wire:click="load({{ $item->id }})">
+                        <i class="bi bi-pencil-square"></i>
                     </button>
-                    @if($item->basketItems->count() == 0)
-                        <button class="btn btn-danger" type="button" wire:click="delete({{ $item->id }})">{{ __('Delete') }}
+                    @if($item->basket_items_count == 0)
+                        <button class="btn btn-danger" type="button" wire:click="loadForDelete({{ $item->id }})">
+                            <i class="bi bi-trash"></i>
                         </button>
                     @endif
                 </td>
@@ -31,31 +31,9 @@
             @endforeach
         </tbody>
     </table>
-    <div wire:ignore>
-        <div class="offcanvas offcanvas-start @if($action == 'new') show @endif" data-bs-scroll="true" tabindex="-1" id="newItem" aria-labelledby="newItemLabel">
-            <div class="offcanvas-header">
-                <h5 class="offcanvas-title" id="newItemLabel">{{ __('New Item') }}</h5>
-                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" wire:click="setAction('')"></button>
-            </div>
-            <div class="offcanvas-body">
-                @include('livewire.component.offcanvasform.textinput', ['modelId' => 'itemName', 'formLabel' => __('Item Name')])
-                <button type="button" class="btn btn-primary" wire:click="saveNew">{{ __('Save') }}</button>
-            </div>
-        </div>
-    </div>
-    <div wire:ignore>
-        <div class="offcanvas offcanvas-start @if($action == 'update') show @endif" data-bs-scroll="true" tabindex="-1" id="updateItem" aria-labelledby="updateItemLabel">
-            <div class="offcanvas-header">
-                <h5 class="offcanvas-title" id="updateItemLabel">{{ __('Update Item') }}</h5>
-                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" wire:click="setAction('')"></button>
-            </div>
-            <div class="offcanvas-body">
-                @include('livewire.component.offcanvasform.textinput', ['modelId' => 'itemName', 'formLabel' => __('Item Name')])
-                @include('livewire.component.offcanvasform.textinput', ['modelId' => 'createdAt', 'formLabel' => __('Created'), 'readonly' => true])
-                @include('livewire.component.offcanvasform.textinput', ['modelId' => 'updatedAt', 'formLabel' => __('Updated'), 'readonly' => true])
-                <button type="button" class="btn btn-primary" wire:click="update">{{ __('Update') }}</button>
-            </div>
-        </div>
-    </div>
-    @include('livewire.component.offcanvasscipts')
+    <livewire:component.panel :open="in_array($action, self::ACTIONS)" :position="'left'"
+        :panelName="self::PANEL_NAME"
+        :panelTitle="__('Item')"
+        :contentTemplate="'livewire.component.item.panel'"
+        :contentParameters="[ 'action' => $action, 'item' => ['itemName' => $itemName, 'id' => $modelId, 'createdAt' => $createdAt, 'updatedAt' => $updatedAt]]">
 </div>
