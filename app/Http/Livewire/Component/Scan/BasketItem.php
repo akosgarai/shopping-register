@@ -56,13 +56,26 @@ class BasketItem extends Component
             'name' => $this->items[$index]['name'],
         ]);
         $this->items[$index]['itemId'] = $item->id;
-        $this->emitUp('basket.data.update', ['items' => $this->items, 'total' => $this->total]);
         $this->getPredictions($dataPrediction);
     }
 
     public function deleteItem($index)
     {
         array_splice($this->items, $index, 1);
+        // if the number of items is 0, update the total to 0.
+        if (count($this->items) === 0) {
+            $this->total = 0;
+        }
+        $this->recalculateTotal();
+    }
+
+    // It updates the total value and sends an update to the parent component.
+    public function recalculateTotal()
+    {
+        // calculate the total from the items.
+        if (count($this->items)) {
+            $this->total = array_sum(array_column($this->items, 'price'));
+        }
         $this->emitUp('basket.data.update', ['items' => $this->items, 'total' => $this->total]);
     }
 
@@ -74,14 +87,12 @@ class BasketItem extends Component
             'itemId' => '',
             'suggestions' => [],
         ];
-        $this->emitUp('basket.data.update', ['items' => $this->items, 'total' => $this->total]);
+        $this->recalculateTotal();
     }
 
-    public function finished()
+    public function finishedSetup()
     {
-        // calculate the total from the items.
-        $this->total = array_sum(array_column($this->items, 'price'));
-        $this->emitUp('basket.data.update', ['items' => $this->items, 'total' => $this->total]);
+        $this->recalculateTotal();
         $this->emitUp('basket.data.done');
     }
 
