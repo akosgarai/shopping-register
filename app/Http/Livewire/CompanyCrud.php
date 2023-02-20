@@ -7,94 +7,129 @@ use Illuminate\Validation\ValidationException;
 use App\Models\Address;
 use App\Models\Company;
 
-class CompanyCrud extends OffcanvasPage
+class CompanyCrud extends CrudPage
 {
+    public const PANEL_NAME = 'companyPanel';
     public $templateName = 'livewire.company-crud';
 
     public $companyName = '';
     public $companyTaxNumber = '';
     public $companyAddress = '';
 
-    protected $listeners = ['offcanvasClose'];
+    protected $listeners = [
+        'company.create' => 'saveNew',
+        'company.update' => 'update',
+        'company.delete' => 'delete',
+        'action.back' => 'clearAction',
+    ];
 
-    public function load($id)
+    public function delete($modelId)
     {
-        $this->modelId = $id;
-        $this->action = parent::ACTION_UPDATE;
-        $company = Company::find($this->modelId);
-        $this->companyName = $company->name;
-        $this->companyTaxNumber = $company->tax_number;
-        $this->companyAddress = $company->address_id;
-        $this->createdAt = $company->created_at;
-        $this->updatedAt = $company->updated_at;
+        $company = Company::where('id', $modelId)
+            ->withCount('shops')
+            ->first();
+        if ($company != null && $company->shops_count == 0) {
+            $company->delete();
+        }
+        parent::clearAction();
     }
 
     public function getTemplateParameters()
     {
         return [
-            'companies' =>  Company::all(),
+            'companies' =>  Company::withCount('shops')->with('address')->get(),
             'addresses' =>  Address::all()
         ];
     }
 
     public function initialize()
     {
-            $this->modelId = '';
+        switch ($this->action) {
+        case parent::ACTION_CREATE:
             $this->companyName = '';
             $this->companyTaxNumber = '';
             $this->companyAddress = '';
             $this->createdAt = '';
             $this->updatedAt = '';
-    }
-
-    public function saveNew()
-    {
-        try {
-            $this->validate([
-                'companyName' => 'required|string',
-                'companyTaxNumber' => 'required|string|unique:companies,tax_number|digits:11',
-                'companyAddress' => 'required|string|exists:addresses,id',
-            ]);
-        } catch (ValidationException $e) {
-            $messages = $e->validator->getMessageBag();
-            $this->dispatchBrowserEvent('model.validation', ['type' => 'new', 'model' => 'Company', 'messages' => $messages]);
+            break;
+        case parent::ACTION_READ:
+        case parent::ACTION_UPDATE:
+        case parent::ACTION_DELETE:
+            $company = Company::find($this->modelId);
+            $this->companyName = $company->name;
+            $this->companyTaxNumber = $company->tax_number;
+            $this->companyAddress = $company->address_id;
+            $this->createdAt = $company->created_at;
+            $this->updatedAt = $company->updated_at;
+            break;
+        }
+        if ($this->action == '') {
+            $this->modelId = '';
+            $this->emit('panel.close');
             return;
         }
+        $this->emit('panel.update', self::PANEL_NAME, [
+            'action' => $this->action,
+            'company' => [
+                'companyName' => $this->companyName,
+                'companyTaxNumber' => $this->companyTaxNumber,
+                'companyAddress' => $this->companyAddress,
+                'id' => $this->modelId,
+                'createdAt' => $this->createdAt,
+                'updatedAt' => $this->updatedAt,
+            ],
+            'addresses' => Address::all(),
+        ]);
+        $this->emit('panel.open', self::PANEL_NAME);
+    }
+
+    public function saveNew(array $model)
+    {
+        if (array_key_exists('companyName', $model)) {
+            $this->companyName = $model['companyName'];
+        }
+        if (array_key_exists('companyTaxNumber', $model)) {
+            $this->companyTaxNumber = $model['companyTaxNumber'];
+        }
+        if (array_key_exists('companyAddress', $model)) {
+            $this->companyAddress = $model['companyAddress'];
+        }
+        $this->validate([
+            'companyName' => 'required|string',
+            'companyTaxNumber' => 'required|string|unique:companies,tax_number|digits:11',
+            'companyAddress' => 'required|string|exists:addresses,id',
+        ]);
         $company = Company::firstOrCreate([
             'name' => $this->companyName,
             'tax_number' => $this->companyTaxNumber,
             'address_id' => $this->companyAddress,
         ]);
-        return redirect()->route('company', ['action' => 'update', 'id' => $company->id]);
+        $this->modelId = $company->id;
+        $this->setAction(parent::ACTION_UPDATE);
     }
 
-    public function update()
+    public function update(array $model)
     {
-        try {
-            $this->validate([
-                'modelId' => 'required|integer|exists:companies,id',
-                'companyName' => 'required|string',
-                'companyTaxNumber' => 'required|string|digits:11',
-                'companyAddress' => 'required|integer|exists:addresses,id',
-            ]);
-        } catch (ValidationException $e) {
-            $messages = $e->validator->getMessageBag();
-            $this->dispatchBrowserEvent('model.validation', ['type' => 'update', 'model' => 'Company', 'messages' => $messages]);
-            return;
+        if (array_key_exists('companyName', $model)) {
+            $this->companyName = $model['companyName'];
         }
+        if (array_key_exists('companyTaxNumber', $model)) {
+            $this->companyTaxNumber = $model['companyTaxNumber'];
+        }
+        if (array_key_exists('companyAddress', $model)) {
+            $this->companyAddress = $model['companyAddress'];
+        }
+        $this->validate([
+            'modelId' => 'required|integer|exists:companies,id',
+            'companyName' => 'required|string',
+            'companyTaxNumber' => 'required|string|digits:11',
+            'companyAddress' => 'required|integer|exists:addresses,id',
+        ]);
         Company::where('id', $this->modelId)->update([
             'name' => $this->companyName,
             'tax_number' => $this->companyTaxNumber,
             'address_id' => $this->companyAddress,
         ]);
-        return redirect()->route('company', ['action' => 'update', 'id' => $this->modelId]);
-    }
-
-    public function delete($id)
-    {
-        $company = Company::find($id);
-        if ($company != null && $company->shops->count() == 0) {
-            $company->delete();
-        }
+        $this->setAction(parent::ACTION_UPDATE);
     }
 }
