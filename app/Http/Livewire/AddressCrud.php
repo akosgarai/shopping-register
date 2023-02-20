@@ -6,30 +6,30 @@ use Illuminate\Validation\ValidationException;
 
 use App\Models\Address;
 
-class AddressCrud extends OffcanvasPage
+class AddressCrud extends CrudPage
 {
+    public const PANEL_NAME = 'addressPanel';
     public $templateName = 'livewire.address-crud';
 
     public $addressRaw = '';
 
-    protected $listeners = ['offcanvasClose'];
+    protected $listeners = [
+        'address.create' => 'saveNew',
+        'address.update' => 'update',
+        'address.delete' => 'delete',
+        'action.back' => 'clearAction',
+    ];
 
-    public function load($id)
+    public function delete($modelId)
     {
-        $this->modelId = $id;
-        $this->action = parent::ACTION_UPDATE;
-        $address = Address::find($this->modelId);
-        $this->addressRaw = $address->raw;
-        $this->createdAt = $address->created_at;
-        $this->updatedAt = $address->updated_at;
-    }
-
-    public function delete($id)
-    {
-        $address = Address::find($id);
-        if ($address != null && $address->companies->count() == 0 && $address->shops->count() == 0) {
+        $address = Address::where('id', $modelId)
+            ->withCount('companies')
+            ->withCount('shops')
+            ->first();
+        if ($address != null && $address->companies_count == 0 && $address->shops_count == 0) {
             $address->delete();
         }
+        parent::clearAction();
     }
 
     public function getTemplateParameters()
@@ -41,43 +41,64 @@ class AddressCrud extends OffcanvasPage
 
     public function initialize()
     {
+        switch ($this->action) {
+            case parent::ACTION_CREATE:
+                $this->addressRaw = '';
+                $this->createdAt = '';
+                $this->updatedAt = '';
+                break;
+            case parent::ACTION_READ:
+            case parent::ACTION_UPDATE:
+            case parent::ACTION_DELETE:
+                $address = Address::find($this->modelId);
+                $this->addressRaw = $address->raw;
+                $this->createdAt = $address->created_at;
+                $this->updatedAt = $address->updated_at;
+                break;
+        }
+        if ($this->action == '') {
             $this->modelId = '';
-            $this->addressRaw = '';
-            $this->createdAt = '';
-            $this->updatedAt = '';
-    }
-
-    public function saveNew()
-    {
-        try {
-            $this->validate([
-                'addressRaw' => 'required|string',
-            ]);
-        } catch (ValidationException $e) {
-            $messages = $e->validator->getMessageBag();
-            $this->dispatchBrowserEvent('model.validation', ['type' => 'new', 'model' => 'Address', 'messages' => $messages]);
+            $this->emit('panel.close');
             return;
         }
+        $this->emit('panel.update', self::PANEL_NAME, [
+            'action' => $this->action,
+            'address' => [
+                'raw' => $this->addressRaw,
+                'id' => $this->modelId,
+                'createdAt' => $this->createdAt,
+                'updatedAt' => $this->updatedAt,
+            ]
+        ]);
+        $this->emit('panel.open', self::PANEL_NAME);
+    }
+
+    public function saveNew(array $model)
+    {
+        if (array_key_exists('raw', $model)) {
+            $this->addressRaw = $model['raw'];
+        }
+        $this->validate([
+            'addressRaw' => 'required|string',
+        ]);
         $address = Address::firstOrCreate([
             'raw' => $this->addressRaw,
         ]);
-        return redirect()->route('address', ['action' => 'update', 'id' => $address->id]);
+        $this->modelId = $address->id;
+        $this->setAction(parent::ACTION_UPDATE);
     }
-    public function update()
+    public function update(array $model)
     {
-        try {
-            $this->validate([
-                'addressRaw' => 'required|string',
-                'modelId' => 'required|integer',
-            ]);
-        } catch (ValidationException $e) {
-            $messages = $e->validator->getMessageBag();
-            $this->dispatchBrowserEvent('model.validation', ['type' => 'update', 'model' => 'Address', 'messages' => $messages]);
-            return;
+        if (array_key_exists('raw', $model)) {
+            $this->addressRaw = $model['raw'];
         }
+        $this->validate([
+            'addressRaw' => 'required|string',
+            'modelId' => 'required|integer',
+        ]);
         Address::where('id', $this->modelId)->update([
             'raw' => $this->addressRaw,
         ]);
-        return redirect()->route('address', ['action' => 'update', 'id' => $this->modelId]);
+        $this->setAction(parent::ACTION_UPDATE);
     }
 }
