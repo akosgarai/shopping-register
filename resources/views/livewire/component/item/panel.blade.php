@@ -1,11 +1,11 @@
 <div>
-    @if($action == 'create')
-        @include('livewire.component.item.create')
-    @elseif($action == 'update')
-        @include('livewire.component.item.update')
-    @elseif($action == 'delete')
-        @include('livewire.component.item.delete')
-    @elseif($action == 'view')
-        @include('livewire.component.item.view')
-    @endif
+    <livewire:component.crud-action
+        :modelName="'item'" :action="$contentParameters['action']"
+        :formData="[
+            ['keyName' => 'name', 'type' => 'textinput', 'label' => __('Item Name'), 'rules' => 'required|string|max:255', 'readonly' => false],
+            ['keyName' => 'createdAt', 'type' => 'textinput', 'label' => __('Created'), 'rules' => '', 'readonly' => true],
+            ['keyName' => 'updatedAt', 'type' => 'textinput', 'label' => __('Updated'), 'rules' => '', 'readonly' => true],
+        ]"
+        :modelData="$contentParameters['item']"
+        :wire:key="'item-panel'" />
 </div>

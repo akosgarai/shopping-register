@@ -11,7 +11,7 @@ class ItemCrud extends CrudPage
     public const PANEL_NAME = 'itemPanel';
     public $templateName = 'livewire.item-crud';
 
-    public $itemName = '';
+    public $name = '';
 
     protected $listeners = [
         'item.create' => 'saveNew',
@@ -35,6 +35,12 @@ class ItemCrud extends CrudPage
     {
         return [
             'items' =>  Item::withCount('basketItems')->get(),
+            'panelItem' => [
+                'name' => $this->name,
+                'id' => $this->modelId,
+                'createdAt' => $this->createdAt,
+                'updatedAt' => $this->updatedAt,
+            ]
         ];
     }
 
@@ -42,7 +48,7 @@ class ItemCrud extends CrudPage
     {
         switch ($this->action) {
             case parent::ACTION_CREATE:
-                $this->itemName = '';
+                $this->name = '';
                 $this->createdAt = '';
                 $this->updatedAt = '';
                 break;
@@ -50,7 +56,7 @@ class ItemCrud extends CrudPage
             case parent::ACTION_UPDATE:
             case parent::ACTION_DELETE:
                 $item = Item::find($this->modelId);
-                $this->itemName = $item->name;
+                $this->name = $item->name;
                 $this->createdAt = $item->created_at;
                 $this->updatedAt = $item->updated_at;
                 break;
@@ -60,10 +66,10 @@ class ItemCrud extends CrudPage
             $this->emit('panel.close');
             return;
         }
-        $this->emit('panel.update', self::PANEL_NAME, [
+        $this->emit('crudaction.update', [
             'action' => $this->action,
             'item' => [
-                'itemName' => $this->itemName,
+                'name' => $this->name,
                 'id' => $this->modelId,
                 'createdAt' => $this->createdAt,
                 'updatedAt' => $this->updatedAt,
@@ -74,14 +80,14 @@ class ItemCrud extends CrudPage
 
     public function saveNew(array $model)
     {
-        if (array_key_exists('itemName', $model)) {
-            $this->itemName = $model['itemName'];
+        if (array_key_exists('name', $model)) {
+            $this->name = $model['name'];
         }
         $this->validate([
-            'itemName' => 'required|string',
+            'name' => 'required|string|max:255',
         ]);
         $item = Item::firstOrCreate([
-            'name' => $this->itemName,
+            'name' => $this->name,
         ]);
         $this->modelId = $item->id;
         $this->setAction(parent::ACTION_UPDATE);
@@ -89,15 +95,15 @@ class ItemCrud extends CrudPage
 
     public function update(array $model)
     {
-        if (array_key_exists('itemName', $model)) {
-            $this->itemName = $model['itemName'];
+        if (array_key_exists('name', $model)) {
+            $this->name = $model['name'];
         }
         $this->validate([
-            'itemName' => 'required|string',
+            'name' => 'required|string',
             'modelId' => 'required|integer',
         ]);
         Item::where('id', $this->modelId)->update([
-            'name' => $this->itemName,
+            'name' => $this->name,
         ]);
         $this->setAction(parent::ACTION_UPDATE);
     }
