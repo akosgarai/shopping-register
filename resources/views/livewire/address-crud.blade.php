@@ -21,7 +21,7 @@
                     <button class="btn btn-primary" type="button" wire:click="load({{ $address->id }})">
                         <i class="bi bi-pencil-square"></i>
                     </button>
-                    @if($address->companies->count() == 0 && $address->shops->count() == 0)
+                    @if($address->companies_count == 0 && $address->shops_count == 0)
                         <button class="btn btn-danger" type="button" wire:click="loadForDelete({{ $address->id }})">
                             <i class="bi bi-trash"></i>
                         </button>
@@ -35,5 +35,5 @@
         :panelName="'addressPanel'"
         :panelTitle="__('Address')"
         :contentTemplate="'livewire.component.address.panel'"
-        :contentParameters="[ 'action' => $action, 'address' => ['raw' => $addressRaw, 'id' => $modelId, 'createdAt' => $createdAt, 'updatedAt' => $updatedAt]]">
+        :contentParameters="[ 'action' => $action, 'address' => $panelAddress]">
 </div>

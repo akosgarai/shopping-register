@@ -35,7 +35,13 @@ class AddressCrud extends CrudPage
     public function getTemplateParameters()
     {
         return [
-            'addresses' =>  Address::all()
+            'addresses' =>  Address::withCount('companies')->withCount('shops')->get(),
+            'panelAddress' => [
+                'raw' => $this->addressRaw,
+                'id' => $this->modelId,
+                'createdAt' => $this->createdAt,
+                'updatedAt' => $this->updatedAt,
+            ]
         ];
     }
 
@@ -61,7 +67,9 @@ class AddressCrud extends CrudPage
             $this->emit('panel.close');
             return;
         }
-        $this->emit('panel.update', self::PANEL_NAME, [
+        // We have a livewire component in the panel, so instead of calling the 'panel.update'
+        // event, we have to call the 'crudaction.update' event.
+        $this->emit('crudaction.update', [
             'action' => $this->action,
             'address' => [
                 'raw' => $this->addressRaw,
@@ -75,11 +83,9 @@ class AddressCrud extends CrudPage
 
     public function saveNew(array $model)
     {
-        if (array_key_exists('raw', $model)) {
-            $this->addressRaw = $model['raw'];
-        }
+        $this->updateModelParams($model);
         $this->validate([
-            'addressRaw' => 'required|string',
+            'addressRaw' => 'required|string|max:255',
         ]);
         $address = Address::firstOrCreate([
             'raw' => $this->addressRaw,
@@ -89,16 +95,21 @@ class AddressCrud extends CrudPage
     }
     public function update(array $model)
     {
-        if (array_key_exists('raw', $model)) {
-            $this->addressRaw = $model['raw'];
-        }
+        $this->updateModelParams($model);
         $this->validate([
-            'addressRaw' => 'required|string',
-            'modelId' => 'required|integer',
+            'addressRaw' => 'required|string|max:255',
+            'modelId' => 'required|integer|exists:addresses,id',
         ]);
         Address::where('id', $this->modelId)->update([
             'raw' => $this->addressRaw,
         ]);
         $this->setAction(parent::ACTION_UPDATE);
+    }
+
+    private function updateModelParams(array $model)
+    {
+        if (array_key_exists('raw', $model)) {
+            $this->addressRaw = $model['raw'];
+        }
     }
 }
