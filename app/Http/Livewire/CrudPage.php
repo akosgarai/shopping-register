@@ -2,26 +2,8 @@
 
 namespace App\Http\Livewire;
 
-use Livewire\Component;
-
-abstract class CrudPage extends Component
+abstract class CrudPage extends Crud
 {
-    public const ACTION_CREATE = 'create';
-    public const ACTION_READ = 'view';
-    public const ACTION_UPDATE = 'update';
-    public const ACTION_DELETE = 'delete';
-
-    public const ACTIONS = [
-        self::ACTION_CREATE,
-        self::ACTION_READ,
-        self::ACTION_UPDATE,
-        self::ACTION_DELETE,
-    ];
-
-    // This parameter is used to determine which panel to show.
-    // If it is empty then no panel is shown.
-    public $action = '';
-
     // The name of the rendered view.
     public $templateName = '';
 
@@ -37,17 +19,6 @@ abstract class CrudPage extends Component
         'action' => ['except' => ''],
         'modelId' => ['except' => '', 'as' => 'id'],
     ];
-
-    // It sets the action parameter to the value passed in
-    // then calls the initialize() method.
-    public function setAction($action)
-    {
-        if (!in_array($action, self::ACTIONS)) {
-            return;
-        }
-        $this->action = $action;
-        $this->initialize();
-    }
 
     // Event handler for the panel close event.
     public function clearAction()
