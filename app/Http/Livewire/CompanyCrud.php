@@ -12,9 +12,9 @@ class CompanyCrud extends CrudPage
     public const PANEL_NAME = 'companyPanel';
     public $templateName = 'livewire.company-crud';
 
-    public $companyName = '';
-    public $companyTaxNumber = '';
-    public $companyAddress = '';
+    public $name = '';
+    public $taxNumber = '';
+    public $address = '';
 
     protected $listeners = [
         'company.create' => 'saveNew',
@@ -38,7 +38,15 @@ class CompanyCrud extends CrudPage
     {
         return [
             'companies' =>  Company::withCount('shops')->with('address')->get(),
-            'addresses' =>  Address::all()
+            'addresses' =>  $this->getAddresses(),
+            'panelCompany' => [
+                'name' => $this->name,
+                'taxNumber' => $this->taxNumber,
+                'address' => $this->address,
+                'id' => $this->modelId,
+                'createdAt' => $this->createdAt,
+                'updatedAt' => $this->updatedAt,
+            ]
         ];
     }
 
@@ -46,9 +54,9 @@ class CompanyCrud extends CrudPage
     {
         switch ($this->action) {
         case parent::ACTION_CREATE:
-            $this->companyName = '';
-            $this->companyTaxNumber = '';
-            $this->companyAddress = '';
+            $this->name = '';
+            $this->taxNumber = '';
+            $this->address = '';
             $this->createdAt = '';
             $this->updatedAt = '';
             break;
@@ -56,9 +64,9 @@ class CompanyCrud extends CrudPage
         case parent::ACTION_UPDATE:
         case parent::ACTION_DELETE:
             $company = Company::find($this->modelId);
-            $this->companyName = $company->name;
-            $this->companyTaxNumber = $company->tax_number;
-            $this->companyAddress = $company->address_id;
+            $this->name = $company->name;
+            $this->taxNumber = $company->tax_number;
+            $this->address = $company->address_id;
             $this->createdAt = $company->created_at;
             $this->updatedAt = $company->updated_at;
             break;
@@ -68,41 +76,33 @@ class CompanyCrud extends CrudPage
             $this->emit('panel.close');
             return;
         }
-        $this->emit('panel.update', self::PANEL_NAME, [
+        $this->emit('crudaction.update', [
             'action' => $this->action,
             'company' => [
-                'companyName' => $this->companyName,
-                'companyTaxNumber' => $this->companyTaxNumber,
-                'companyAddress' => $this->companyAddress,
+                'name' => $this->name,
+                'taxNumber' => $this->taxNumber,
+                'address' => $this->address,
                 'id' => $this->modelId,
                 'createdAt' => $this->createdAt,
                 'updatedAt' => $this->updatedAt,
             ],
-            'addresses' => Address::all(),
+            'addresses' => $this->getAddresses(),
         ]);
         $this->emit('panel.open', self::PANEL_NAME);
     }
 
     public function saveNew(array $model)
     {
-        if (array_key_exists('companyName', $model)) {
-            $this->companyName = $model['companyName'];
-        }
-        if (array_key_exists('companyTaxNumber', $model)) {
-            $this->companyTaxNumber = $model['companyTaxNumber'];
-        }
-        if (array_key_exists('companyAddress', $model)) {
-            $this->companyAddress = $model['companyAddress'];
-        }
+        $this->updateModelParams($model);
         $this->validate([
-            'companyName' => 'required|string',
-            'companyTaxNumber' => 'required|string|unique:companies,tax_number|digits:11',
-            'companyAddress' => 'required|string|exists:addresses,id',
+            'name' => 'required|string|max:255',
+            'taxNumber' => 'required|string|unique:companies,tax_number|digits:11',
+            'address' => 'required|string|exists:addresses,id',
         ]);
         $company = Company::firstOrCreate([
-            'name' => $this->companyName,
-            'tax_number' => $this->companyTaxNumber,
-            'address_id' => $this->companyAddress,
+            'name' => $this->name,
+            'tax_number' => $this->taxNumber,
+            'address_id' => $this->address,
         ]);
         $this->modelId = $company->id;
         $this->setAction(parent::ACTION_UPDATE);
@@ -110,26 +110,36 @@ class CompanyCrud extends CrudPage
 
     public function update(array $model)
     {
-        if (array_key_exists('companyName', $model)) {
-            $this->companyName = $model['companyName'];
-        }
-        if (array_key_exists('companyTaxNumber', $model)) {
-            $this->companyTaxNumber = $model['companyTaxNumber'];
-        }
-        if (array_key_exists('companyAddress', $model)) {
-            $this->companyAddress = $model['companyAddress'];
-        }
+        $this->updateModelParams($model);
         $this->validate([
             'modelId' => 'required|integer|exists:companies,id',
-            'companyName' => 'required|string',
-            'companyTaxNumber' => 'required|string|digits:11',
-            'companyAddress' => 'required|integer|exists:addresses,id',
+            'name' => 'required|string|max:255',
+            'taxNumber' => 'required|string|digits:11',
+            'address' => 'required|integer|exists:addresses,id',
         ]);
         Company::where('id', $this->modelId)->update([
-            'name' => $this->companyName,
-            'tax_number' => $this->companyTaxNumber,
-            'address_id' => $this->companyAddress,
+            'name' => $this->name,
+            'tax_number' => $this->taxNumber,
+            'address_id' => $this->address,
         ]);
         $this->setAction(parent::ACTION_UPDATE);
+    }
+
+    private function updateModelParams(array $model)
+    {
+        if (array_key_exists('name', $model)) {
+            $this->name = $model['name'];
+        }
+        if (array_key_exists('taxNumber', $model)) {
+            $this->taxNumber = $model['taxNumber'];
+        }
+        if (array_key_exists('address', $model)) {
+            $this->address = $model['address'];
+        }
+    }
+
+    private function getAddresses()
+    {
+        return Address::all();
     }
 }

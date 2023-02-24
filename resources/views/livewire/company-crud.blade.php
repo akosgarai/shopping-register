@@ -39,5 +39,5 @@
         :panelName="self::PANEL_NAME"
         :panelTitle="__('Company')"
         :contentTemplate="'livewire.component.company.panel'"
-        :contentParameters="[ 'action' => $action, 'addresses' => $addresses, 'company' => ['companyName' => $companyName, 'id' => $modelId, 'createdAt' => $createdAt, 'updatedAt' => $updatedAt, 'companyTaxNumber' => $companyTaxNumber, 'companyAddress' => $companyAddress]]">
+        :contentParameters="[ 'action' => $action, 'addresses' => $addresses, 'company' => $panelCompany ]">
 </div>
