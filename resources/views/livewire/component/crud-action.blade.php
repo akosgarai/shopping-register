@@ -8,6 +8,13 @@
                         @if($formElement['type'] == 'textinput' && $formElement['readonly'] == false)
                             @include('livewire.component.offcanvasform.textinput', ['modelId' => 'modelData.' . $formElement['keyName'], 'formLabel' => $formElement['label']])
                         @endif
+                        @if($formElement['type'] == 'selectoraddress' && $formElement['readonly'] == false)
+                            @include('livewire.component.offcanvasform.selectoraddress', [
+                                'modelId' => 'modelData.' . $formElement['keyName'],
+                                'addresses' => $formElement['options'],
+                                'selected' => $modelData[$formElement['keyName']]
+                            ])
+                        @endif
                     @endforeach
                     <div class="d-flex flex-row-reverse">
                         <button type="submit" class="btn btn-primary">{{ __('Save') }}</button>
@@ -34,6 +41,13 @@
                     @foreach($formData as $key => $formElement)
                         @if($formElement['type'] == 'textinput')
                             @include('livewire.component.offcanvasform.textinput', ['modelId' => 'modelData.' . $formElement['keyName'], 'formLabel' => $formElement['label'], 'readonly' => $formElement['readonly']])
+                        @endif
+                        @if($formElement['type'] == 'selectoraddress' && $formElement['readonly'] == false)
+                            @include('livewire.component.offcanvasform.selectoraddress', [
+                                'modelId' => 'modelData.' . $formElement['keyName'],
+                                'addresses' => $formElement['options'],
+                                'selected' => $modelData[$formElement['keyName']]
+                            ])
                         @endif
                     @endforeach
                     <div class="d-flex flex-row-reverse">

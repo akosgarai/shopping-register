@@ -70,7 +70,7 @@ class CrudAction extends Crud
     {
         $rules = [];
         foreach ($this->formData as $formElement) {
-            $rules['modelData.'.$formElement['keyName']] = $formElement['rules'];
+            $rules['modelData.'.$formElement['keyName']] = isset($formElement['rules'][$this->action]) ? $formElement['rules'][$this->action] : $formElement['rules'];
         }
         return $rules;
     }
