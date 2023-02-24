@@ -13,9 +13,9 @@ class ShopCrud extends CrudPage
     public const PANEL_NAME = 'shopPanel';
     public $templateName = 'livewire.shop-crud';
 
-    public $shopName = '';
-    public $shopAddress = '';
-    public $shopCompany = '';
+    public $name = '';
+    public $address = '';
+    public $company = '';
 
     protected $listeners = [
         'shop.create' => 'saveNew',
@@ -42,9 +42,9 @@ class ShopCrud extends CrudPage
             'addresses' =>  Address::all(),
             'companies' =>  Company::all(),
             'panelShop' => [
-                'shopName' => $this->shopName,
-                'shopAddress' => $this->shopAddress,
-                'shopCompany' => $this->shopCompany,
+                'name' => $this->name,
+                'address' => $this->address,
+                'company' => $this->company,
                 'id' => $this->modelId,
                 'createdAt' => $this->createdAt,
                 'updatedAt' => $this->updatedAt,
@@ -57,9 +57,9 @@ class ShopCrud extends CrudPage
         switch ($this->action) {
         case parent::ACTION_CREATE:
             $this->modelId = '';
-            $this->shopName = '';
-            $this->shopAddress = '';
-            $this->shopCompany = '';
+            $this->name = '';
+            $this->address = '';
+            $this->company = '';
             $this->createdAt = '';
             $this->updatedAt = '';
             break;
@@ -67,9 +67,9 @@ class ShopCrud extends CrudPage
         case parent::ACTION_UPDATE:
         case parent::ACTION_DELETE:
             $shop = Shop::find($this->modelId);
-            $this->shopName = $shop->name;
-            $this->shopAddress = $shop->address_id;
-            $this->shopCompany = $shop->company_id;
+            $this->name = $shop->name;
+            $this->address = $shop->address_id;
+            $this->company = $shop->company_id;
             $this->createdAt = $shop->created_at;
             $this->updatedAt = $shop->updated_at;
             break;
@@ -79,12 +79,12 @@ class ShopCrud extends CrudPage
             $this->emit('panel.close');
             return;
         }
-        $this->emit('panel.update', self::PANEL_NAME, [
+        $this->emit('crudaction.update', [
             'action' => $this->action,
             'shop' => [
-                'shopName' => $this->shopName,
-                'shopAddress' => $this->shopAddress,
-                'shopCompany' => $this->shopCompany,
+                'name' => $this->name,
+                'address' => $this->address,
+                'company' => $this->company,
                 'id' => $this->modelId,
                 'createdAt' => $this->createdAt,
                 'updatedAt' => $this->updatedAt,
@@ -99,14 +99,14 @@ class ShopCrud extends CrudPage
     {
         $this->updateModelParams($model);
         $this->validate([
-            'shopName' => 'required|string',
-            'shopCompany' => 'required|integer|exists:companies,id',
-            'shopAddress' => 'required|integer|exists:addresses,id',
+            'name' => 'required|string',
+            'company' => 'required|integer|exists:companies,id',
+            'address' => 'required|integer|exists:addresses,id',
         ]);
         $shop = Shop::firstOrCreate([
-            'name' => $this->shopName,
-            'address_id' => $this->shopAddress,
-            'company_id' => $this->shopCompany,
+            'name' => $this->name,
+            'address_id' => $this->address,
+            'company_id' => $this->company,
         ]);
         $this->modelId = $shop->id;
         $this->setAction(parent::ACTION_UPDATE);
@@ -117,28 +117,28 @@ class ShopCrud extends CrudPage
         $this->updateModelParams($model);
         $this->validate([
             'modelId' => 'required|integer|exists:shops,id',
-            'shopName' => 'required|string',
-            'shopCompany' => 'required|integer|exists:companies,id',
-            'shopAddress' => 'required|integer|exists:addresses,id',
+            'name' => 'required|string',
+            'company' => 'required|integer|exists:companies,id',
+            'address' => 'required|integer|exists:addresses,id',
         ]);
         Shop::where('id', $this->modelId)->update([
-            'name' => $this->shopName,
-            'address_id' => $this->shopAddress,
-            'company_id' => $this->shopCompany,
+            'name' => $this->name,
+            'address_id' => $this->address,
+            'company_id' => $this->company,
         ]);
         $this->setAction(parent::ACTION_UPDATE);
     }
 
     private function updateModelParams(array $model)
     {
-        if (array_key_exists('shopName', $model)) {
-            $this->shopName = $model['shopName'];
+        if (array_key_exists('name', $model)) {
+            $this->name = $model['name'];
         }
-        if (array_key_exists('shopAddress', $model)) {
-            $this->shopAddress = $model['shopAddress'];
+        if (array_key_exists('address', $model)) {
+            $this->address = $model['address'];
         }
-        if (array_key_exists('shopCompany', $model)) {
-            $this->shopCompany = $model['shopCompany'];
+        if (array_key_exists('company', $model)) {
+            $this->company = $model['company'];
         }
     }
 }
