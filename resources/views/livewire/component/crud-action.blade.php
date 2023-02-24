@@ -15,6 +15,13 @@
                                 'selected' => $modelData[$formElement['keyName']]
                             ])
                         @endif
+                        @if($formElement['type'] == 'selectorcompany' && $formElement['readonly'] == false)
+                            @include('livewire.component.offcanvasform.selectorcompany', [
+                                'modelId' => 'modelData.' . $formElement['keyName'],
+                                'companies' => $formElement['options'],
+                                'selected' => $modelData[$formElement['keyName']]
+                            ])
+                        @endif
                     @endforeach
                     <div class="d-flex flex-row-reverse">
                         <button type="submit" class="btn btn-primary">{{ __('Save') }}</button>
@@ -46,6 +53,13 @@
                             @include('livewire.component.offcanvasform.selectoraddress', [
                                 'modelId' => 'modelData.' . $formElement['keyName'],
                                 'addresses' => $formElement['options'],
+                                'selected' => $modelData[$formElement['keyName']]
+                            ])
+                        @endif
+                        @if($formElement['type'] == 'selectorcompany' && $formElement['readonly'] == false)
+                            @include('livewire.component.offcanvasform.selectorcompany', [
+                                'modelId' => 'modelData.' . $formElement['keyName'],
+                                'companies' => $formElement['options'],
                                 'selected' => $modelData[$formElement['keyName']]
                             ])
                         @endif
