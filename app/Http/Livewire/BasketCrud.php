@@ -10,132 +10,190 @@ use App\Models\Basket;
 use App\Models\BasketItem;
 use App\Models\Item;
 use App\Models\Shop;
+use App\Services\ImageService;
 
-class BasketCrud extends OffcanvasPage
+class BasketCrud extends CrudPage
 {
     use WithFileUploads;
 
+    public const PANEL_NAME = 'basketPanel';
     public $templateName = 'livewire.basket-crud';
 
-    public $basketShop = '';
-    public $basketDate = '';
-    public $basketTotal = 0.0;
-    public $basketReceiptId = '';
-    public $basketImageURL = '';
-    public $basketImage = null;
-    public $basketItems = [];
-    public $newBasketItemId = '';
-    public $newBasketItemPrice = '';
+    public $shopId = '';
+    public $date = '';
+    public $total = 0.0;
+    public $receiptId = '';
+    public $imageURL = '';
+    public $image = null;
+    public $items = [];
 
-    protected $listeners = ['offcanvasClose', 'deleteBasketItem'];
+    public $newItemId = '';
+    public $newItemPrice = '';
 
-    public function load($id)
+    protected $listeners = [
+        'basket.create' => 'saveNew',
+        'basket.update' => 'update',
+        'basket.delete' => 'delete',
+        'action.back' => 'clearAction',
+    ];
+
+    public function delete($modelId)
     {
-        $this->modelId = $id;
-        $this->action = parent::ACTION_UPDATE;
-        $basket = Basket::find($this->modelId);
-        $this->basketShop = $basket->shop_id;
-        $this->basketDate = $basket->date;
-        $this->basketTotal = $basket->total;
-        $this->basketReceiptId = $basket->receipt_id;
-        $imageURL = !empty($basket->receipt_url) ? route('image.viewReceipt', ['filename' =>  $basket->receipt_url]) : '';
-        $this->basketImageURL = $imageURL;
-        $this->createdAt = $basket->created_at;
-        $this->updatedAt = $basket->updated_at;
-        $this->basketItems = $basket->basketItems->toArray();
-        // dispatch a browser event to update the image on the offcanvas.
-        // The name of the event id 'basket-image' and the parameter is the URL of the image.
-        $this->dispatchBrowserEvent('basket.loaded', ['url' => $imageURL, 'items' => $basket->basketItems]);
+        $basket = Basket::where('id', $modelId)
+            ->withCount('basketItems')
+            ->first();
+        if ($basket != null && $basket->basket_items_count == 0) {
+            $basket->delete();
+        }
+        parent::clearAction();
     }
 
     public function getTemplateParameters()
     {
         return [
-            'baskets' =>  Basket::where('user_id', auth()->user()->id)->get(),
-            'shops' =>  Shop::all(),
-            'items' => Item::all()
+            'baskets' =>  Basket::where('user_id', auth()->user()->id)
+                ->withCount('basketItems')
+                ->with(['shop', 'shop.address'])
+                ->get(),
+            'shopOptions' =>  $this->getShops(),
+            'itemOptions' => $this->getItems(),
+            'formData' => $this->formData(),
+            'panelBasket' => [
+                'shopId' => $this->shopId,
+                'date' => $this->date,
+                'total' => $this->total,
+                'receiptId' => $this->receiptId,
+                'imageURL' => $this->imageURL,
+                'image' => $this->image,
+                'id' => $this->modelId,
+                'createdAt' => $this->createdAt,
+                'updatedAt' => $this->updatedAt,
+                'items' => $this->items,
+                'newItemId' => $this->newItemId,
+                'newItemPrice' => $this->newItemPrice,
+            ]
         ];
     }
 
     public function initialize()
     {
-        $this->modelId = '';
-        $this->basketShop = '';
-        $this->basketDate = '';
-        $this->basketTotal = 0.0;
-        $this->basketReceiptId = '';
-        $this->basketImageURL = '';
-        $this->basketImage = null;
-        $this->basketItems = [];
-        $this->createdAt = '';
-        $this->updatedAt = '';
-        $this->newBasketItemId = '';
-        $this->newBasketItemPrice = '';
-    }
-
-    public function saveNew()
-    {
-        try {
-            $this->validate([
-                'basketShop' => 'required|integer|exists:shops,id',
-                'basketDate' => 'required|date',
-                'basketTotal' => 'required|numeric',
-                'basketReceiptId' => 'required|string',
-                'basketImage' => 'nullable|image',
-            ]);
-        } catch (ValidationException $e) {
-            $messages = $e->validator->getMessageBag();
-            $this->dispatchBrowserEvent('model.validation', ['type' => 'new', 'model' => 'Basket', 'messages' => $messages]);
+        switch ($this->action) {
+            case parent::ACTION_CREATE:
+                $this->shopId = '';
+                $this->date = '';
+                $this->total = 0.0;
+                $this->receiptId = '';
+                $this->imageURL = '';
+                $this->image = null;
+                $this->items = [];
+                $this->createdAt = '';
+                $this->updatedAt = '';
+                $this->newBasketItemId = '';
+                $this->newBasketItemPrice = '';
+                break;
+            case parent::ACTION_READ:
+            case parent::ACTION_UPDATE:
+            case parent::ACTION_DELETE:
+                $basket = Basket::where('id', $this->modelId)
+                    ->withCount('basketItems')
+                    ->with(['shop', 'shop.address', 'basketItems', 'basketItems.item'])
+                    ->first();
+                $this->shopId = $basket->shop->id;
+                $this->date = $basket->date;
+                $this->total = $basket->total;
+                $this->receiptId = $basket->receipt_id;
+                $this->imageURL = !empty($basket->receipt_url) ? route('image.viewReceipt', ['filename' =>  $basket->receipt_url]) : '';
+                $this->createdAt = $basket->created_at;
+                $this->updatedAt = $basket->updated_at;
+                $this->items = $basket->basketItems->toArray();
+                break;
+        }
+        if ($this->action == '') {
+            $this->modelId = '';
+            $this->emit('panel.close');
             return;
         }
-        $receiptUrl = null;
-        if ($this->basketImage) {
-            $receiptUrl = '/storage/'.$this->basketImage->store('receipts', 'public');
+        $this->emit('crudaction.update', [
+            'action' => $this->action,
+            'basket' => [
+                'shopId' => $this->shopId,
+                'date' => $this->date,
+                'total' => $this->total,
+                'receiptId' => $this->receiptId,
+                'imageURL' => $this->imageURL,
+                'image' => $this->image,
+                'id' => $this->modelId,
+                'createdAt' => $this->createdAt,
+                'updatedAt' => $this->updatedAt,
+                'items' => $this->items,
+                'newItemId' => $this->newItemId,
+                'newItemPrice' => $this->newItemPrice,
+            ],
+            'formData' => $this->formData(),
+            'shops' =>  $this->getShops(),
+            'items' => $this->getItems(),
+        ]);
+        $this->emit('panel.open', self::PANEL_NAME);
+    }
+
+    public function saveNew(array $model)
+    {
+        $imageService = new ImageService();
+        $this->updateModelParams($model);
+        $this->validate([
+            'shopId' => 'required|integer|exists:shops,id',
+            'date' => 'required|date',
+            'total' => 'required|numeric',
+            'receiptId' => 'required|string',
+            'image' => 'nullable|image',
+        ]);
+        if ($this->image) {
+            $receiptUrl = $imageService->saveReceiptImageToUserFolder($this->image, auth()->user()->id);
         }
         $basket = Basket::firstOrCreate([
-            'shop_id' => $this->basketShop,
-            'date' => $this->basketDate,
-            'total' => $this->basketTotal,
-            'receipt_id' => $this->basketReceiptId,
+            'shop_id' => $this->shopId,
+            'date' => $this->date,
+            'total' => $this->total,
+            'receipt_id' => $this->receiptId,
             'user_id' => auth()->user()->id,
             'receipt_url' => $receiptUrl,
         ]);
         // save the basket items
-        foreach ($this->basketItems as $basketItem) {
+        foreach ($this->items as $basketItem) {
             BasketItem::firstOrCreate([
                 'item_id' => $basketItem['item_id'],
                 'price' => $basketItem['price'],
                 'basket_id' => $basket->id,
             ]);
         }
-        return redirect()->route('basket', ['action' => 'update', 'id' => $basket->id]);
+        $this->modelId = $basket->id;
+        $this->setAction(parent::ACTION_UPDATE);
     }
 
-    public function update()
+    public function update(array $model)
     {
-        try {
-            $this->validate([
-                'modelId' => 'required|integer|exists:baskets,id',
-                'basketShop' => 'required|integer|exists:shops,id',
-                'basketDate' => 'required|date',
-                'basketTotal' => 'required|numeric',
-                'basketReceiptId' => 'required|string',
-            ]);
-        } catch (ValidationException $e) {
-            $messages = $e->validator->getMessageBag();
-            $this->dispatchBrowserEvent('model.validation', ['type' => 'update', 'model' => 'Basket', 'messages' => $messages]);
-            return;
+        $imageService = new ImageService();
+        $this->updateModelParams($model);
+        $this->validate([
+            'modelId' => 'required|integer|exists:baskets,id',
+            'shopId' => 'required|integer|exists:shops,id',
+            'date' => 'required|date',
+            'total' => 'required|numeric',
+            'receiptId' => 'required|string',
+            'image' => 'nullable|image',
+        ]);
+        if ($this->image) {
+            $receiptUrl = $imageService->saveReceiptImageToUserFolder($this->image, auth()->user()->id);
         }
         if ($this->basketImage) {
             $this->basketImageURL = '/storage/'.$this->basketImage->store('receipts', 'public');
         }
         Basket::where('id', $this->modelId)->where('user_id', auth()->user()->id)->update([
-            'shop_id' => $this->basketShop,
-            'date' => $this->basketDate,
-            'total' => $this->basketTotal,
-            'receipt_id' => $this->basketReceiptId,
-            'receipt_url' => $this->basketImageURL,
-
+            'shop_id' => $this->shopId,
+            'date' => $this->date,
+            'total' => $this->total,
+            'receipt_id' => $this->receiptId,
+            'receipt_url' => $receiptUrl,
         ]);
         // delete the current basket items and then save the new ones
         BasketItem::where('basket_id', $this->modelId)->delete();
@@ -146,15 +204,7 @@ class BasketCrud extends OffcanvasPage
                 'basket_id' => $this->modelId,
             ]);
         }
-        return redirect()->route('basket', ['action' => 'update', 'id' => $this->modelId]);
-    }
-
-    public function delete($id)
-    {
-        $basket = Basket::find($id);
-        if ($basket != null && $basket->basketItems->count() == 0) {
-            $basket->delete();
-        }
+        $this->setAction(parent::ACTION_UPDATE);
     }
 
     public function addBasketItem()
@@ -209,5 +259,60 @@ class BasketCrud extends OffcanvasPage
         }
         $this->basketImageURL = '';
         $this->basketImage = null;
+    }
+
+    private function updateModelParams(array $model)
+    {
+        if (array_key_exists('shopId', $model)) {
+            $this->shopId = $model['shopId'];
+        }
+        if (array_key_exists('date', $model)) {
+            $this->date = $model['date'];
+        }
+        if (array_key_exists('total', $model)) {
+            $this->total = $model['total'];
+        }
+        if (array_key_exists('receiptId', $model)) {
+            $this->receiptId = $model['receiptId'];
+        }
+        if (array_key_exists('imageURL', $model)) {
+            $this->imageURL = $model['imageURL'];
+        }
+        if (array_key_exists('items', $model)) {
+            $this->items = $model['items'];
+        }
+        if (array_key_exists('image', $model)) {
+            $this->image = $model['image'];
+        }
+        if (array_key_exists('newItemId', $model)) {
+            $this->newItemId = $model['newItemId'];
+        }
+        if (array_key_exists('newItemPrice', $model)) {
+            $this->newItemPrice = $model['newItemPrice'];
+        }
+    }
+
+    private function getShops()
+    {
+        return Shop::with('address')->get();
+    }
+
+    private function getItems()
+    {
+        return Item::all();
+    }
+
+    private function formData() {
+        $items = $this->getItems();
+        return [
+            ['keyName' => 'shopId', 'type' => 'selectorshop', 'rules' => 'required|integer|exists:shops,id', 'readonly' => false, 'options' => $this->getShops()],
+            ['keyName' => 'date', 'type' => 'datetimelocalinput', 'label' => __('Date'), 'rules' => 'required|date', 'readonly' => false],
+            ['keyName' => 'receiptId', 'type' => 'textinput', 'label' => __('Receipt ID'), 'rules' => 'required|string', 'readonly' => false],
+            ['keyName' => 'items', 'type' => 'itemlist', 'currentItems' => $this->items, 'options' => $items],
+            ['keyNameItem' => 'newItemId', 'type' => 'basketitem', 'keyNamePrice' => 'newItemPrice', 'options' => $items],
+
+            ['keyName' => 'createdAt', 'type' => 'textinput', 'label' => __('Created'), 'rules' => '', 'readonly' => true],
+            ['keyName' => 'updatedAt', 'type' => 'textinput', 'label' => __('Updated'), 'rules' => '', 'readonly' => true],
+        ];
     }
 }
