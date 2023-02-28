@@ -4,35 +4,7 @@
             <h4 class="card-header"><i class="bi bi-plus-circle me-3"></i>{{ __('Create') }}</h4>
             <div class="card-body">
                 <form wire:submit.prevent="create">
-                    @foreach($formData as $key => $formElement)
-                        @if($formElement['type'] == 'textinput' && $formElement['readonly'] == false)
-                            @include('livewire.component.offcanvasform.textinput', ['modelId' => 'modelData.' . $formElement['keyName'], 'formLabel' => $formElement['label']])
-                        @endif
-                        @if($formElement['type'] == 'selectoraddress' && $formElement['readonly'] == false)
-                            @include('livewire.component.offcanvasform.selectoraddress', [
-                                'modelId' => 'modelData.' . $formElement['keyName'],
-                                'addresses' => $formElement['options'],
-                                'selected' => $modelData[$formElement['keyName']]
-                            ])
-                        @endif
-                        @if($formElement['type'] == 'selectorcompany' && $formElement['readonly'] == false)
-                            @include('livewire.component.offcanvasform.selectorcompany', [
-                                'modelId' => 'modelData.' . $formElement['keyName'],
-                                'companies' => $formElement['options'],
-                                'selected' => $modelData[$formElement['keyName']]
-                            ])
-                        @endif
-                        @if($formElement['type'] == 'selectorshop' && $formElement['readonly'] == false)
-                            @include('livewire.component.offcanvasform.selectorshop', [
-                                'modelId' => 'modelData.' . $formElement['keyName'],
-                                'shops' => $formElement['options'],
-                                'selected' => $modelData[$formElement['keyName']]
-                            ])
-                        @endif
-                        @if($formElement['type'] == 'datetimelocalinput' && $formElement['readonly'] == false)
-                            @include('livewire.component.offcanvasform.datetimelocalinput', ['modelId' => 'modelData.' . $formElement['keyName'], 'formLabel' => $formElement['label']])
-                        @endif
-                    @endforeach
+                    @include('livewire.component.offcanvasform.formitems', ['formData' => $formData])
                     <div class="d-flex flex-row-reverse">
                         <button type="submit" class="btn btn-primary">{{ __('Save') }}</button>
                     </div>
@@ -55,35 +27,7 @@
             <h4 class="card-header"><i class="bi bi-pencil-square me-3"></i>{{ __('Update') }}</h4>
             <div class="card-body">
                 <form wire:submit.prevent="update">
-                    @foreach($formData as $key => $formElement)
-                        @if($formElement['type'] == 'textinput')
-                            @include('livewire.component.offcanvasform.textinput', ['modelId' => 'modelData.' . $formElement['keyName'], 'formLabel' => $formElement['label'], 'readonly' => $formElement['readonly']])
-                        @endif
-                        @if($formElement['type'] == 'selectoraddress' && $formElement['readonly'] == false)
-                            @include('livewire.component.offcanvasform.selectoraddress', [
-                                'modelId' => 'modelData.' . $formElement['keyName'],
-                                'addresses' => $formElement['options'],
-                                'selected' => $modelData[$formElement['keyName']]
-                            ])
-                        @endif
-                        @if($formElement['type'] == 'selectorcompany' && $formElement['readonly'] == false)
-                            @include('livewire.component.offcanvasform.selectorcompany', [
-                                'modelId' => 'modelData.' . $formElement['keyName'],
-                                'companies' => $formElement['options'],
-                                'selected' => $modelData[$formElement['keyName']]
-                            ])
-                        @endif
-                        @if($formElement['type'] == 'selectorshop' && $formElement['readonly'] == false)
-                            @include('livewire.component.offcanvasform.selectorshop', [
-                                'modelId' => 'modelData.' . $formElement['keyName'],
-                                'shops' => $formElement['options'],
-                                'selected' => $modelData[$formElement['keyName']]
-                            ])
-                        @endif
-                        @if($formElement['type'] == 'datetimelocalinput' && $formElement['readonly'] == false)
-                            @include('livewire.component.offcanvasform.datetimelocalinput', ['modelId' => 'modelData.' . $formElement['keyName'], 'formLabel' => $formElement['label']])
-                        @endif
-                    @endforeach
+                    @include('livewire.component.offcanvasform.formitems', ['formData' => $formData])
                     <div class="d-flex flex-row-reverse">
                         <button type="submit" class="btn btn-primary">{{ __('Update') }}</button>
                     </div>
