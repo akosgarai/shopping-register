@@ -26,6 +26,9 @@ class CrudAction extends Crud
 
     public function updateData($data)
     {
+        if (array_key_exists('formData', $data)) {
+            $this->formData = $data['formData'];
+        }
         if (!array_key_exists($this->modelName, $data)) {
             return;
         }
