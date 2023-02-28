@@ -22,6 +22,16 @@
                                 'selected' => $modelData[$formElement['keyName']]
                             ])
                         @endif
+                        @if($formElement['type'] == 'selectorshop' && $formElement['readonly'] == false)
+                            @include('livewire.component.offcanvasform.selectorshop', [
+                                'modelId' => 'modelData.' . $formElement['keyName'],
+                                'shops' => $formElement['options'],
+                                'selected' => $modelData[$formElement['keyName']]
+                            ])
+                        @endif
+                        @if($formElement['type'] == 'datetimelocalinput' && $formElement['readonly'] == false)
+                            @include('livewire.component.offcanvasform.datetimelocalinput', ['modelId' => 'modelData.' . $formElement['keyName'], 'formLabel' => $formElement['label']])
+                        @endif
                     @endforeach
                     <div class="d-flex flex-row-reverse">
                         <button type="submit" class="btn btn-primary">{{ __('Save') }}</button>
@@ -62,6 +72,16 @@
                                 'companies' => $formElement['options'],
                                 'selected' => $modelData[$formElement['keyName']]
                             ])
+                        @endif
+                        @if($formElement['type'] == 'selectorshop' && $formElement['readonly'] == false)
+                            @include('livewire.component.offcanvasform.selectorshop', [
+                                'modelId' => 'modelData.' . $formElement['keyName'],
+                                'shops' => $formElement['options'],
+                                'selected' => $modelData[$formElement['keyName']]
+                            ])
+                        @endif
+                        @if($formElement['type'] == 'datetimelocalinput' && $formElement['readonly'] == false)
+                            @include('livewire.component.offcanvasform.datetimelocalinput', ['modelId' => 'modelData.' . $formElement['keyName'], 'formLabel' => $formElement['label']])
                         @endif
                     @endforeach
                     <div class="d-flex flex-row-reverse">
