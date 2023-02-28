@@ -38,6 +38,17 @@
             @endforeach
         </div>
     @endif
+    @if($formElement['type'] == 'basketitem')
+        @include('livewire.component.offcanvasform.basketitem', [
+            'itemModelId' => 'modelData.' . $formElement['keyNameItem'],
+            'options' => $formElement['options'],
+            'selected' => '',
+            'priceModelId' => 'modelData.' . $formElement['keyNamePrice'],
+            'buttonFunction' => 'addBasketItem',
+            'buttonLabel' => __('Add'),
+            'templateIndex' => 'new',
+            ])
+    @endif
     @if($formElement['type'] == 'datetimelocalinput' && $formElement['readonly'] == false)
         @include('livewire.component.offcanvasform.datetimelocalinput', ['modelId' => 'modelData.' . $formElement['keyName'], 'formLabel' => $formElement['label']])
     @endif
