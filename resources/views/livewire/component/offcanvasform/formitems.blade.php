@@ -23,6 +23,21 @@
             'selected' => $modelData[$formElement['keyName']]
         ])
     @endif
+    @if($formElement['type'] == 'itemlist')
+        <div class="current-basket-items">
+            @foreach($formElement['currentItems'] as $key => $basketItem)
+                @include('livewire.component.offcanvasform.basketitem', [
+                    'itemModelId' => 'modelData.' . $formElement['keyName'] . '.' . $key. '.item_id',
+                    'options' => $formElement['options'],
+                    'selected' => $basketItem['item_id'],
+                    'priceModelId' => 'modelData.' . $formElement['keyName'] . '.' . $key. '.price',
+                    'buttonFunction' => 'deleteBasketItem(' . $key . ')',
+                    'buttonLabel' => __('Delete'),
+                    'templateIndex' => $key,
+                    ])
+            @endforeach
+        </div>
+    @endif
     @if($formElement['type'] == 'datetimelocalinput' && $formElement['readonly'] == false)
         @include('livewire.component.offcanvasform.datetimelocalinput', ['modelId' => 'modelData.' . $formElement['keyName'], 'formLabel' => $formElement['label']])
     @endif
