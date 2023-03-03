@@ -31,8 +31,10 @@
                     'options' => $formElement['options'],
                     'selected' => $basketItem['item_id'],
                     'priceModelId' => 'modelData.' . $formElement['keyName'] . '.' . $key. '.price',
-                    'buttonFunction' => 'deleteBasketItem(' . $key . ')',
                     'buttonLabel' => __('Delete'),
+                    'eventName' => 'basket.deleteBasketItem',
+                    'eventParameters' => [],
+                    'staticEventParameters' => [$key],
                     'templateIndex' => $key,
                     ])
             @endforeach
@@ -44,8 +46,10 @@
             'options' => $formElement['options'],
             'selected' => '',
             'priceModelId' => 'modelData.' . $formElement['keyNamePrice'],
-            'buttonFunction' => 'addBasketItem',
             'buttonLabel' => __('Add'),
+            'eventName' => 'basket.addBasketItem',
+            'eventParameters' => ['modelData.' . $formElement['keyNameItem'], 'modelData.' . $formElement['keyNamePrice']],
+            'staticEventParameters' => [],
             'templateIndex' => 'new',
             ])
     @endif

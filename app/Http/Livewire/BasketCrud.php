@@ -34,6 +34,8 @@ class BasketCrud extends CrudPage
         'basket.create' => 'saveNew',
         'basket.update' => 'update',
         'basket.delete' => 'delete',
+        'basket.addBasketItem' => 'addBasketItem',
+        'basket.deleteBasketItem' => 'deleteBasketItem',
         'action.back' => 'clearAction',
     ];
 
@@ -113,26 +115,7 @@ class BasketCrud extends CrudPage
             $this->emit('panel.close');
             return;
         }
-        $this->emit('crudaction.update', [
-            'action' => $this->action,
-            'basket' => [
-                'shopId' => $this->shopId,
-                'date' => $this->date,
-                'total' => $this->total,
-                'receiptId' => $this->receiptId,
-                'imageURL' => $this->imageURL,
-                'image' => $this->image,
-                'id' => $this->modelId,
-                'createdAt' => $this->createdAt,
-                'updatedAt' => $this->updatedAt,
-                'items' => $this->items,
-                'newItemId' => $this->newItemId,
-                'newItemPrice' => $this->newItemPrice,
-            ],
-            'formData' => $this->formData(),
-            'shops' =>  $this->getShops(),
-            'items' => $this->getItems(),
-        ]);
+        $this->emitUpdateBasketEvent();
         $this->emit('panel.open', self::PANEL_NAME);
     }
 
@@ -147,6 +130,7 @@ class BasketCrud extends CrudPage
             'receiptId' => 'required|string',
             'image' => 'nullable|image',
         ]);
+        $receiptUrl = '';
         if ($this->image) {
             $receiptUrl = $imageService->saveReceiptImageToUserFolder($this->image, auth()->user()->id);
         }
@@ -182,6 +166,7 @@ class BasketCrud extends CrudPage
             'receiptId' => 'required|string',
             'image' => 'nullable|image',
         ]);
+        $receiptUrl = '';
         if ($this->image) {
             $receiptUrl = $imageService->saveReceiptImageToUserFolder($this->image, auth()->user()->id);
         }
@@ -207,43 +192,33 @@ class BasketCrud extends CrudPage
         $this->setAction(parent::ACTION_UPDATE);
     }
 
-    public function addBasketItem()
+    public function addBasketItem($itemId, $price)
     {
-        try {
-            $this->validate([
-                'newBasketItemId' => 'required|integer|exists:items,id',
-                'newBasketItemPrice' => 'required|numeric',
-            ]);
-        } catch (ValidationException $e) {
-            $messages = $e->validator->getMessageBag();
-            $type = $this->modelId == '' ? 'new' : 'update';
-            $this->dispatchBrowserEvent('model.validation', ['type' => $type, 'model' => 'Basket', 'messages' => $messages]);
-            return;
-        }
-        $this->basketItems[] = [
-            'item_id' => $this->newBasketItemId,
-            'price' => $this->newBasketItemPrice,
-            'basket_id' => $this->modelId,
-        ];
-        $insertedIndex = array_key_last($this->basketItems);
-        // increase the total with the new item price.
-        $this->basketTotal += $this->newBasketItemPrice;
-        $this->dispatchBrowserEvent('basketItem.added', [
-            'basketItemIndex' => $insertedIndex,
-            'selectedItemId' => $this->newBasketItemId,
-            'itemPrice' => $this->newBasketItemPrice,
-            'buttonLabel' => __('Delete'),
+        $this->newItemId = $itemId;
+        $this->newItemPrice = $price;
+        $this->validate([
+            'newItemId' => 'required|integer|exists:items,id',
+            'newItemPrice' => 'required|numeric',
         ]);
-        $this->newBasketItemId = '';
-        $this->newBasketItemPrice = '';
+        $this->items[] = [
+            'item_id' => $this->newItemId,
+            'price' => $this->newItemPrice,
+            'basket_id' => $this->modelId,
+            'item' => Item::find($this->newItemId),
+        ];
+        // increase the total with the new item price.
+        $this->total += $this->newItemPrice;
+        $this->newItemId = '';
+        $this->newItemPrice = '';
+        $this->emitUpdateBasketEvent();
     }
 
     public function deleteBasketItem($index)
     {
         // decrease the total with the deleted item price.
-        $this->basketTotal -= $this->basketItems[$index]['price'];
-        unset($this->basketItems[$index]);
-        $this->dispatchBrowserEvent('basketItem.removed', ['basketItemIndex' => $index]);
+        $this->total -= $this->items[$index]['price'];
+        unset($this->items[$index]);
+        $this->emitUpdateBasketEvent();
     }
 
     public function deleteBasketImage()
@@ -263,32 +238,11 @@ class BasketCrud extends CrudPage
 
     private function updateModelParams(array $model)
     {
-        if (array_key_exists('shopId', $model)) {
-            $this->shopId = $model['shopId'];
-        }
-        if (array_key_exists('date', $model)) {
-            $this->date = $model['date'];
-        }
-        if (array_key_exists('total', $model)) {
-            $this->total = $model['total'];
-        }
-        if (array_key_exists('receiptId', $model)) {
-            $this->receiptId = $model['receiptId'];
-        }
-        if (array_key_exists('imageURL', $model)) {
-            $this->imageURL = $model['imageURL'];
-        }
-        if (array_key_exists('items', $model)) {
-            $this->items = $model['items'];
-        }
-        if (array_key_exists('image', $model)) {
-            $this->image = $model['image'];
-        }
-        if (array_key_exists('newItemId', $model)) {
-            $this->newItemId = $model['newItemId'];
-        }
-        if (array_key_exists('newItemPrice', $model)) {
-            $this->newItemPrice = $model['newItemPrice'];
+        $params = ['shopId', 'date', 'total', 'receiptId', 'imageURL', 'items', 'image', 'newItemId', 'newItemPrice'];
+        foreach ($params as $param) {
+            if (array_key_exists($param, $model)) {
+                $this->$param = $model[$param];
+            }
         }
     }
 
@@ -302,17 +256,42 @@ class BasketCrud extends CrudPage
         return Item::all();
     }
 
-    private function formData() {
+    private function formData()
+    {
         $items = $this->getItems();
         return [
             ['keyName' => 'shopId', 'type' => 'selectorshop', 'rules' => 'required|integer|exists:shops,id', 'readonly' => false, 'options' => $this->getShops()],
             ['keyName' => 'date', 'type' => 'datetimelocalinput', 'label' => __('Date'), 'rules' => 'required|date', 'readonly' => false],
             ['keyName' => 'receiptId', 'type' => 'textinput', 'label' => __('Receipt ID'), 'rules' => 'required|string', 'readonly' => false],
-            ['keyName' => 'items', 'type' => 'itemlist', 'currentItems' => $this->items, 'options' => $items],
-            ['keyNameItem' => 'newItemId', 'type' => 'basketitem', 'keyNamePrice' => 'newItemPrice', 'options' => $items],
+            ['keyName' => 'items', 'type' => 'itemlist', 'currentItems' => $this->items, 'options' => $items, 'rules' => ''],
+            ['keyNameItem' => 'newItemId', 'type' => 'basketitem', 'keyNamePrice' => 'newItemPrice', 'options' => $items, 'rulesItem' => 'integer|exists:items,id', 'rulesPrice' => 'numeric'],
 
             ['keyName' => 'createdAt', 'type' => 'textinput', 'label' => __('Created'), 'rules' => '', 'readonly' => true],
             ['keyName' => 'updatedAt', 'type' => 'textinput', 'label' => __('Updated'), 'rules' => '', 'readonly' => true],
         ];
+    }
+
+    private function emitUpdateBasketEvent()
+    {
+        $this->emit('crudaction.update', [
+            'action' => $this->action,
+            'basket' => [
+                'shopId' => $this->shopId,
+                'date' => $this->date,
+                'total' => $this->total,
+                'receiptId' => $this->receiptId,
+                'imageURL' => $this->imageURL,
+                'image' => $this->image,
+                'id' => $this->modelId,
+                'createdAt' => $this->createdAt,
+                'updatedAt' => $this->updatedAt,
+                'items' => $this->items,
+                'newItemId' => $this->newItemId,
+                'newItemPrice' => $this->newItemPrice,
+            ],
+            'formData' => $this->formData(),
+            'shops' =>  $this->getShops(),
+            'items' => $this->getItems(),
+        ]);
     }
 }

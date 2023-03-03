@@ -7,8 +7,11 @@
             @endforeach
         </select>
         <input type="number" class="form-control" id="{{ $priceModelId }}" step="0.01" wire:model="{{ $priceModelId }}">
-        <button type="button" class="btn btn-outline-secondary" wire:click="{{ $buttonFunction }}">{{ $buttonLabel }}</button>
+        <button type="button" class="btn btn-outline-secondary"
+            wire:click="$emitUp('{{ $eventName }}'
+                @foreach($eventParameters as $parameter), @this.{{ $parameter }} @endforeach
+                @foreach($staticEventParameters as $parameter), {{ $parameter }} @endforeach)">{{ $buttonLabel }}</button>
     </div>
-    <span id="errors-{{ $itemModelId }}" class="text-danger" style="display: none;"></span>
-    <span id="errors-{{ $priceModelId }}" class="text-danger" style="display: none;"></span>
+    <span id="errors-{{ $itemModelId }}" class="text-danger" >@error($itemModelId) {{ $message }} @enderror</span>
+    <span id="errors-{{ $priceModelId }}" class="text-danger" >@error($priceModelId) {{ $message }} @enderror</span>
 </div>
