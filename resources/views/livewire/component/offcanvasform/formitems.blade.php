@@ -56,4 +56,13 @@
     @if($formElement['type'] == 'datetimelocalinput' && $formElement['readonly'] == false)
         @include('livewire.component.offcanvasform.datetimelocalinput', ['modelId' => 'modelData.' . $formElement['keyName'], 'formLabel' => $formElement['label']])
     @endif
+    @if($formElement['type'] == 'imageinput')
+        @if($formElement['imageURL'] != '')
+            <img src="{{ $formElement['imageURL'] }}" class="img-fluid" />
+        @endif
+        <div class="mb-3">
+            <label for="{{ $formElement['keyName'] }}" class="form-label">{{ $formElement['label'] }}</label>
+            <input type="file" class="form-control" id="{{ $formElement['keyName'] }}" wire:model="modelData.{{ $formElement['keyName'] }}">
+        </div>
+    @endif
 @endforeach

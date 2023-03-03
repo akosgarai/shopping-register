@@ -10,7 +10,6 @@ use App\Models\Basket;
 use App\Models\BasketItem;
 use App\Models\Item;
 use App\Models\Shop;
-use App\Services\ImageService;
 
 class BasketCrud extends CrudPage
 {
@@ -121,26 +120,21 @@ class BasketCrud extends CrudPage
 
     public function saveNew(array $model)
     {
-        $imageService = new ImageService();
         $this->updateModelParams($model);
         $this->validate([
             'shopId' => 'required|integer|exists:shops,id',
             'date' => 'required|date',
             'total' => 'required|numeric',
             'receiptId' => 'required|string',
-            'image' => 'nullable|image',
+            'image' => 'string',
         ]);
-        $receiptUrl = '';
-        if ($this->image) {
-            $receiptUrl = $imageService->saveReceiptImageToUserFolder($this->image, auth()->user()->id);
-        }
         $basket = Basket::firstOrCreate([
             'shop_id' => $this->shopId,
             'date' => $this->date,
             'total' => $this->total,
             'receipt_id' => $this->receiptId,
             'user_id' => auth()->user()->id,
-            'receipt_url' => $receiptUrl,
+            'receipt_url' => $this->image ?? '',
         ]);
         // save the basket items
         foreach ($this->items as $basketItem) {
@@ -156,7 +150,6 @@ class BasketCrud extends CrudPage
 
     public function update(array $model)
     {
-        $imageService = new ImageService();
         $this->updateModelParams($model);
         $this->validate([
             'modelId' => 'required|integer|exists:baskets,id',
@@ -164,25 +157,18 @@ class BasketCrud extends CrudPage
             'date' => 'required|date',
             'total' => 'required|numeric',
             'receiptId' => 'required|string',
-            'image' => 'nullable|image',
+            'image' => 'string',
         ]);
-        $receiptUrl = '';
-        if ($this->image) {
-            $receiptUrl = $imageService->saveReceiptImageToUserFolder($this->image, auth()->user()->id);
-        }
-        if ($this->basketImage) {
-            $this->basketImageURL = '/storage/'.$this->basketImage->store('receipts', 'public');
-        }
         Basket::where('id', $this->modelId)->where('user_id', auth()->user()->id)->update([
             'shop_id' => $this->shopId,
             'date' => $this->date,
             'total' => $this->total,
             'receipt_id' => $this->receiptId,
-            'receipt_url' => $receiptUrl,
+            'receipt_url' => $this->image ?? '',
         ]);
         // delete the current basket items and then save the new ones
         BasketItem::where('basket_id', $this->modelId)->delete();
-        foreach ($this->basketItems as $basketItem) {
+        foreach ($this->items as $basketItem) {
             BasketItem::firstOrCreate([
                 'item_id' => $basketItem['item_id'],
                 'price' => $basketItem['price'],
@@ -244,6 +230,9 @@ class BasketCrud extends CrudPage
                 $this->$param = $model[$param];
             }
         }
+        if (array_key_exists('uploadedImage', $model)) {
+            $this->image = $model['uploadedImage'];
+        }
     }
 
     private function getShops()
@@ -253,12 +242,13 @@ class BasketCrud extends CrudPage
 
     private function getItems()
     {
-        return Item::all();
+        return (new Item())->all();
     }
 
     private function formData()
     {
         $items = $this->getItems();
+        $imageInputLabel = is_null($this->image) ? __('Upload image') : __('Change image');
         return [
             ['keyName' => 'shopId', 'type' => 'selectorshop', 'rules' => 'required|integer|exists:shops,id', 'readonly' => false, 'options' => $this->getShops()],
             ['keyName' => 'date', 'type' => 'datetimelocalinput', 'label' => __('Date'), 'rules' => 'required|date', 'readonly' => false],
@@ -268,6 +258,7 @@ class BasketCrud extends CrudPage
 
             ['keyName' => 'createdAt', 'type' => 'textinput', 'label' => __('Created'), 'rules' => '', 'readonly' => true],
             ['keyName' => 'updatedAt', 'type' => 'textinput', 'label' => __('Updated'), 'rules' => '', 'readonly' => true],
+            ['keyName' => 'image', 'type' => 'imageinput', 'imageURL' => $this->imageURL, 'rules' => 'nullable|image', 'readonly' => false, 'label' => $imageInputLabel, 'target' => 'uploadedImage'],
         ];
     }
 

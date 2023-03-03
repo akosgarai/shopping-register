@@ -2,10 +2,14 @@
 
 namespace App\Http\Livewire\Component;
 
+use Livewire\WithFileUploads;
+
 use App\Http\Livewire\Crud;
+use App\Services\ImageService;
 
 class CrudAction extends Crud
 {
+    use WithFileUploads;
     /*
      * Form element:
      * - type: text (the name of the input template) Possible values: textinput
@@ -53,15 +57,17 @@ class CrudAction extends Crud
         $this->validateOnly($propertyName);
     }
 
-    public function create()
+    public function create(ImageService $imageService)
     {
         $this->validate();
+        $this->storeImagesIfAny($imageService);
         $this->emit($this->modelName . '.create', $this->modelData);
     }
 
-    public function update()
+    public function update(ImageService $imageService)
     {
         $this->validate();
+        $this->storeImagesIfAny($imageService);
         $this->emit($this->modelName . '.update', $this->modelData);
     }
     public function delete()
@@ -87,5 +93,19 @@ class CrudAction extends Crud
             }
         }
         return $rules;
+    }
+
+    private function storeImagesIfAny(ImageService $imageService)
+    {
+        // On case an image has been uploaded, Store it and set the modelData attribute.
+        // select the images from the form data. The type is imageinput.
+        $images = array_filter($this->formData, function ($element) {
+            return $element['type'] == 'imageinput';
+        });
+        foreach ($images as $image) {
+            if ($this->modelData[$image['keyName']] != null) {
+                $this->modelData[$image['target']] = basename($imageService->saveReceiptImageToUserFolder($this->modelData[$image['keyName']], auth()->user()->id));
+            }
+        }
     }
 }
