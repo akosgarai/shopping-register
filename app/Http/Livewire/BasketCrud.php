@@ -124,6 +124,9 @@ class BasketCrud extends CrudPage
     public function saveNew(array $model)
     {
         $this->updateModelParams($model);
+        if (is_null($this->image)) {
+            $this->image = $this->originalImage;
+        }
         $this->validate([
             'shopId' => 'required|integer|exists:shops,id',
             'date' => 'required|date',
@@ -146,6 +149,9 @@ class BasketCrud extends CrudPage
                 'price' => $basketItem['price'],
                 'basket_id' => $basket->id,
             ]);
+        }
+        if ($this->image == $this->originalImage) {
+            $this->image = null;
         }
         $this->modelId = $basket->id;
         $this->setAction(parent::ACTION_UPDATE);
@@ -264,6 +270,7 @@ class BasketCrud extends CrudPage
             ['keyName' => 'receiptId', 'type' => 'textinput', 'label' => __('Receipt ID'), 'rules' => 'required|string', 'readonly' => false],
             ['keyName' => 'items', 'type' => 'itemlist', 'currentItems' => $this->items, 'options' => $items, 'rules' => ''],
             ['keyNameItem' => 'newItemId', 'type' => 'basketitem', 'keyNamePrice' => 'newItemPrice', 'options' => $items, 'rulesItem' => 'integer|exists:items,id', 'rulesPrice' => 'numeric'],
+            ['keyName' => 'total', 'type' => 'textinput', 'label' => __('Total'), 'rules' => 'required|numeric', 'readonly' => count($this->items) > 0],
 
             ['keyName' => 'createdAt', 'type' => 'textinput', 'label' => __('Created'), 'rules' => '', 'readonly' => true],
             ['keyName' => 'updatedAt', 'type' => 'textinput', 'label' => __('Updated'), 'rules' => '', 'readonly' => true],
