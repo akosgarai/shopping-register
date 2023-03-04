@@ -30,6 +30,8 @@ class BasketCrud extends CrudPage
     public $newItemId = '';
     public $newItemPrice = '';
 
+    public $viewData = null;
+
     protected $listeners = [
         'basket.create' => 'saveNew',
         'basket.update' => 'update',
@@ -52,6 +54,9 @@ class BasketCrud extends CrudPage
 
     public function getTemplateParameters()
     {
+        if ($this->modelId != '') {
+            $this->viewData = $this->getBasket()->toArray();
+        }
         return [
             'baskets' =>  Basket::where('user_id', auth()->user()->id)
                 ->withCount('basketItems')
@@ -60,6 +65,7 @@ class BasketCrud extends CrudPage
             'shopOptions' =>  $this->getShops(),
             'itemOptions' => $this->getItems(),
             'formData' => $this->formData(),
+            'viewData' => $this->viewData,
             'panelBasket' => [
                 'shopId' => $this->shopId,
                 'date' => $this->date,
@@ -93,14 +99,12 @@ class BasketCrud extends CrudPage
                 $this->updatedAt = '';
                 $this->newBasketItemId = '';
                 $this->newBasketItemPrice = '';
+                $this->viewData = null;
                 break;
             case parent::ACTION_READ:
             case parent::ACTION_UPDATE:
             case parent::ACTION_DELETE:
-                $basket = Basket::where('id', $this->modelId)
-                    ->withCount('basketItems')
-                    ->with(['shop', 'shop.address', 'basketItems', 'basketItems.item'])
-                    ->first();
+                $basket = $this->getBasket();
                 $this->shopId = $basket->shop->id;
                 $this->date = $basket->date;
                 $this->total = $basket->total;
@@ -110,6 +114,7 @@ class BasketCrud extends CrudPage
                 $this->createdAt = $basket->created_at;
                 $this->updatedAt = $basket->updated_at;
                 $this->items = $basket->basketItems->toArray();
+                $this->viewData = $basket->toArray();
                 break;
         }
         if ($this->action == '') {
@@ -301,6 +306,7 @@ class BasketCrud extends CrudPage
             'formData' => $this->formData(),
             'shops' =>  $this->getShops(),
             'items' => $this->getItems(),
+            'viewData' => $this->viewData,
         ]);
     }
 
@@ -315,5 +321,13 @@ class BasketCrud extends CrudPage
             $total += $item['price'];
         }
         $this->total = $total;
+    }
+
+    private function getBasket()
+    {
+        return Basket::where('id', $this->modelId)
+            ->withCount('basketItems')
+            ->with(['shop', 'shop.address', 'shop.company', 'shop.company.address', 'basketItems', 'basketItems.item'])
+            ->first();
     }
 }
