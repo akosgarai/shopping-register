@@ -23,6 +23,8 @@ class CrudAction extends Crud
     public $modelName = '';
     // The model data. The key is the model attribute name.
     public $modelData = [];
+    // The model for the view.
+    public $viewData = null;
 
     protected $listeners = [
         'crudaction.update' => 'updateData',
@@ -32,6 +34,9 @@ class CrudAction extends Crud
     {
         if (array_key_exists('formData', $data)) {
             $this->formData = $data['formData'];
+        }
+        if (array_key_exists('viewData', $data)) {
+            $this->viewData = $data['viewData'];
         }
         if (!array_key_exists($this->modelName, $data)) {
             return;
