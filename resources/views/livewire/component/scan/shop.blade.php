@@ -2,8 +2,8 @@
     @if(!$shopCompany)
         <h3>{{ __('You have to setup the company to be able to set the shop.') }}</h3>
     @else
-        @include('livewire.component.offcanvasform.textinput', ['modelId' => 'name', 'formLabel' => __('Shop Name')])
-        @include('livewire.component.offcanvasform.textinput', ['modelId' => 'address', 'formLabel' => __('Address')])
+        @include('livewire.component.forms.textinput', ['modelId' => 'name', 'formLabel' => __('Shop Name')])
+        @include('livewire.component.forms.textinput', ['modelId' => 'address', 'formLabel' => __('Address')])
         <div class="d-flex flex-row-reverse">
             @if ($allowSaveAddress)
                 <button wire:click="insertNew('{{ self::DATA_TYPE_ADDRESS }}')" class="btn btn-primary">{{ __('New Address') }}</button>

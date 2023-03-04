@@ -4,7 +4,7 @@
             <h4 class="card-header"><i class="bi bi-plus-circle me-3"></i>{{ __('Create') }}</h4>
             <div class="card-body">
                 <form wire:submit.prevent="create">
-                    @include('livewire.component.offcanvasform.formitems', ['formData' => $formData])
+                    @include('livewire.component.forms.formitems', ['formData' => $formData])
                     <div class="d-flex flex-row-reverse">
                         <button type="submit" class="btn btn-primary">{{ __('Save') }}</button>
                     </div>
@@ -27,7 +27,7 @@
             <h4 class="card-header"><i class="bi bi-pencil-square me-3"></i>{{ __('Update') }}</h4>
             <div class="card-body">
                 <form wire:submit.prevent="update">
-                    @include('livewire.component.offcanvasform.formitems', ['formData' => $formData])
+                    @include('livewire.component.forms.formitems', ['formData' => $formData])
                     <div class="d-flex flex-row-reverse">
                         <button type="submit" class="btn btn-primary">{{ __('Update') }}</button>
                     </div>

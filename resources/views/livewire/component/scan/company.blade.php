@@ -3,9 +3,9 @@
         <h3>{{ __('You have to setup the basket to be able to set the company.') }}</h3>
     @else
     <form wire:submit.prevent="validateInputs">
-        @include('livewire.component.offcanvasform.textinput', ['modelId' => 'name', 'formLabel' => __('Company Name')])
-        @include('livewire.component.offcanvasform.textinput', ['modelId' => 'taxNumber', 'formLabel' => __('Tax Number')])
-        @include('livewire.component.offcanvasform.textinput', ['modelId' => 'address', 'formLabel' => __('Address')])
+        @include('livewire.component.forms.textinput', ['modelId' => 'name', 'formLabel' => __('Company Name')])
+        @include('livewire.component.forms.textinput', ['modelId' => 'taxNumber', 'formLabel' => __('Tax Number')])
+        @include('livewire.component.forms.textinput', ['modelId' => 'address', 'formLabel' => __('Address')])
         <div class="d-flex flex-row-reverse">
             @if ($allowSaveAddress)
                 <button wire:click="insertNew('{{ self::DATA_TYPE_ADDRESS }}')" class="btn btn-primary">{{ __('New Address') }}</button>
