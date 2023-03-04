@@ -9,6 +9,7 @@ class Panel extends Component
     public $open = false;
     public $position = 'left';
     public $backdrop = false;
+    public $fullWidth = false;
     public $panelName = '';
     public $panelTitle = '';
     public $contentTemplate = '';

@@ -48,6 +48,10 @@
 
 	&.visible {
 		width: 400px;
+
+		&.full-width {
+			width: 100vw;
+		}
 	}
 
 	&.left {
