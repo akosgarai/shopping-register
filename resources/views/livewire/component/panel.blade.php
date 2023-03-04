@@ -8,4 +8,7 @@
             @include($contentTemplate, $contentParameters)
         </div>
     </div>
+    @if($open && $backdrop)
+        <div class="backdrop"></div>
+    @endif
 </div>
