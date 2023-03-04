@@ -211,6 +211,7 @@ class BasketCrud extends CrudPage
         $this->total += $this->newItemPrice;
         $this->newItemId = '';
         $this->newItemPrice = '';
+        $this->correctPrice();
         $this->emitUpdateBasketEvent();
     }
 
@@ -248,6 +249,7 @@ class BasketCrud extends CrudPage
         if (array_key_exists('uploadedImage', $model)) {
             $this->image = $model['uploadedImage'];
         }
+        $this->correctPrice();
     }
 
     private function getShops()
@@ -300,5 +302,18 @@ class BasketCrud extends CrudPage
             'shops' =>  $this->getShops(),
             'items' => $this->getItems(),
         ]);
+    }
+
+    private function correctPrice()
+    {
+        // If the number of items is 0, then the total should be the value provided by the user.
+        if (count($this->items) == 0) {
+            return;
+        }
+        $total = 0;
+        foreach ($this->items as $item) {
+            $total += $item['price'];
+        }
+        $this->total = $total;
     }
 }
