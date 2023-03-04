@@ -30,8 +30,6 @@ class BasketCrud extends CrudPage
     public $newItemId = '';
     public $newItemPrice = '';
 
-    public $viewData = null;
-
     protected $listeners = [
         'basket.create' => 'saveNew',
         'basket.update' => 'update',

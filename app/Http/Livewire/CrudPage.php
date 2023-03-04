@@ -10,6 +10,9 @@ abstract class CrudPage extends Crud
     // The id of the entity to be updated.
     public $modelId = '';
 
+    // The data for the view template.
+    public $viewData = null;
+
     // the timestamps of the entity.
     public $createdAt = '';
     public $updatedAt = '';
