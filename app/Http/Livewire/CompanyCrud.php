@@ -36,9 +36,13 @@ class CompanyCrud extends CrudPage
 
     public function getTemplateParameters()
     {
+        if ($this->modelId != '') {
+            $this->viewData = $this->getCompany()->toArray();
+        }
         return [
             'companies' =>  Company::withCount('shops')->with('address')->get(),
             'addresses' =>  $this->getAddresses(),
+            'viewData' => $this->viewData,
             'panelCompany' => [
                 'name' => $this->name,
                 'taxNumber' => $this->taxNumber,
@@ -63,12 +67,13 @@ class CompanyCrud extends CrudPage
         case parent::ACTION_READ:
         case parent::ACTION_UPDATE:
         case parent::ACTION_DELETE:
-            $company = Company::find($this->modelId);
+            $company = $this->getCompany();
             $this->name = $company->name;
             $this->taxNumber = $company->tax_number;
             $this->address = $company->address_id;
             $this->createdAt = $company->created_at;
             $this->updatedAt = $company->updated_at;
+            $this->viewData = $company->toArray();
             break;
         }
         if ($this->action == '') {
@@ -78,6 +83,7 @@ class CompanyCrud extends CrudPage
         }
         $this->emit('crudaction.update', [
             'action' => $this->action,
+            'viewData' => $this->viewData,
             'company' => [
                 'name' => $this->name,
                 'taxNumber' => $this->taxNumber,
@@ -99,7 +105,7 @@ class CompanyCrud extends CrudPage
             'taxNumber' => 'required|string|unique:companies,tax_number|digits:11',
             'address' => 'required|string|exists:addresses,id',
         ]);
-        $company = Company::firstOrCreate([
+        $company = (new Company())->firstOrCreate([
             'name' => $this->name,
             'tax_number' => $this->taxNumber,
             'address_id' => $this->address,
@@ -140,6 +146,12 @@ class CompanyCrud extends CrudPage
 
     private function getAddresses()
     {
-        return Address::all();
+        return (new Address())->all();
+    }
+    private function getCompany()
+    {
+        return Company::where('id', $this->modelId)
+            ->with('address')
+            ->first();
     }
 }

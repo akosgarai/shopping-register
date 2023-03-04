@@ -9,5 +9,6 @@
             ['keyName' => 'updatedAt', 'type' => 'textinput', 'label' => __('Updated'), 'rules' => '', 'readonly' => true],
         ]"
         :modelData="$contentParameters['company']"
+        :viewData="$contentParameters['viewData']"
         :wire:key="'company-panel'" />
 </div>
