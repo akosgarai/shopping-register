@@ -21,7 +21,7 @@
                 <td>{{ $basket->date }}</td>
                 <td>{{ $basket->shop->name }}<br />{{ $basket->shop->address->raw }}</td>
                 <td>{{ $basket->total }}</td>
-                <td>{{ $basket->receipt_id }}</td>
+                <td><a href="#" wire:click.prevent="loadForView({{ $basket->id }})">{{ $basket->receipt_id }}</a></td>
                 <td>{{ $basket->basket_items_count }}</td>
                 <td>{{ $basket->created_at }}</td>
                 <td>{{ $basket->updated_at }}</td>
