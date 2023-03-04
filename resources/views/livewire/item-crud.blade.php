@@ -35,5 +35,5 @@
         :panelName="self::PANEL_NAME"
         :panelTitle="__('Item')"
         :contentTemplate="'livewire.component.item.panel'"
-        :contentParameters="[ 'action' => $action, 'item' => $panelItem]">
+        :contentParameters="[ 'action' => $action, 'item' => $panelItem, 'viewData' => $viewData]">
 </div>

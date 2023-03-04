@@ -33,8 +33,12 @@ class ItemCrud extends CrudPage
 
     public function getTemplateParameters()
     {
+        if ($this->modelId != '') {
+            $this->viewData = $this->getItem()->toArray();
+        }
         return [
             'items' =>  Item::withCount('basketItems')->get(),
+            'viewData' => $this->viewData,
             'panelItem' => [
                 'name' => $this->name,
                 'id' => $this->modelId,
@@ -55,10 +59,11 @@ class ItemCrud extends CrudPage
             case parent::ACTION_READ:
             case parent::ACTION_UPDATE:
             case parent::ACTION_DELETE:
-                $item = Item::find($this->modelId);
+                $item = $this->getItem();
                 $this->name = $item->name;
                 $this->createdAt = $item->created_at;
                 $this->updatedAt = $item->updated_at;
+                $this->viewData = $item->toArray();
                 break;
         }
         if ($this->action == '') {
@@ -68,6 +73,7 @@ class ItemCrud extends CrudPage
         }
         $this->emit('crudaction.update', [
             'action' => $this->action,
+            'viewData' => $this->viewData,
             'item' => [
                 'name' => $this->name,
                 'id' => $this->modelId,
@@ -86,7 +92,7 @@ class ItemCrud extends CrudPage
         $this->validate([
             'name' => 'required|string|max:255',
         ]);
-        $item = Item::firstOrCreate([
+        $item = (new Item())->firstOrCreate([
             'name' => $this->name,
         ]);
         $this->modelId = $item->id;
@@ -106,5 +112,11 @@ class ItemCrud extends CrudPage
             'name' => $this->name,
         ]);
         $this->setAction(parent::ACTION_UPDATE);
+    }
+
+    private function getItem()
+    {
+        return Item::where('id', $this->modelId)
+            ->first();
     }
 }

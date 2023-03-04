@@ -7,5 +7,6 @@
             ['keyName' => 'updatedAt', 'type' => 'textinput', 'label' => __('Updated'), 'rules' => '', 'readonly' => true],
         ]"
         :modelData="$contentParameters['item']"
+        :viewData="$contentParameters['viewData']"
         :wire:key="'item-panel'" />
 </div>
