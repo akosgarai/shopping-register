@@ -15,7 +15,7 @@
             <a href="#" wire:click.prevent="selectPreview( {{ $key }} )" >{{ $suggestion['receipt_id'] }}</a> ({{ $suggestion['percentage'] }}%)</span>
         @endforeach
     @if($basketPreview)
-        @include('livewire.component.basket.view', ['visibleBasket' => $basketPreview, 'edit' => true])
+        @include('livewire.component.basket.view', ['model' => $basketPreview, 'edit' => true])
     @endif
 @endif
 </div>
