@@ -137,7 +137,7 @@ class BasketCrud extends CrudPage
             'receiptId' => 'required|string',
             'image' => 'string',
         ]);
-        $basket = Basket::firstOrCreate([
+        $basket = (new Basket())->firstOrCreate([
             'shop_id' => $this->shopId,
             'date' => $this->date,
             'total' => $this->total,
@@ -147,7 +147,7 @@ class BasketCrud extends CrudPage
         ]);
         // save the basket items
         foreach ($this->items as $basketItem) {
-            BasketItem::firstOrCreate([
+            (new BasketItem())->firstOrCreate([
                 'item_id' => $basketItem['item_id'],
                 'price' => $basketItem['price'],
                 'basket_id' => $basket->id,
@@ -184,7 +184,7 @@ class BasketCrud extends CrudPage
         // delete the current basket items and then save the new ones
         BasketItem::where('basket_id', $this->modelId)->delete();
         foreach ($this->items as $basketItem) {
-            BasketItem::firstOrCreate([
+            (new BasketItem())->firstOrCreate([
                 'item_id' => $basketItem['item_id'],
                 'price' => $basketItem['price'],
                 'basket_id' => $this->modelId,
@@ -208,7 +208,7 @@ class BasketCrud extends CrudPage
             'item_id' => $this->newItemId,
             'price' => $this->newItemPrice,
             'basket_id' => $this->modelId,
-            'item' => Item::find($this->newItemId),
+            'item' => Item::where('id', $this->newItemId)->first(),
         ];
         // increase the total with the new item price.
         $this->total += $this->newItemPrice;
@@ -229,7 +229,7 @@ class BasketCrud extends CrudPage
     public function deleteBasketImage()
     {
         // delete the image from the storage and the database
-        $basket = Basket::find($this->modelId);
+        $basket = Basket::where('id', $this->modelId)->first();
         if ($basket != null) {
             // delete from the storage
             Storage::disk('public')->delete(str_replace('/storage/', '', $basket->receipt_url));
