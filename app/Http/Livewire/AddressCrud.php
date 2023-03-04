@@ -34,8 +34,12 @@ class AddressCrud extends CrudPage
 
     public function getTemplateParameters()
     {
+        if ($this->modelId != '') {
+            $this->viewData = $this->getAddress()->toArray();
+        }
         return [
             'addresses' =>  Address::withCount('companies')->withCount('shops')->get(),
+            'viewData' => $this->viewData,
             'panelAddress' => [
                 'raw' => $this->addressRaw,
                 'id' => $this->modelId,
@@ -56,10 +60,11 @@ class AddressCrud extends CrudPage
             case parent::ACTION_READ:
             case parent::ACTION_UPDATE:
             case parent::ACTION_DELETE:
-                $address = Address::find($this->modelId);
+                $address = $this->getAddress();
                 $this->addressRaw = $address->raw;
                 $this->createdAt = $address->created_at;
                 $this->updatedAt = $address->updated_at;
+                $this->viewData = $address->toArray();
                 break;
         }
         if ($this->action == '') {
@@ -71,6 +76,7 @@ class AddressCrud extends CrudPage
         // event, we have to call the 'crudaction.update' event.
         $this->emit('crudaction.update', [
             'action' => $this->action,
+            'viewData' => $this->viewData,
             'address' => [
                 'raw' => $this->addressRaw,
                 'id' => $this->modelId,
@@ -87,7 +93,7 @@ class AddressCrud extends CrudPage
         $this->validate([
             'addressRaw' => 'required|string|max:255',
         ]);
-        $address = Address::firstOrCreate([
+        $address = (new Address())->firstOrCreate([
             'raw' => $this->addressRaw,
         ]);
         $this->modelId = $address->id;
@@ -111,5 +117,11 @@ class AddressCrud extends CrudPage
         if (array_key_exists('raw', $model)) {
             $this->addressRaw = $model['raw'];
         }
+    }
+
+    private function getAddress()
+    {
+        return Address::where('id', $this->modelId)
+            ->first();
     }
 }
