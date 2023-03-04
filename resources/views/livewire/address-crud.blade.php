@@ -34,6 +34,7 @@
     <livewire:component.panel :open="in_array($action, self::ACTIONS)" :position="'left'"
         :panelName="'addressPanel'"
         :panelTitle="__('Address')"
+        :backdrop="true"
         :contentTemplate="'livewire.component.address.panel'"
         :contentParameters="[ 'action' => $action, 'address' => $panelAddress, 'viewData' => $viewData]">
 </div>

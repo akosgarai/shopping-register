@@ -42,6 +42,7 @@
     <livewire:component.panel :open="in_array($action, self::ACTIONS)" :position="'left'"
         :panelName="self::PANEL_NAME"
         :panelTitle="__('Basket')"
+        :backdrop="true"
         :contentTemplate="'livewire.component.basket.panel'"
         :contentParameters="[ 'action' => $action, 'shopOptions' => $shopOptions, 'itemOptions' => $itemOptions, 'basket' => $panelBasket, 'formData' => $formData, 'viewData' => $viewData]">
 </div>
