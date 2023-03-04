@@ -24,6 +24,7 @@ class BasketCrud extends CrudPage
     public $receiptId = '';
     public $imageURL = '';
     public $image = null;
+    public $originalImage = '';
     public $items = [];
 
     public $newItemId = '';
@@ -85,6 +86,7 @@ class BasketCrud extends CrudPage
                 $this->total = 0.0;
                 $this->receiptId = '';
                 $this->imageURL = '';
+                $this->originalImage = '';
                 $this->image = null;
                 $this->items = [];
                 $this->createdAt = '';
@@ -104,6 +106,7 @@ class BasketCrud extends CrudPage
                 $this->total = $basket->total;
                 $this->receiptId = $basket->receipt_id;
                 $this->imageURL = !empty($basket->receipt_url) ? route('image.viewReceipt', ['filename' =>  $basket->receipt_url]) : '';
+                $this->originalImage = $basket->receipt_url;
                 $this->createdAt = $basket->created_at;
                 $this->updatedAt = $basket->updated_at;
                 $this->items = $basket->basketItems->toArray();
@@ -151,6 +154,9 @@ class BasketCrud extends CrudPage
     public function update(array $model)
     {
         $this->updateModelParams($model);
+        if (is_null($this->image)) {
+            $this->image = $this->originalImage;
+        }
         $this->validate([
             'modelId' => 'required|integer|exists:baskets,id',
             'shopId' => 'required|integer|exists:shops,id',
@@ -164,7 +170,7 @@ class BasketCrud extends CrudPage
             'date' => $this->date,
             'total' => $this->total,
             'receipt_id' => $this->receiptId,
-            'receipt_url' => $this->image ?? '',
+            'receipt_url' => $this->image,
         ]);
         // delete the current basket items and then save the new ones
         BasketItem::where('basket_id', $this->modelId)->delete();
@@ -174,6 +180,9 @@ class BasketCrud extends CrudPage
                 'price' => $basketItem['price'],
                 'basket_id' => $this->modelId,
             ]);
+        }
+        if ($this->image == $this->originalImage) {
+            $this->image = null;
         }
         $this->setAction(parent::ACTION_UPDATE);
     }
@@ -248,7 +257,7 @@ class BasketCrud extends CrudPage
     private function formData()
     {
         $items = $this->getItems();
-        $imageInputLabel = is_null($this->image) ? __('Upload image') : __('Change image');
+        $imageInputLabel = ($this->imageURL == '') ? __('Upload image') : __('Change image');
         return [
             ['keyName' => 'shopId', 'type' => 'selectorshop', 'rules' => 'required|integer|exists:shops,id', 'readonly' => false, 'options' => $this->getShops()],
             ['keyName' => 'date', 'type' => 'datetimelocalinput', 'label' => __('Date'), 'rules' => 'required|date', 'readonly' => false],
