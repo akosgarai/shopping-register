@@ -37,10 +37,14 @@ class ShopCrud extends CrudPage
 
     public function getTemplateParameters()
     {
+        if ($this->modelId != '') {
+            $this->viewData = $this->getShop()->toArray();
+        }
         return [
             'shops' =>  Shop::withCount('baskets')->with(['company', 'address'])->get(),
-            'addresses' =>  Address::all(),
-            'companies' =>  Company::all(),
+            'addresses' =>  (new Address())->all(),
+            'companies' =>  (new Company())->all(),
+            'viewData' => $this->viewData,
             'panelShop' => [
                 'name' => $this->name,
                 'address' => $this->address,
@@ -66,12 +70,13 @@ class ShopCrud extends CrudPage
         case parent::ACTION_READ:
         case parent::ACTION_UPDATE:
         case parent::ACTION_DELETE:
-            $shop = Shop::find($this->modelId);
+            $shop = $this->getShop();
             $this->name = $shop->name;
             $this->address = $shop->address_id;
             $this->company = $shop->company_id;
             $this->createdAt = $shop->created_at;
             $this->updatedAt = $shop->updated_at;
+            $this->viewData = $shop->toArray();
             break;
         }
         if ($this->action == '') {
@@ -81,6 +86,7 @@ class ShopCrud extends CrudPage
         }
         $this->emit('crudaction.update', [
             'action' => $this->action,
+            'viewData' => $this->viewData,
             'shop' => [
                 'name' => $this->name,
                 'address' => $this->address,
@@ -89,8 +95,8 @@ class ShopCrud extends CrudPage
                 'createdAt' => $this->createdAt,
                 'updatedAt' => $this->updatedAt,
             ],
-            'addresses' => Address::all(),
-            'companies' => Company::all(),
+            'addresses' => (new Address())->all(),
+            'companies' => (new Company())->all(),
         ]);
         $this->emit('panel.open', self::PANEL_NAME);
     }
@@ -103,7 +109,7 @@ class ShopCrud extends CrudPage
             'company' => 'required|integer|exists:companies,id',
             'address' => 'required|integer|exists:addresses,id',
         ]);
-        $shop = Shop::firstOrCreate([
+        $shop = (new Shop())->firstOrCreate([
             'name' => $this->name,
             'address_id' => $this->address,
             'company_id' => $this->company,
@@ -140,5 +146,12 @@ class ShopCrud extends CrudPage
         if (array_key_exists('company', $model)) {
             $this->company = $model['company'];
         }
+    }
+
+    private function getShop()
+    {
+        return Shop::where('id', $this->modelId)
+            ->with(['company', 'address'])
+            ->first();
     }
 }
