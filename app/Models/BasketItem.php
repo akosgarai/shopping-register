@@ -15,6 +15,9 @@ class BasketItem extends Model
         'basket_id',
         'item_id',
         'price',
+        'quantity',
+        'quantity_unit_id',
+        'unit_price',
     ];
 
     /**
