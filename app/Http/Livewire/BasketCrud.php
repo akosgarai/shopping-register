@@ -161,6 +161,9 @@ class BasketCrud extends CrudPage
                 'item_id' => $basketItem['item_id'],
                 'price' => $basketItem['price'],
                 'basket_id' => $basket->id,
+                'quantity' => $basketItem['quantity'],
+                'quantity_unit_id' => $basketItem['quantity_unit_id'],
+                'unit_price' => $basketItem['unit_price'],
             ]);
         }
         if ($this->image == $this->originalImage) {
@@ -198,6 +201,9 @@ class BasketCrud extends CrudPage
                 'item_id' => $basketItem['item_id'],
                 'price' => $basketItem['price'],
                 'basket_id' => $this->modelId,
+                'quantity' => $basketItem['quantity'],
+                'quantity_unit_id' => $basketItem['quantity_unit_id'],
+                'unit_price' => $basketItem['unit_price'],
             ]);
         }
         if ($this->image == $this->originalImage) {
@@ -213,11 +219,16 @@ class BasketCrud extends CrudPage
         $this->validate([
             'newItemId' => 'required|integer|exists:items,id',
             'newItemPrice' => 'required|numeric',
+            'newItemQuantity' => 'required|numeric',
+            'newItemQuantityUnitId' => 'required|integer|exists:quantity_units,id',
         ]);
         $this->items[] = [
             'item_id' => $this->newItemId,
             'price' => $this->newItemPrice,
             'basket_id' => $this->modelId,
+            'quantity' => $this->newItemQuantity,
+            'quantity_unit_id' => $this->newItemQuantityUnitId,
+            'unit_price' => $this->total / $this->newItemQuantity,
             'item' => Item::where('id', $this->newItemId)->first(),
         ];
         // increase the total with the new item price.
@@ -253,7 +264,7 @@ class BasketCrud extends CrudPage
 
     private function updateModelParams(array $model)
     {
-        $params = ['shopId', 'date', 'total', 'receiptId', 'imageURL', 'items', 'image', 'newItemId', 'newItemPrice'];
+        $params = ['shopId', 'date', 'total', 'receiptId', 'imageURL', 'items', 'image', 'newItemId', 'newItemPrice', 'newItemQuantity', 'newItemQuantityUnitId', 'newItemUnitPrice'];
         foreach ($params as $param) {
             if (array_key_exists($param, $model)) {
                 $this->$param = $model[$param];
@@ -296,7 +307,7 @@ class BasketCrud extends CrudPage
                 'rulesQuantityUnit' => 'integer|exists:quantity_units,id',
                 'keyNameQuantity' => 'newItemQuantity',
                 'rulesQuantity' => 'numeric',
-                'keyNameQuantityUnitPrice' => 'newItemQuantityUnitPrice',
+                'keyNameUnitPrice' => 'newItemUnitPrice',
                 'rulesQuantityUnitPrice' => 'numeric',
             ],
             ['keyName' => 'total', 'type' => 'textinput', 'label' => __('Total'), 'rules' => 'required|numeric', 'readonly' => count($this->items) > 0],

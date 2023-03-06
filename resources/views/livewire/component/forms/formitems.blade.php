@@ -61,7 +61,7 @@
             'quantityUnits' => $formElement['quantityUnits'],
             'selectedQuantityUnit' => '',
             'quantityModelId' => 'modelData.' . $formElement['keyNameQuantity'],
-            'unitPriceModelId' => 'modelData.' . $formElement['keyNameQuantityUnitPrice'],
+            'unitPriceModelId' => 'modelData.' . $formElement['keyNameUnitPrice'],
             ])
     @endif
     @if($formElement['type'] == 'datetimelocalinput' && $formElement['readonly'] == false)
