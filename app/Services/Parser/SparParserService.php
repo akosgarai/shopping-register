@@ -84,30 +84,47 @@ class SparParserService extends AbstractParserService
         $item = [];
         $numberOfLines = count($lines);
         for ($i = $from; $i < $numberOfLines; $i++) {
-            if (preg_match('/^[A-Z0-9]{1,3} /', $lines[$i])) {
-                $itemParsing = true;
-                $lastSpaceIndex = strrpos($lines[$i], ' ');
-                $priceCandidate = trim(substr($lines[$i], $lastSpaceIndex+1));
-                // replace every not digit character with empty string
-                $priceCandidate = preg_replace('/[^0-9]/', '', $priceCandidate);
-                if (is_numeric($priceCandidate)) {
-                    $item['price'] = $priceCandidate;
-                    $item['name'] = trim(substr($lines[$i], 4, $lastSpaceIndex-4));
-                } else {
-                    $item['name'] = trim(substr($lines[$i], 4));
-                    // find the next not empty line
-                    while (empty(trim($lines[$i+1]))) {
-                        $i++;
-                    }
-                    $item['price'] = trim(substr($lines[$i+1], strrpos($lines[$i+1], ' ')+1));
-                    $i++;
-                }
-                $this->receipt->items[] = $item;
-            } else {
+            if (!preg_match('/^[A-Z0-9]{1,3} /', $lines[$i])) {
                 if ($itemParsing) {
                     return $i;
                 }
+                continue;
             }
+            $itemParsing = true;
+            $lastSpaceIndex = strrpos($lines[$i], ' ');
+            $priceCandidate = trim(substr($lines[$i], $lastSpaceIndex+1));
+            // replace every not digit character with empty string
+            $priceCandidate = preg_replace('/[^0-9]/', '', $priceCandidate);
+            $item['quantity'] = 1;
+            $item['quantity_unit_id'] = 3;
+
+            if (is_numeric($priceCandidate)) {
+                $item['price'] = $priceCandidate;
+                $item['name'] = trim(substr($lines[$i], 4, $lastSpaceIndex-4));
+                $item['unit_price'] = floatVal($item['price']) / $item['quantity'];
+                $this->receipt->items[] = $item;
+                continue;
+            }
+
+            $item['name'] = trim(substr($lines[$i], 4));
+            // find the next not empty line
+            while (empty(trim($lines[$i+1]))) {
+                $i++;
+            }
+            // handle the kg units.
+            if (strpos(strtolower($lines[$i+1]), 'kg') !== false) {
+                $item['quantity'] = floatVal(str_replace(',', '.', trim(substr($lines[$i+1], 0, strpos($lines[$i+1], ' ')))));
+                // if the quantity is 0, then it has to be updated to 1
+                // to prevent division by zero.
+                if ($item['quantity'] == 0) {
+                    $item['quantity'] = 1;
+                }
+                $item['quantity_unit_id'] = 1;
+            }
+            $item['price'] = trim(substr($lines[$i+1], strrpos($lines[$i+1], ' ')+1));
+            $item['unit_price'] = floatVal($item['price']) / $item['quantity'];
+            $this->receipt->items[] = $item;
+            $i++;
         }
     }
 
