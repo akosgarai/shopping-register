@@ -8,6 +8,7 @@ use Livewire\Component;
 
 use App\Models\Basket;
 use App\Models\BasketItem;
+use App\Models\QuantityUnit;
 use App\ScannedBasket;
 use App\Services\BasketExtractorService;
 use App\Services\ImageService;
@@ -108,7 +109,7 @@ class ReceiptScan extends Component
 
     public function render()
     {
-        return view('livewire.receipt-scan')->extends('layouts.app');
+        return view('livewire.receipt-scan', ['quantityUnits' => (new QuantityUnit())->all()])->extends('layouts.app');
     }
 
     // action next closes the current action and moves to the next action
@@ -185,7 +186,7 @@ class ReceiptScan extends Component
     public function basketDataFinishedHandler(ImageService $imageService)
     {
         // Create the basket
-        $basket = Basket::create([
+        $basket = (new Basket())->create([
             'shop_id' => $this->basket['marketId'],
             'date' => $this->basket['date'],
             'total' => $this->basket['total'],
@@ -195,10 +196,13 @@ class ReceiptScan extends Component
         // If we have items, then create the basket items.
         if (count($this->basket['items']) > 0) {
             foreach ($this->basket['items'] as $item) {
-                BasketItem::create([
+                (new BasketItem())->create([
                     'basket_id' => $basket->id,
                     'item_id' => $item['itemId'],
                     'price' => $item['price'],
+                    'quantity' => $item['quantity'],
+                    'quantity_unit_id' => $item['quantity_unit_id'],
+                    'unit_price' => $item['unit_price'],
                 ]);
             }
         }

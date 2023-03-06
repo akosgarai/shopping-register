@@ -19,6 +19,8 @@ class BasketItem extends Component
 
     // This is the value set by the Shop component.
     public $shopId = '';
+    // quantity units options.
+    public $quantityUnits;
 
     protected $listeners = [
         'basket.data.extracted' => 'basketDataHandler',
@@ -70,10 +72,14 @@ class BasketItem extends Component
     }
 
     // It updates the total value and sends an update to the parent component.
-    public function recalculateTotal()
+    public function recalculateTotal($index = null)
     {
+
         // calculate the total from the items.
         if (count($this->items)) {
+            if ($index !== null) {
+                $this->items[$index]['unit_price'] = $this->items[$index]['price'] / $this->items[$index]['quantity'];
+            }
             $this->total = array_sum(array_column($this->items, 'price'));
         }
         $this->emitUp('basket.data.update', ['items' => $this->items, 'total' => $this->total]);
@@ -85,6 +91,9 @@ class BasketItem extends Component
             'name' => '',
             'price' => '',
             'itemId' => '',
+            'quantity' => 1.00,
+            'quantity_unit_id' => 3,
+            'unit_price' => '',
             'suggestions' => [],
         ];
         $this->recalculateTotal();
