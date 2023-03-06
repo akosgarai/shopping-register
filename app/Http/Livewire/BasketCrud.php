@@ -9,6 +9,7 @@ use Livewire\WithFileUploads;
 use App\Models\Basket;
 use App\Models\BasketItem;
 use App\Models\Item;
+use App\Models\QuantityUnit;
 use App\Models\Shop;
 
 class BasketCrud extends CrudPage
@@ -29,6 +30,9 @@ class BasketCrud extends CrudPage
 
     public $newItemId = '';
     public $newItemPrice = '';
+    public $newItemQuantity = 1;
+    public $newItemQuantityUnitId = '';
+    public $newItemUnitPrice = '';
 
     protected $listeners = [
         'basket.create' => 'saveNew',
@@ -77,6 +81,9 @@ class BasketCrud extends CrudPage
                 'items' => $this->items,
                 'newItemId' => $this->newItemId,
                 'newItemPrice' => $this->newItemPrice,
+                'newItemQuantity' => $this->newItemQuantity,
+                'newItemQuantityUnitId' => $this->newItemQuantityUnitId,
+                'newItemUnitPrice' => $this->newItemUnitPrice,
             ]
         ];
     }
@@ -95,8 +102,11 @@ class BasketCrud extends CrudPage
                 $this->items = [];
                 $this->createdAt = '';
                 $this->updatedAt = '';
-                $this->newBasketItemId = '';
-                $this->newBasketItemPrice = '';
+                $this->newItemId = '';
+                $this->newItemPrice = '';
+                $this->newItemQuantity = 1;
+                $this->newItemQuantityUnitId = '';
+                $this->newItemUnitPrice = '';
                 $this->viewData = null;
                 break;
             case parent::ACTION_READ:
@@ -273,8 +283,22 @@ class BasketCrud extends CrudPage
             ['keyName' => 'shopId', 'type' => 'selectorshop', 'rules' => 'required|integer|exists:shops,id', 'readonly' => false, 'options' => $this->getShops()],
             ['keyName' => 'date', 'type' => 'datetimelocalinput', 'label' => __('Date'), 'rules' => 'required|date', 'readonly' => false],
             ['keyName' => 'receiptId', 'type' => 'textinput', 'label' => __('Receipt ID'), 'rules' => 'required|string', 'readonly' => false],
-            ['keyName' => 'items', 'type' => 'itemlist', 'currentItems' => $this->items, 'options' => $items, 'rules' => ''],
-            ['keyNameItem' => 'newItemId', 'type' => 'basketitem', 'keyNamePrice' => 'newItemPrice', 'options' => $items, 'rulesItem' => 'integer|exists:items,id', 'rulesPrice' => 'numeric'],
+            ['keyName' => 'items', 'type' => 'itemlist', 'currentItems' => $this->items, 'options' => $items, 'rules' => '', 'quantityUnits' => $this->getQuantityUnits()],
+            [
+                'type' => 'basketitem',
+                'keyNameItem' => 'newItemId',
+                'options' => $items,
+                'rulesItem' => 'integer|exists:items,id',
+                'keyNamePrice' => 'newItemPrice',
+                'rulesPrice' => 'numeric',
+                'keyNameQuantityUnit' => 'newItemQuantityUnitId',
+                'quantityUnits' => $this->getQuantityUnits(),
+                'rulesQuantityUnit' => 'integer|exists:quantity_units,id',
+                'keyNameQuantity' => 'newItemQuantity',
+                'rulesQuantity' => 'numeric',
+                'keyNameQuantityUnitPrice' => 'newItemQuantityUnitPrice',
+                'rulesQuantityUnitPrice' => 'numeric',
+            ],
             ['keyName' => 'total', 'type' => 'textinput', 'label' => __('Total'), 'rules' => 'required|numeric', 'readonly' => count($this->items) > 0],
 
             ['keyName' => 'createdAt', 'type' => 'textinput', 'label' => __('Created'), 'rules' => '', 'readonly' => true],
@@ -300,6 +324,9 @@ class BasketCrud extends CrudPage
                 'items' => $this->items,
                 'newItemId' => $this->newItemId,
                 'newItemPrice' => $this->newItemPrice,
+                'newItemQuantity' => $this->newItemQuantity,
+                'newItemQuantityUnitId' => $this->newItemQuantityUnitId,
+                'newItemUnitPrice' => $this->newItemUnitPrice,
             ],
             'formData' => $this->formData(),
             'shops' =>  $this->getShops(),
@@ -327,5 +354,10 @@ class BasketCrud extends CrudPage
             ->withCount('basketItems')
             ->with(['shop', 'shop.address', 'shop.company', 'shop.company.address', 'basketItems', 'basketItems.item'])
             ->first();
+    }
+
+    private function getQuantityUnits()
+    {
+        return (new QuantityUnit())->all();
     }
 }

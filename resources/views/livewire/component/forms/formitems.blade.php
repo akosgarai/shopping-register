@@ -36,6 +36,12 @@
                     'eventParameters' => [],
                     'staticEventParameters' => [$key],
                     'templateIndex' => $key,
+                    'keyNameBase' => 'modelData.' . $formElement['keyName'],
+                    'quantityUnitModelId' => 'modelData.' . $formElement['keyName'] . '.' . $key. '.quantity_unit_id',
+                    'quantityUnits' => $formElement['quantityUnits'],
+                    'selectedQuantityUnit' => $basketItem['quantity_unit_id'],
+                    'quantityModelId' => 'modelData.' . $formElement['keyName'] . '.' . $key. '.quantity',
+                    'unitPriceModelId' => 'modelData.' . $formElement['keyName'] . '.' . $key. '.unit_price',
                     ])
             @endforeach
         </div>
@@ -51,6 +57,11 @@
             'eventParameters' => ['modelData.' . $formElement['keyNameItem'], 'modelData.' . $formElement['keyNamePrice']],
             'staticEventParameters' => [],
             'templateIndex' => 'new',
+            'quantityUnitModelId' => 'modelData.' . $formElement['keyNameQuantityUnit'],
+            'quantityUnits' => $formElement['quantityUnits'],
+            'selectedQuantityUnit' => '',
+            'quantityModelId' => 'modelData.' . $formElement['keyNameQuantity'],
+            'unitPriceModelId' => 'modelData.' . $formElement['keyNameQuantityUnitPrice'],
             ])
     @endif
     @if($formElement['type'] == 'datetimelocalinput' && $formElement['readonly'] == false)
