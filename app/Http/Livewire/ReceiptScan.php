@@ -261,7 +261,7 @@ class ReceiptScan extends Component
     private function extractText(ImageService $imageService)
     {
         $ocr = app()->make(OcrAbstract::class);
-        $this->rawExtractedText = $ocr->scan($imageService->tempFilePath($this->imagePath, auth()->user()->id));
+        $this->rawExtractedText = $ocr->scan($imageService->tempFilePath($this->imagePath, auth()->user()->id), 'hun');
     }
 
     private function addImageToBasket($targetBasketId, ImageService $imageService)
