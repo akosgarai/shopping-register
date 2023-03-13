@@ -140,6 +140,10 @@ class SparParserService extends AbstractParserService
      * */
     private function setupCompanyAddress()
     {
+        // If the first line is empty, then skip it.
+        if (trim($this->lines[$this->readLineIndex]) == '') {
+            $this->readLineIndex++;
+        }
         $this->receipt->companyAddress = trim($this->lines[$this->readLineIndex]);
         $this->readLineIndex++;
         $this->receipt->companyAddress .= ' ' . trim($this->lines[$this->readLineIndex]);
@@ -153,6 +157,15 @@ class SparParserService extends AbstractParserService
     {
         $this->receipt->marketName = trim($this->lines[$this->readLineIndex]);
         $this->readLineIndex++;
+        // look forward to the next lines. if the current line is empty
+        if ($this->receipt->marketName == '') {
+            if (trim($this->lines[$this->readLineIndex]) != '' && trim($this->lines[$this->readLineIndex+1]) == '') {
+                $this->receipt->marketName = trim($this->lines[$this->readLineIndex]);
+                $this->readLineIndex++;
+                // skip the empty line
+                $this->readLineIndex++;
+            }
+        }
     }
 
     /*
