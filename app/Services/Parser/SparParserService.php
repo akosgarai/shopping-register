@@ -56,15 +56,22 @@ class SparParserService extends AbstractParserService
         $numberOfLines = count($this->lines);
         for ($i = $this->readLineIndex; $i < $numberOfLines; $i++) {
             $currentLine = $this->lines[$i];
-            // increment the read line index.
-            $this->readLineIndex++;
+            if ($this->notRelevantLine($currentLine, ['AFA', 'ÁFA'])) {
+                // increment the read line index.
+                $this->readLineIndex++;
+                continue;
+            }
             if (!preg_match('/^[A-Z0-9]{1,3} /', $currentLine)) {
-                if ($this->notRelevantLine($currentLine)) {
+                if ($this->notRelevantLine($currentLine, ['RESZOSSZESEN'])) {
+                    // increment the read line index.
+                    $this->readLineIndex++;
                     continue;
                 }
                 if ($itemParsing) {
-                    return $i;
+                    return;
                 }
+                // increment the read line index.
+                $this->readLineIndex++;
                 continue;
             }
             $itemParsing = true;
@@ -82,6 +89,8 @@ class SparParserService extends AbstractParserService
                 $item['name'] = trim(substr($currentLine, 4, $lastSpaceIndex-4));
                 $item['unit_price'] = floatVal($item['price']) / $item['quantity'];
                 $this->receipt->items[] = $item;
+                // increment the read line index.
+                $this->readLineIndex++;
                 continue;
             }
 
@@ -109,6 +118,8 @@ class SparParserService extends AbstractParserService
             $item['unit_price'] = floatVal($item['price']) / $item['quantity'];
             $this->receipt->items[] = $item;
             $i++;
+            // increment the read line index.
+            $this->readLineIndex++;
         }
     }
 
@@ -203,13 +214,12 @@ class SparParserService extends AbstractParserService
     /*
      * Checks a line for the given patterns. If a pattern is found, then it returns true.
      * */
-    private function notRelevantLine($lineRaw)
+    private function notRelevantLine($lineRaw, $patterns = ['AFA', 'ÁFA', 'RESZOSSZESEN'])
     {
         // if the line is empty, then continue.
         if (empty(trim($lineRaw))) {
             return true;
         }
-        $patterns = ['AFA', 'ÁFA', 'RESZOSSZESEN', 'Megnevez'];
         foreach ($patterns as $pattern) {
             if (strpos($lineRaw, $pattern) !== false) {
                 return true;
