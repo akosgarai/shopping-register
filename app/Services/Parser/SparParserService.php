@@ -75,17 +75,14 @@ class SparParserService extends AbstractParserService
                 continue;
             }
             $itemParsing = true;
-            $lastSpaceIndex = strrpos($currentLine, ' ');
-            $priceCandidateRaw = trim(substr($currentLine, $lastSpaceIndex+1));
-            // replace every not digit character with empty string at the beginning of the string.
-            $priceCandidate = preg_replace('/[^0-9]/', '', $priceCandidateRaw);
-            // replace every not digit character with '0' string at the end of the string.
-            //$priceCandidate = preg_replace('/[^0-9]+$/', '0', $priceCandidate);
             $item['quantity'] = 1;
             $item['quantity_unit_id'] = 3;
+            $lastSpaceIndex = strrpos($currentLine, ' ');
 
-            if (is_numeric($priceCandidate)) {
-                $item['price'] = $priceCandidate;
+            $priceCandidateRaw = trim(substr($currentLine, $lastSpaceIndex+1));
+
+            if ($this->isProbablyNumber($priceCandidateRaw)) {
+                $item['price'] = $this->formatToNumber($priceCandidateRaw);
                 $item['name'] = trim(substr($currentLine, 4, $lastSpaceIndex-4));
                 $item['unit_price'] = floatVal($item['price']) / $item['quantity'];
                 $this->receipt->items[] = $item;
@@ -226,5 +223,20 @@ class SparParserService extends AbstractParserService
             }
         }
         return false;
+    }
+
+    /*
+     * Checks the last word of the line and returns false if it is probably not a number.
+     * */
+    private function isProbablyNumber($priceCandidateRaw)
+    {
+        // replace every not digit character with empty string at the beginning of the string.
+        $priceOnlyNumbers = preg_replace('/[^0-9]/', '', $priceCandidateRaw);
+        return strlen($priceOnlyNumbers) >= strlen($priceCandidateRaw) / 2;
+    }
+
+    private function formatToNumber($priceCandidateRaw)
+    {
+        return preg_replace('/[^0-9]/', '', $priceCandidateRaw);
     }
 }
