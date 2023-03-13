@@ -74,6 +74,10 @@ class SparParserService extends AbstractParserService
                 $this->readLineIndex++;
                 continue;
             }
+            // if the length of the line is less than 8, then it is not a valid item line return.
+            if (strlen($currentLine) < 8) {
+                return;
+            }
             $itemParsing = true;
             $item['quantity'] = 1;
             $item['quantity_unit_id'] = 3;
