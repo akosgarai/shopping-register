@@ -35,11 +35,11 @@ class SparParserService extends AbstractParserService
         $this->setupMarketAddress($this->getLineIndexWithLowestLevenshteinDistance(self::TAX_NUMBER_PATTERN, $this->readLineIndex));
         // The tax number is followed by the 'ADÓSZÁM' pattern.
         $this->setupTaxNumber();
-        $firstLineAfterItems = $this->parseSparItemLines();
-        $this->setupTotalPrice($firstLineAfterItems);
+        $this->parseSparItemLines();
+        $this->setupTotalPrice();
         // The id could be extracted from the line that starts with 'NYUGTASZAM:'. The id is followed by the ': '.
         // The date could be extracted from line after the id line. The date format is 'YYYY.MM.DD, HH:MM'
-        $idLineIndex = $this->getLineIndexWithLowestLevenshteinDistance(self::ID_PATTERN, $firstLineAfterItems);
+        $idLineIndex = $this->getLineIndexWithLowestLevenshteinDistance(self::ID_PATTERN, $this->readLineIndex);
         $this->receipt->basketId = trim(substr($this->lines[$idLineIndex], strpos($this->lines[$idLineIndex], ' ')+1));
         $this->receipt->date = trim($this->lines[$idLineIndex+1]);
     }
@@ -178,22 +178,22 @@ class SparParserService extends AbstractParserService
      * The total price could be extracted from the line starts with 'Osszesen', or
      * from the line starts with the credit card pattern.
      * */
-    private function setupTotalPrice($firstLineAfterItems)
+    private function setupTotalPrice()
     {
         // The total price could be extracted from the line that starts with 'BANKKARTYA' or 'ÖSSZESEN:'
-        $totalLineIndex = $this->getLineIndexWithLowestLevenshteinDistance(self::TOTAL_PATTERN, $firstLineAfterItems);
-        $creditCardLineIndex = $this->getLineIndexWithLowestLevenshteinDistance(self::CREDIT_CARD_PATTERN, $firstLineAfterItems);
+        $totalLineIndex = $this->getLineIndexWithLowestLevenshteinDistance(self::TOTAL_PATTERN, $this->readLineIndex);
+        $creditCardLineIndex = $this->getLineIndexWithLowestLevenshteinDistance(self::CREDIT_CARD_PATTERN, $this->readLineIndex);
         // Check Total line. If the text similarity is higher than 0.8, then it is the total line.
-        $totalLineSimilarityPercent = 0;
-        similar_text(self::TOTAL_PATTERN, substr($this->lines[$totalLineIndex], 0, 8), $totalLineSimilarityPercent);
-        $creditCardLineSimilarityPercent = 0;
-        similar_text(self::CREDIT_CARD_PATTERN, substr($this->lines[$creditCardLineIndex], 0, 10), $creditCardLineSimilarityPercent);
+        $totalPercent = 0;
+        similar_text(self::TOTAL_PATTERN, substr($this->lines[$totalLineIndex], 0, 8), $totalPercent);
+        $creditCardPercent = 0;
+        similar_text(self::CREDIT_CARD_PATTERN, substr($this->lines[$creditCardLineIndex], 0, 10), $creditCardPercent);
         // The total price is the last number in the line followed by ' Ft'
-        if ($totalLineSimilarityPercent > 80) {
+        if ($totalPercent > 80) {
             $firstSpace = strpos($this->lines[$totalLineIndex], ' ');
             $lastSpace = strrpos($this->lines[$totalLineIndex], ' ');
             $this->receipt->total = substr($this->lines[$totalLineIndex], $firstSpace, $lastSpace-$firstSpace);
-        } else if ($creditCardLineSimilarityPercent > 80) {
+        } else if ($creditCardPercent > 80) {
             $firstSpace = strpos($this->lines[$creditCardLineIndex], ' ');
             $lastSpace = strrpos($this->lines[$creditCardLineIndex], ' ');
             $this->receipt->total = substr($this->lines[$creditCardLineIndex], $firstSpace, $lastSpace-$firstSpace);
