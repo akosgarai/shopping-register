@@ -17,6 +17,10 @@ return new class extends Migration
             $table->id();
             $table->char('name', 50)->unique();
         });
+        Artisan::call( 'db:seed', [
+            '--class' => 'QuantityUnitsSeeder',
+            '--force' => true ]
+        );
     }
 
     /**
