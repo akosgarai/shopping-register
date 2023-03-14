@@ -81,13 +81,14 @@ class SparParserService extends AbstractParserService
             $itemParsing = true;
             $item['quantity'] = 1;
             $item['quantity_unit_id'] = 3;
-            $lastSpaceIndex = strrpos($currentLine, ' ');
 
-            $priceCandidateRaw = trim(substr($currentLine, $lastSpaceIndex+1));
+            $lastWord = trim(substr($currentLine, strrpos($currentLine, ' ') + 1));
 
-            if ($this->isProbablyNumber($priceCandidateRaw)) {
-                $item['price'] = $this->formatToNumber($priceCandidateRaw);
-                $item['name'] = trim(substr($currentLine, 4, $lastSpaceIndex-4));
+            if ($this->isProbablyNumber($lastWord)) {
+                $priceData = $this->formatToNumber($currentLine);
+                $item['price'] = $priceData['price'];
+                $nameLength = strlen($currentLine) - $priceData['length'] - 4;
+                $item['name'] = trim(substr($currentLine, 4, $nameLength));
                 $item['unit_price'] = floatVal($item['price']) / $item['quantity'];
                 $this->receipt->items[] = $item;
                 // increment the read line index.
@@ -239,8 +240,16 @@ class SparParserService extends AbstractParserService
         return strlen($priceOnlyNumbers) >= strlen($priceCandidateRaw) / 2;
     }
 
-    private function formatToNumber($priceCandidateRaw)
+    private function formatToNumber($itemLine): array
     {
-        return preg_replace('/[^0-9]/', '', $priceCandidateRaw);
+        $words = explode(' ', $itemLine);
+        $priceCandidateRaw = $words[count($words)-1];
+        $length = strlen($priceCandidateRaw);
+        // If the word before the last is number, then add it to the price candidate.
+        if (preg_match('/^[0-9]+$/', $words[count($words)-2]) && strlen($words[count($words)-2]) < 3) {
+            $priceCandidateRaw = $words[count($words)-2] . $priceCandidateRaw;
+            $length = strlen($priceCandidateRaw)+1;
+        }
+        return ['price' => preg_replace('/[^0-9 ]/', '', $priceCandidateRaw), 'length' => $length];
     }
 }
