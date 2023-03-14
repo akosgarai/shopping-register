@@ -8,10 +8,10 @@
         @include('livewire.component.forms.textinput', ['modelId' => 'address', 'formLabel' => __('Address')])
         <div class="d-flex flex-row-reverse">
             @if ($allowSaveAddress)
-                <button wire:click="insertNew('{{ self::DATA_TYPE_ADDRESS }}')" class="btn btn-primary">{{ __('New Address') }}</button>
+                <button wire:click.prevent="insertNew('{{ self::DATA_TYPE_ADDRESS }}')" class="btn btn-primary">{{ __('New Address') }}</button>
             @endif
             @if ($allowSaveCompany)
-                <button wire:click="insertNew('{{ self::DATA_TYPE_COMPANY }}')" class="btn btn-primary">{{ __('New Company') }}</button>
+                <button wire:click.prevent="insertNew('{{ self::DATA_TYPE_COMPANY }}')" class="btn btn-primary">{{ __('New Company') }}</button>
             @endif
             @if (!$allowSaveCompany && !$allowSaveAddress && $selectedCompany != "")
                 <button type="submit" class="btn btn-success">{{ __('Setup Shop') }}</button>

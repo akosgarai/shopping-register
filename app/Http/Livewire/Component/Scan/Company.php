@@ -117,7 +117,7 @@ class Company extends Component
         $this->validate([
             'address' => 'required|string',
         ]);
-        Address::firstOrCreate([
+        (new Address())->firstOrCreate([
             'raw' => $this->address,
         ]);
         $this->getPredictions($dataPrediction);
@@ -129,7 +129,7 @@ class Company extends Component
             'name' => 'required|string',
             'taxNumber' => 'required|string|unique:companies,tax_number|digits:11',
         ]);
-        CompanyModel::firstOrCreate([
+        (new CompanyModel())->firstOrCreate([
             'name' => $this->name,
             'tax_number' => $this->taxNumber,
             'address_id' => $this->companySuggestions[0]['address_id'],
@@ -144,13 +144,18 @@ class Company extends Component
         // setup the selected company and address if the distance is small enough
         $firstAddress = $this->addressSuggestions[0] ?? null;
         $firstCompany = $this->companySuggestions[0] ?? null;
-        $this->allowSaveAddress = false;
+        $this->allowSaveAddress = is_null($firstAddress);
         $this->allowSaveCompany = false;
         if ($firstAddress) {
             if ($firstAddress['distance'] > 0) {
                 $this->allowSaveAddress = true;
             }
+            // if the address distance is 0, then we can set the selected address
+            if ($firstAddress['distance'] == 0) {
+                $this->selectedAddress = $firstAddress['raw'];
+            }
             if (!$this->allowSaveAddress) {
+                $this->allowSaveCompany = is_null($firstCompany);
                 if ($firstCompany && $firstCompany['distance'] > 0) {
                     $this->allowSaveCompany = true;
                 }
