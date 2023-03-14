@@ -36,10 +36,7 @@ class Basket extends Component
     public function mount(DataPredictionService $dataPrediction)
     {
         $this->basketId = $this->scannedBasketId;
-        // if the scanned basket date looks like a date, we use it.
-        if (preg_match('/\d{4}\.\d{2}\.\d{2} \d{2}:\d{2}:\d{2}/', $this->scannedBasketDate)) {
-            $this->basketDate = $this->scannedBasketDate;
-        }
+        $this->basketDate = $this->scannedBasketDate;
         $this->getBasketPredictions($dataPrediction);
     }
 
