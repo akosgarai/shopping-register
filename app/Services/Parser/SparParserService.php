@@ -39,9 +39,9 @@ class SparParserService extends AbstractParserService
         $this->setupTotalPrice();
         // The id could be extracted from the line that starts with 'NYUGTASZAM:'. The id is followed by the ': '.
         // The date could be extracted from line after the id line. The date format is 'YYYY.MM.DD, HH:MM'
-        $idLineIndex = $this->getLineIndexWithLowestLevenshteinDistance(self::ID_PATTERN, $this->readLineIndex);
-        $this->receipt->basketId = trim(substr($this->lines[$idLineIndex], strpos($this->lines[$idLineIndex], ' ')+1));
-        $this->receipt->date = trim($this->lines[$idLineIndex+1]);
+        $this->readLineIndex = $this->getLineIndexWithLowestLevenshteinDistance(self::ID_PATTERN, $this->readLineIndex);
+        $this->setupBasketId();
+        $this->setupReceiptDate();
     }
 
     // Returns the first line index that is not item.
@@ -251,5 +251,22 @@ class SparParserService extends AbstractParserService
             $length = strlen($priceCandidateRaw)+1;
         }
         return ['price' => preg_replace('/[^0-9 ]/', '', $priceCandidateRaw), 'length' => $length];
+    }
+
+    private function setupBasketId()
+    {
+        $this->receipt->basketId = trim(substr($this->lines[$this->readLineIndex], strpos($this->lines[$this->readLineIndex], ' ')+1));
+        $this->readLineIndex++;
+    }
+
+    private function setupReceiptDate()
+    {
+        $this->receipt->date = trim($this->lines[$this->readLineIndex]);
+        // format the date to yyyy-mm-ddThh:mm format if possible.
+        // the extracted format is yyyy.mm.dd. hh:mm.
+        $this->receipt->date = preg_replace('/\./', '-', $this->receipt->date, 2);
+        $this->receipt->date = str_replace('.', '', $this->receipt->date);
+        $this->receipt->date = str_replace(' ', 'T', $this->receipt->date);
+        $this->readLineIndex++;
     }
 }

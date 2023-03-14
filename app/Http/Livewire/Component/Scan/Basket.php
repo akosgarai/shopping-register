@@ -47,6 +47,7 @@ class Basket extends Component
     {
         $this->scannedBasketId = $basket['basketId'];
         $this->basketId = $basket['basketId'];
+        $this->basketDate = $basket['date'];
         $this->getBasketPredictions($dataPrediction);
     }
 

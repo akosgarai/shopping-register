@@ -55,7 +55,7 @@ NAV Ellenorz6 kod: GFA7F
         'marketName' => '',
         'companyAddress' => '1133 BUDAPEST POZSONYI UT 46 FSZ en. 2 aito',
         'companyName' => 'Esamin Hungary Kit.',
-        'date' => '2023.02.24. 11:48',
+        'date' => '2023-02-24T11:48',
         'total' => ' 4 434',
         'items' => [
             [
@@ -151,7 +151,7 @@ APAI3102704';
         'marketName' => '',
         'companyAddress' => '1133 BUDAPEST POZSONYT UT 48 FSZ em. 2 aito',
         'companyName' => 'Esznin Hungary Kt,',
-        'date' => '2023.02.14. 10:45',
+        'date' => '2023-02-14T10:45',
         'total' => ' € 020',
         'items' => [
             [
@@ -275,7 +275,7 @@ APag3102704';
         'marketName' => '',
         'companyAddress' => '1133 BUDAPEST POZSONYT UT 46 FSZ em. 2 ajto',
         'companyName' => 'Esonin Hungary Kit.',
-        'date' => '2023.02.17. 10:31',
+        'date' => '2023-02-17T10:31',
         'total' => ' 7 813',
         'items' => [
             [
@@ -403,7 +403,7 @@ NAV El lenorz6 kéd: 10231
         'marketName' => 'SPAR HARKET',
         'companyAddress' => '1133 BUDAPEST POZSONYI UT 48 FS7 em, 2 ajto',
         'companyName' => '{sanin Hungary Kft,',
-        'date' => '2022.09.16. 18:15',
+        'date' => '2022-09-16T18:15',
         'total' => ' YA S 318',
         'items' => [
             [
@@ -541,7 +541,7 @@ NAV El lenérz6 kod: 880CA
         'marketName' => '',
         'companyAddress' => '1133 BUDAPEST POZSONYI UT 4g FSZ em. 2 aito',
         'companyName' => 'Esznin Hungary ft,',
-        'date' => '2022.09.30, 18:02',
+        'date' => '2022-09-30,T18:02',
         'total' => ' 4 553',
         'items' => [
             [
@@ -627,7 +627,7 @@ APANB102704';
         'marketName' => '',
         'companyAddress' => '1133 BUDAPEST POZSONYI UT 4g FSZ em. 2 aito',
         'companyName' => 'Esmmin Hungary Kt.',
-        'date' => '2022.10.06. 17:43',
+        'date' => '2022-10-06T17:43',
         'total' => ' 5 610',
         'items' => [
             [
@@ -752,7 +752,7 @@ APA03102703';
         'marketName' => '',
         'companyAddress' => '1133 BUDAPEST POZSONYT UT 48 FOZ et 2 aitd',
         'companyName' => 'Esamin Hunoery Kft.',
-        'date' => '2022.09.28. 18:29',
+        'date' => '2022-09-28T18:29',
         'total' => '',
         'items' => [
             [
@@ -828,7 +828,7 @@ NAV Ellenérz6 kod:33305
         'marketName' => '',
         'companyAddress' => '2060 Bicske SPAR ut 0326/1 Hrsz.',
         'companyName' => 'SPAR Haavarorszéa Kereskedelni KFT.',
-        'date' => '2022.10.18. 12:42',
+        'date' => '2022-10-18T12:42',
         'total' => ' 8 804',
         'items' => [
             [
@@ -969,7 +969,7 @@ APA03102704';
         'marketName' => '',
         'companyAddress' => '1133 BUDAPEST POZSONYT UT 46 FSZ em. 2 aito',
         'companyName' => 'Esmin Hungary Kit.',
-        'date' => '2022.11.11. 18:10',
+        'date' => '2022-11-11T18:10',
         'total' => ' 5 See',
         'items' => [
             [
