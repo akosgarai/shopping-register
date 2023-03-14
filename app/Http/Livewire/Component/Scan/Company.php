@@ -132,7 +132,7 @@ class Company extends Component
         (new CompanyModel())->firstOrCreate([
             'name' => $this->name,
             'tax_number' => $this->taxNumber,
-            'address_id' => $this->companySuggestions[0]['address_id'],
+            'address_id' => $this->addressSuggestions[0]['id'],
         ]);
         $this->getPredictions($dataPrediction);
     }
