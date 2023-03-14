@@ -61,6 +61,7 @@ return new class extends Migration
      */
     public function down()
     {
-        //
+        $procedure = "DROP FUNCTION IF EXISTS `levenshtein`";
+        \DB::unprepared($procedure);
     }
 };
