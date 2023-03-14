@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        $procedure = "CREATE FUNCTION `levenshtein` (s1 VARCHAR(255), s2 VARCHAR(255) )
+        $procedure = "CREATE FUNCTION IF NOT EXISTS `levenshtein` (s1 VARCHAR(255), s2 VARCHAR(255) )
           RETURNS INT DETERMINISTIC
           BEGIN
             DECLARE s1_len, s2_len, i, j, c, c_temp, cost INT;
