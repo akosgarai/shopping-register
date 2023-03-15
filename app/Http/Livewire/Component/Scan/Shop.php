@@ -85,6 +85,14 @@ class Shop extends Component
         }
     }
 
+    public function validateInputs()
+    {
+        $this->validate([
+            'name' => 'required|string',
+        ]);
+        $this->emitUp('basket.data.update', ['marketId' => $this->selectedShop]);
+    }
+
     private function getPredictions(DataPredictionService $dataPrediction)
     {
         $this->addressSuggestions = $dataPrediction->getAddressSuggestions($this->address, 10)->toArray();
@@ -92,13 +100,18 @@ class Shop extends Component
         // setup the selected company and address if the distance is small enough
         $firstAddress = $this->addressSuggestions[0] ?? null;
         $firstShop = $this->shopSuggestions[0] ?? null;
-        $this->allowSaveAddress = false;
+        $this->allowSaveAddress = is_null($firstAddress);
         $this->allowSaveShop = false;
         if ($firstAddress) {
             if ($firstAddress['distance'] > 0) {
                 $this->allowSaveAddress = true;
             }
+            // if the address distance is 0, then we can set the selected address
+            if ($firstAddress['distance'] == 0) {
+                $this->selectedAddress = $firstAddress['raw'];
+            }
             if (!$this->allowSaveAddress) {
+                $this->allowSaveShop = is_null($firstShop);
                 if ($firstShop && $firstShop['distance'] > 0) {
                     $this->allowSaveShop = true;
                 }
@@ -111,7 +124,7 @@ class Shop extends Component
         $this->validate([
             'address' => 'required|string',
         ]);
-        Address::firstOrCreate([
+        (new Address())->firstOrCreate([
             'raw' => $this->address,
         ]);
         $this->getPredictions($dataPrediction);
@@ -122,10 +135,10 @@ class Shop extends Component
         $this->validate([
             'name' => 'required|string',
         ]);
-        ShopModel::firstOrCreate([
+        (new ShopModel())->firstOrCreate([
             'name' => $this->name,
             'company_id' => $this->shopCompany,
-            'address_id' => $this->shopSuggestions[0]['address_id'],
+            'address_id' => $this->addressSuggestions[0]['id'],
         ]);
         $this->getPredictions($dataPrediction);
     }
