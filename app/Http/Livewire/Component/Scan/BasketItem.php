@@ -54,7 +54,7 @@ class BasketItem extends Component
 
     public function insertNew($index, DataPredictionService $dataPrediction)
     {
-        $item = Item::firstOrCreate([
+        $item = (new Item())->firstOrCreate([
             'name' => $this->items[$index]['name'],
         ]);
         $this->items[$index]['itemId'] = $item->id;
