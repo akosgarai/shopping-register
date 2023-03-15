@@ -8,7 +8,9 @@
             </div>
         </div>
         <div class="panel-body">
-            @include($contentTemplate, $contentParameters)
+            @if($contentTemplate != '')
+                @include($contentTemplate, $contentParameters)
+            @endif
         </div>
     </div>
     @if($open && $backdrop)
