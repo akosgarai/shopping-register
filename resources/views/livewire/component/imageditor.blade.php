@@ -1,10 +1,10 @@
 <div class="input-group mb-3">
 @if($editMode)
-    <button class="btn btn-outline-secondary" type="button" wire:click="broadcastApply">Apply</button>
-    <span class="input-group-text">Options</span>
-    <button class="btn btn-outline-secondary" type="button" wire:click="broadcastCancel">Cancel</button>
+    <button class="btn btn-outline-secondary" type="button" wire:click="broadcastApply">{{ __('Apply') }}</button>
+    <span class="input-group-text">{{ __('Options') }}</span>
+    <button class="btn btn-outline-secondary" type="button" wire:click="broadcastCancel">{{ __('Cancel') }}</button>
 @else
-    <button class="btn btn-outline-secondary" type="button" wire:click="broadcastCrop">Crop</button>
+    <button class="btn btn-outline-secondary" type="button" wire:click="broadcastCrop">{{ __('Crop') }}</button>
     <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">{{ __('Filter') }}</button>
     <ul class="dropdown-menu">
         @foreach($filters as $name => $active)
@@ -16,6 +16,6 @@
             </li>
         @endforeach
     </ul>
-    <button class="btn btn-outline-secondary" type="button" wire:click="broadcastEditComplete">Next</button>
+    <button class="btn btn-outline-secondary" type="button" wire:click="broadcastEditComplete">{{ __('Next') }}</button>
 @endif
 </div>
