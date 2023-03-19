@@ -20,7 +20,6 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-Route::get('/scan', [App\Http\Controllers\ScanController::class, 'index'])->name('scan');
 Route::get('/receipts', [App\Http\Controllers\ReceiptController::class, 'index'])->name('receipts');
 Route::get('/receipt/{id}', [App\Http\Controllers\ReceiptController::class, 'view'])->name('receipts.view');
 Route::get('/documents/uploads/{filename}', [App\Http\Controllers\ImageController::class, 'viewTemp'])->name('image.viewTemp');
