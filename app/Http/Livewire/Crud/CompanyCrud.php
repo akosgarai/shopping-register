@@ -103,7 +103,7 @@ class CompanyCrud extends CrudPage
         $this->validate([
             'name' => 'required|string|max:255',
             'taxNumber' => 'required|string|unique:companies,tax_number|digits:11',
-            'address' => 'required|string|exists:addresses,id',
+            'address' => 'required|integer|exists:addresses,id',
         ]);
         $company = (new Company())->firstOrCreate([
             'name' => $this->name,
