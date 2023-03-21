@@ -25,7 +25,7 @@ class ItemCrud extends CrudPage
         $item = Item::where('id', $modelId)
             ->withCount('basketItems')
             ->first();
-        if ($item != null && $item->basketItems_count == 0) {
+        if ($item != null && $item->basket_items_count == 0) {
             $item->delete();
         }
         parent::clearAction();
