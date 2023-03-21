@@ -4,7 +4,7 @@ namespace App\Http\Livewire\Component;
 
 use Livewire\WithFileUploads;
 
-use App\Http\Livewire\Crud;
+use App\Http\Livewire\Crud\Crud;
 use App\Services\ImageService;
 
 class CrudAction extends Crud

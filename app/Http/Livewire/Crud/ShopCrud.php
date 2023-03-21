@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire;
+namespace App\Http\Livewire\Crud;
 
 use Illuminate\Validation\ValidationException;
 
@@ -11,7 +11,7 @@ use App\Models\Shop;
 class ShopCrud extends CrudPage
 {
     public const PANEL_NAME = 'shopPanel';
-    public $templateName = 'livewire.shop-crud';
+    public $templateName = 'livewire.crud.shop-crud';
 
     public $name = '';
     public $address = '';

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire;
+namespace App\Http\Livewire\Crud;
 
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Storage;
@@ -17,7 +17,7 @@ class BasketCrud extends CrudPage
     use WithFileUploads;
 
     public const PANEL_NAME = 'basketPanel';
-    public $templateName = 'livewire.basket-crud';
+    public $templateName = 'livewire.crud.basket-crud';
 
     public $shopId = '';
     public $date = '';

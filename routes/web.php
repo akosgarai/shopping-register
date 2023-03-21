@@ -25,10 +25,10 @@ Route::get('/documents/receipts/{filename}', [App\Http\Controllers\ImageControll
 
 // the following routes are behind auth middleware
 Route::middleware(['auth'])->group(function () {
-    Route::get('/address', App\Http\Livewire\AddressCrud::class)->name('address');
-    Route::get('/item', App\Http\Livewire\ItemCrud::class)->name('item');
-    Route::get('/company', App\Http\Livewire\CompanyCrud::class)->name('company');
-    Route::get('/shop', App\Http\Livewire\ShopCrud::class)->name('shop');
-    Route::get('/basket', App\Http\Livewire\BasketCrud::class)->name('basket');
+    Route::get('/address', App\Http\Livewire\Crud\AddressCrud::class)->name('address');
+    Route::get('/item', App\Http\Livewire\Crud\ItemCrud::class)->name('item');
+    Route::get('/company', App\Http\Livewire\Crud\CompanyCrud::class)->name('company');
+    Route::get('/shop', App\Http\Livewire\Crud\ShopCrud::class)->name('shop');
+    Route::get('/basket', App\Http\Livewire\Crud\BasketCrud::class)->name('basket');
     Route::get('/receipt-scan', App\Http\Livewire\ReceiptScan::class)->name('receipt-scan');
 });

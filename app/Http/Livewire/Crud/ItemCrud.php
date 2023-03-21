@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire;
+namespace App\Http\Livewire\Crud;
 
 use Illuminate\Validation\ValidationException;
 
@@ -9,7 +9,7 @@ use App\Models\Item;
 class ItemCrud extends CrudPage
 {
     public const PANEL_NAME = 'itemPanel';
-    public $templateName = 'livewire.item-crud';
+    public $templateName = 'livewire.crud.item-crud';
 
     public $name = '';
 

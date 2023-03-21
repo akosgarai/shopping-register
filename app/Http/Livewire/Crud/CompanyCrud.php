@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire;
+namespace App\Http\Livewire\Crud;
 
 use Illuminate\Validation\ValidationException;
 
@@ -10,7 +10,7 @@ use App\Models\Company;
 class CompanyCrud extends CrudPage
 {
     public const PANEL_NAME = 'companyPanel';
-    public $templateName = 'livewire.company-crud';
+    public $templateName = 'livewire.crud.company-crud';
 
     public $name = '';
     public $taxNumber = '';

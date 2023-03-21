@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire;
+namespace App\Http\Livewire\Crud;
 
 use Illuminate\Validation\ValidationException;
 
@@ -9,7 +9,7 @@ use App\Models\Address;
 class AddressCrud extends CrudPage
 {
     public const PANEL_NAME = 'addressPanel';
-    public $templateName = 'livewire.address-crud';
+    public $templateName = 'livewire.crud.address-crud';
 
     public $addressRaw = '';
 
