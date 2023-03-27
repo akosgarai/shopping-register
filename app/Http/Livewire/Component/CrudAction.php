@@ -86,11 +86,7 @@ class CrudAction extends Crud
         foreach ($this->formData as $formElement) {
             // The keyName is the model attribute name in most of the cases. The exception is the basket item.
             if (array_key_exists('keyName', $formElement)) {
-                try {
-                    $rules['modelData.'.$formElement['keyName']] = isset($formElement['rules'][$this->action]) ? $formElement['rules'][$this->action] : $formElement['rules'];
-                } catch (\Exception $e) {
-                    dd($formElement, $e->getMessage());
-                }
+                $rules['modelData.'.$formElement['keyName']] = isset($formElement['rules'][$this->action]) ? $formElement['rules'][$this->action] : $formElement['rules'];
             }
             if (array_key_exists('keyNameItem', $formElement) && array_key_exists('keyNamePrice', $formElement)) {
                 $rules['modelData.'.$formElement['keyNameItem']] = $formElement['rulesItem'];
