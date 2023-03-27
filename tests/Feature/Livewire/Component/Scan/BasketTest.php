@@ -119,11 +119,7 @@ class BasketTest extends TestCase
 
     private function actAsUser()
     {
-        $this->user = (new User())->firstOrCreate([
-            'name' => 'TestUser',
-            'email' => 'test@email.com',
-            'password' => Hash::make('password'),
-        ]);
+        $this->user = User::factory()->create();
         $this->actingAs($this->user);
     }
 
