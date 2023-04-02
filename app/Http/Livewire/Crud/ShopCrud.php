@@ -11,6 +11,7 @@ use App\Models\Shop;
 class ShopCrud extends CrudPage
 {
     public const PANEL_NAME = 'shopPanel';
+    public const ORDERABLE_COLUMNS = ['id', 'name', 'created_at', 'updated_at'];
     public $templateName = 'livewire.crud.shop-crud';
 
     public $name = '';
@@ -41,7 +42,7 @@ class ShopCrud extends CrudPage
             $this->viewData = $this->getShop()->toArray();
         }
         return [
-            'shops' =>  Shop::withCount('baskets')->with(['company', 'address'])->get(),
+            'shops' => $this->shopList(),
             'addresses' =>  (new Address())->all(),
             'companies' =>  (new Company())->all(),
             'viewData' => $this->viewData,
@@ -153,5 +154,12 @@ class ShopCrud extends CrudPage
         return Shop::where('id', $this->modelId)
             ->with(['company', 'address'])
             ->first();
+    }
+
+    private function shopList()
+    {
+        return Shop::withCount('baskets')->with(['company', 'address'])
+            ->orderBy($this->orderColumn, $this->orderDirection)
+            ->paginate(parent::ITEM_LIMIT);
     }
 }
