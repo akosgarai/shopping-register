@@ -10,6 +10,7 @@ use App\Models\Company;
 class CompanyCrud extends CrudPage
 {
     public const PANEL_NAME = 'companyPanel';
+    public const ORDERABLE_COLUMNS = ['id', 'name', 'tax_number', 'created_at', 'updated_at'];
     public $templateName = 'livewire.crud.company-crud';
 
     public $name = '';
@@ -40,7 +41,7 @@ class CompanyCrud extends CrudPage
             $this->viewData = $this->getCompany()->toArray();
         }
         return [
-            'companies' =>  Company::withCount('shops')->with('address')->get(),
+            'companies' => $this->companyList(),
             'addresses' =>  $this->getAddresses(),
             'viewData' => $this->viewData,
             'panelCompany' => [
@@ -153,5 +154,12 @@ class CompanyCrud extends CrudPage
         return Company::where('id', $this->modelId)
             ->with('address')
             ->first();
+    }
+
+    private function companyList()
+    {
+        return Company::withCount('shops')->with('address')
+            ->orderBy($this->orderColumn, $this->orderDirection)
+            ->paginate(parent::ITEM_LIMIT);
     }
 }
