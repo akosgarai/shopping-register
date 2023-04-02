@@ -9,6 +9,7 @@ use App\Models\Item;
 class ItemCrud extends CrudPage
 {
     public const PANEL_NAME = 'itemPanel';
+    const ORDERABLE_COLUMNS = ['id', 'name', 'created_at', 'updated_at'];
     public $templateName = 'livewire.crud.item-crud';
 
     public $name = '';
@@ -37,7 +38,7 @@ class ItemCrud extends CrudPage
             $this->viewData = $this->getItem()->toArray();
         }
         return [
-            'items' =>  Item::withCount('basketItems')->get(),
+            'items' =>  $this->itemList(),
             'viewData' => $this->viewData,
             'panelItem' => [
                 'name' => $this->name,
@@ -118,5 +119,12 @@ class ItemCrud extends CrudPage
     {
         return Item::where('id', $this->modelId)
             ->first();
+    }
+
+    private function itemList()
+    {
+        return Item::withCount('basketItems')
+            ->orderBy($this->orderColumn, $this->orderDirection)
+            ->get();
     }
 }
