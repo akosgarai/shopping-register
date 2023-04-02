@@ -1,5 +1,6 @@
 <div class="container">
     <button class="btn btn-primary mb-3" type="button" wire:click="setAction('{{ parent::ACTION_CREATE }}')"><i class="bi bi-plus-circle me-3"></i>{{ __('New Item') }}</button>
+    {{ $items->links() }}
     <table class="table table-striped table-hover">
         <thead>
             <tr class="table-dark">
@@ -31,6 +32,7 @@
             @endforeach
         </tbody>
     </table>
+    {{ $items->links() }}
     <livewire:component.panel :open="in_array($action, self::ACTIONS)" :position="'left'"
         :panelName="self::PANEL_NAME"
         :panelTitle="__('Item')"

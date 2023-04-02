@@ -125,6 +125,6 @@ class ItemCrud extends CrudPage
     {
         return Item::withCount('basketItems')
             ->orderBy($this->orderColumn, $this->orderDirection)
-            ->get();
+            ->paginate(parent::ITEM_LIMIT);
     }
 }

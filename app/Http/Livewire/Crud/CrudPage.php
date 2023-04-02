@@ -2,11 +2,16 @@
 
 namespace App\Http\Livewire\Crud;
 
+use Livewire\WithPagination;
+
 abstract class CrudPage extends Crud
 {
+    use WithPagination;
+
     const ORDER_ASC = 'asc';
     const ORDER_DESC = 'desc';
     const ORDERABLE_COLUMNS = ['id'];
+    const ITEM_LIMIT = 25;
     // The name of the rendered view.
     public $templateName = '';
 
@@ -29,6 +34,9 @@ abstract class CrudPage extends Crud
         'action' => ['except' => ''],
         'modelId' => ['except' => '', 'as' => 'id'],
     ];
+
+    // The pagination theme.
+    protected $paginationTheme = 'bootstrap';
 
     // Event handler for the panel close event.
     public function clearAction()
