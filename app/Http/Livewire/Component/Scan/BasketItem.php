@@ -105,6 +105,13 @@ class BasketItem extends Component
         $this->emitUp('basket.data.done');
     }
 
+    public function getPrediction($index)
+    {
+        $this->items[$index]['suggestions'] = Item::selectRaw("items.*, '' as distance, '' as percentage")
+            ->where('name', 'LIKE', '%'.$this->items[$index]['name'].'%')
+            ->get();
+    }
+
     private function getPredictions(DataPredictionService $dataPrediction)
     {
         foreach ($this->items as $key => $item) {

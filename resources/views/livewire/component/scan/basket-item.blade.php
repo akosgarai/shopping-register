@@ -6,7 +6,7 @@
         @foreach ($items as $index => $item)
             @if ($item['itemId'] == '')
                 <div class="input-group mb-3">
-                    <input type="text" class="form-control" wire:model="items.{{ $index }}.name">
+                    <input type="text" class="form-control" wire:model="items.{{ $index }}.name" wire:change="getPrediction({{ $index }})">
                     <input class="btn btn-outline-secondary" type="button" value="{{ __('Add new') }}" wire:click="insertNew({{ $index }})">
                 </div>
             @endif
