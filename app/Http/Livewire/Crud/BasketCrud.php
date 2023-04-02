@@ -17,6 +17,7 @@ class BasketCrud extends CrudPage
     use WithFileUploads;
 
     public const PANEL_NAME = 'basketPanel';
+    public const ORDERABLE_COLUMNS = ['id', 'date', 'total', 'receipt_id', 'updated_at', 'created_at', 'basket_items_count'];
     public $templateName = 'livewire.crud.basket-crud';
 
     public $shopId = '';
@@ -60,10 +61,7 @@ class BasketCrud extends CrudPage
             $this->viewData = $this->getBasket()->toArray();
         }
         return [
-            'baskets' =>  Basket::where('user_id', auth()->user()->id)
-                ->withCount('basketItems')
-                ->with(['shop', 'shop.address'])
-                ->get(),
+            'baskets' => $this->basketList(),
             'shopOptions' =>  $this->getShops(),
             'itemOptions' => $this->getItems(),
             'formData' => $this->formData(),
@@ -370,5 +368,14 @@ class BasketCrud extends CrudPage
     private function getQuantityUnits()
     {
         return (new QuantityUnit())->all();
+    }
+
+    private function basketList()
+    {
+        return  Basket::where('user_id', auth()->user()->id)
+            ->withCount('basketItems')
+            ->with(['shop', 'shop.address'])
+            ->orderBy($this->orderColumn, $this->orderDirection)
+            ->paginate(parent::ITEM_LIMIT);
     }
 }
