@@ -9,6 +9,7 @@ use App\Models\Address;
 class AddressCrud extends CrudPage
 {
     public const PANEL_NAME = 'addressPanel';
+    public const ORDERABLE_COLUMNS = ['id', 'raw', 'created_at', 'updated_at'];
     public $templateName = 'livewire.crud.address-crud';
 
     public $addressRaw = '';
@@ -38,7 +39,7 @@ class AddressCrud extends CrudPage
             $this->viewData = $this->getAddress()->toArray();
         }
         return [
-            'addresses' =>  Address::withCount('companies')->withCount('shops')->get(),
+            'addresses' => $this->addressList(),
             'viewData' => $this->viewData,
             'panelAddress' => [
                 'raw' => $this->addressRaw,
@@ -123,5 +124,13 @@ class AddressCrud extends CrudPage
     {
         return Address::where('id', $this->modelId)
             ->first();
+    }
+
+    private function addressList()
+    {
+        return Address::withCount('companies')
+            ->withCount('shops')
+            ->orderBy($this->orderColumn, $this->orderDirection)
+            ->paginate(parent::ITEM_LIMIT);
     }
 }

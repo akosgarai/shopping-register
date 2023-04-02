@@ -1,12 +1,13 @@
 <div class="container">
     <button class="btn btn-primary mb-3" type="button" wire:click="setAction('{{ parent::ACTION_CREATE }}')"><i class="bi bi-plus-circle me-3"></i>{{ __('New Address') }}</button>
+    {{ $addresses->links() }}
     <table class="table table-striped table-hover">
         <thead>
             <tr class="table-dark">
-                <th scope="col">#</th>
-                <th scope="col">{{ __('Address') }}</th>
-                <th scope="col">{{ __('Created') }}</th>
-                <th scope="col">{{ __('Updated') }}</th>
+                @include('livewire.component.datatable.header-orderable', ['columnId' => 'id', 'columnLabel' => '#'])
+                @include('livewire.component.datatable.header-orderable', ['columnId' => 'raw', 'columnLabel' => __('Address')])
+                @include('livewire.component.datatable.header-orderable', ['columnId' => 'created_at', 'columnLabel' => __('Created')])
+                @include('livewire.component.datatable.header-orderable', ['columnId' => 'updated_at', 'columnLabel' => __('Updated')])
                 <th scope="col"></th>
             </tr>
         </thead>
@@ -31,6 +32,7 @@
             @endforeach
         </tbody>
     </table>
+    {{ $addresses->links() }}
     <livewire:component.panel :open="in_array($action, self::ACTIONS)" :position="'left'"
         :panelName="'addressPanel'"
         :panelTitle="__('Address')"

@@ -9,7 +9,7 @@ use App\Models\Item;
 class ItemCrud extends CrudPage
 {
     public const PANEL_NAME = 'itemPanel';
-    const ORDERABLE_COLUMNS = ['id', 'name', 'created_at', 'updated_at'];
+    public const ORDERABLE_COLUMNS = ['id', 'name', 'created_at', 'updated_at'];
     public $templateName = 'livewire.crud.item-crud';
 
     public $name = '';
