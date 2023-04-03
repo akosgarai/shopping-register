@@ -18,6 +18,8 @@ class HomeController extends Controller
     public const LAST_BASKETS_NUMBER = 5;
     public const FREQUENT_SHOPS_NUMBER = 5;
     public const FREQUENT_ITEMS_NUMBER = 5;
+
+    private $itemColors = [];
     /**
      * Create a new controller instance.
      *
@@ -130,9 +132,10 @@ class HomeController extends Controller
             ->withGrid()
             ->withDataLabels();
         for ($index = count($basketItems) - 1; $index >= 0; $index--) {
+            $this->itemColors[$basketItems[$index]->item_id] = fake()->hexcolor();
             $nameShort = (new Str())->limit($basketItems[$index]->item->name, 15);
             $tooltip = $basketItems[$index]->item->name . '<br>' . number_format($basketItems[$index]->quantity, 0, ',', ' ');
-            $columnChartModel->addColumn($nameShort, $basketItems[$index]->quantity, fake()->hexcolor(), ['tooltip' => $tooltip]);
+            $columnChartModel->addColumn($nameShort, $basketItems[$index]->quantity, $this->itemColors[$basketItems[$index]->item_id], ['tooltip' => $tooltip]);
         }
         return $columnChartModel;
     }
@@ -149,6 +152,13 @@ class HomeController extends Controller
             ->selectRaw('basket_items.item_id, basket_items.unit_price, SUBSTRING(b.date, 1, 10) as date')
             ->orderBy('date', 'asc')
             ->get();
+        // Define the colors array. It will be used to color the lines
+        $colors = [];
+        foreach ($frequentItemIds as $itemId) {
+            if ($basketItems->where('item_id', $itemId)->count() > 0) {
+                $colors[] = $this->itemColors[$itemId];
+            }
+        }
         $lineChartModel = (new LineChartModel())
             ->multiLine()
             ->setTitle(trans('Price Changes'))
@@ -156,6 +166,7 @@ class HomeController extends Controller
             ->withoutLegend()
             ->withGrid()
             ->setSmoothCurve()
+            ->setColors($colors)
             ->setDataLabelsEnabled(false);
         // Loop throught the dates of the last 3 months
         $date = Carbon::now()->subMonths(3);
@@ -166,22 +177,19 @@ class HomeController extends Controller
                 // if there is a price for the item on the current date, add it
                 $basketItem = $basketItems->where('item_id', $itemId)->where('date', $date->format('Y-m-d'))->first();
                 if ($basketItem != null) {
-                    $nameShort = (new Str())->limit($basketItem->item->name, 15);
-                    $lineChartModel->addSeriesPoint($nameShort, $date->format('Y-m-d'), $basketItem->unit_price);
+                    $lineChartModel->addSeriesPoint($basketItem->item->name, $date->format('Y-m-d'), $basketItem->unit_price);
                     continue;
                 }
                 // if there is no price for the item on the current date, add the price of the closest date
                 $basketItem = $basketItems->where('item_id', $itemId)->where('date', '<', $date->format('Y-m-d'))->first();
                 if ($basketItem != null) {
-                    $nameShort = (new Str())->limit($basketItem->item->name, 15);
-                    $lineChartModel->addSeriesPoint($nameShort, $date->format('Y-m-d'), $basketItem->unit_price);
+                    $lineChartModel->addSeriesPoint($basketItem->item->name, $date->format('Y-m-d'), $basketItem->unit_price);
                     continue;
                 }
                 // if there is no price for the item on the current date, add the price of the closest date
                 $basketItem = $basketItems->where('item_id', $itemId)->where('date', '>', $date->format('Y-m-d'))->first();
                 if ($basketItem != null) {
-                    $nameShort = (new Str())->limit($basketItem->item->name, 15);
-                    $lineChartModel->addSeriesPoint($nameShort, $date->format('Y-m-d'), $basketItem->unit_price);
+                    $lineChartModel->addSeriesPoint($basketItem->item->name, $date->format('Y-m-d'), $basketItem->unit_price);
                     continue;
                 }
             }
