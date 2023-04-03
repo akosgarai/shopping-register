@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Basket;
+
+use Asantibanez\LivewireCharts\Models\ColumnChartModel;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -23,6 +26,27 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        $lastBasketsModel = $this->lastBasketsColumnChart(5);
+        return view('home', compact('lastBasketsModel'));
+    }
+
+    private function lastBasketsColumnChart($number): ColumnChartModel
+    {
+        // Gather the last $number basket connected to the current user
+
+        $baskets = Basket::where('user_id', auth()->user()->id)
+            ->orderBy('date', 'desc')
+            ->take($number)
+            ->get();
+        $columnChartModel = (new ColumnChartModel())
+            ->setTitle(trans('Total'))
+            ->setAnimated(true)
+            ->withoutLegend()
+            ->withGrid()
+            ->withDataLabels();
+        for ($index = count($baskets) - 1; $index >= 0; $index--) {
+            $columnChartModel->addColumn($baskets[$index]->date, $baskets[$index]->total, fake()->hexcolor(), ['tooltip' => $baskets[$index]->total . ' HUF']);
+        }
+        return $columnChartModel;
     }
 }
