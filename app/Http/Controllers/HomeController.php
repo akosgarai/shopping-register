@@ -7,6 +7,8 @@ use App\Models\BasketItem;
 use App\Models\QuantityUnit;
 
 use Asantibanez\LivewireCharts\Models\ColumnChartModel;
+use Asantibanez\LivewireCharts\Models\LineChartModel;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -37,7 +39,8 @@ class HomeController extends Controller
         $lastItemsModel = $this->lastBasketItemsColumnChart();
         $frequentShopsModel = $this->frequentShopsColumnChart(self::FREQUENT_SHOPS_NUMBER);
         $frequentItemsPcsModel = $this->frequentItemsPcsColumnChart(self::FREQUENT_ITEMS_NUMBER);
-        return view('home', compact('lastBasketsModel', 'lastItemsModel', 'frequentShopsModel', 'frequentItemsPcsModel'));
+        $frequentItemsPriceModel = $this->frequentItemsPcsMultiLineChart(self::FREQUENT_ITEMS_NUMBER);
+        return view('home', compact('lastBasketsModel', 'lastItemsModel', 'frequentShopsModel', 'frequentItemsPcsModel', 'frequentItemsPriceModel'));
     }
 
     private function lastBasketsColumnChart($number): ColumnChartModel
@@ -118,18 +121,7 @@ class HomeController extends Controller
 
     private function frequentItemsPcsColumnChart($number): ColumnChartModel
     {
-        // Gather the last $number basket connected to the current user
-        $quantityUnitIdPcs = QuantityUnit::where('name', QuantityUnit::UNIT_PCS)->first()->id;
-
-        $basketItems = BasketItem::where('quantity_unit_id', $quantityUnitIdPcs)
-            ->join('baskets as b', 'b.id', '=', 'basket_items.basket_id')
-            ->where('b.user_id', auth()->user()->id)
-            ->with('item')
-            ->selectRaw('basket_items.item_id, sum(basket_items.quantity) as quantity')
-            ->groupBy('basket_items.item_id')
-            ->orderBy('quantity', 'desc')
-            ->take($number)
-            ->get();
+        $basketItems = $this->getFrequentPcsBasketItems($number);
         $columnChartModel = (new ColumnChartModel())
             ->setTitle(trans('Quantity'))
             ->setAnimated(true)
@@ -142,5 +134,73 @@ class HomeController extends Controller
             $columnChartModel->addColumn($nameShort, $basketItems[$index]->quantity, fake()->hexcolor(), ['tooltip' => $tooltip]);
         }
         return $columnChartModel;
+    }
+
+    private function frequentItemsPcsMultiLineChart($number): LineChartModel
+    {
+        $frequentItemIds = $this->getFrequentPcsBasketItems($number)->pluck('item_id');
+
+        $basketItems = BasketItem::join('baskets as b', 'b.id', '=', 'basket_items.basket_id')
+            ->where('b.user_id', auth()->user()->id)
+            ->whereIn('basket_items.item_id', $frequentItemIds)
+            ->where('b.date', '>=', Carbon::now()->subMonths(3)->toDateString())
+            ->with('item')
+            ->selectRaw('basket_items.item_id, basket_items.unit_price, SUBSTRING(b.date, 1, 10) as date')
+            ->orderBy('date', 'asc')
+            ->get();
+        $lineChartModel = (new LineChartModel())
+            ->multiLine()
+            ->setTitle(trans('Price Changes'))
+            ->setAnimated(true)
+            ->withoutLegend()
+            ->withGrid()
+            ->setSmoothCurve()
+            ->setDataLabelsEnabled(false);
+        // Loop throught the dates of the last 3 months
+        $date = Carbon::now()->subMonths(3);
+        while ($date->lessThanOrEqualTo(Carbon::now())) {
+            // Add a point for each item
+            foreach ($frequentItemIds as $itemId) {
+                // if there is a price for the item on the current date, add it
+                $basketItem = $basketItems->where('item_id', $itemId)->where('date', $date->format('Y-m-d'))->first();
+                if ($basketItem != null) {
+                    $nameShort = (new Str())->limit($basketItem->item->name, 15);
+                    $lineChartModel->addSeriesPoint($nameShort, $date->format('Y-m-d'), $basketItem->unit_price);
+                    continue;
+                }
+                // if there is no price for the item on the current date, add the price of the closest date
+                $basketItem = $basketItems->where('item_id', $itemId)->where('date', '<', $date->format('Y-m-d'))->first();
+                if ($basketItem != null) {
+                    $nameShort = (new Str())->limit($basketItem->item->name, 15);
+                    $lineChartModel->addSeriesPoint($nameShort, $date->format('Y-m-d'), $basketItem->unit_price);
+                    continue;
+                }
+                // if there is no price for the item on the current date, add the price of the closest date
+                $basketItem = $basketItems->where('item_id', $itemId)->where('date', '>', $date->format('Y-m-d'))->first();
+                if ($basketItem != null) {
+                    $nameShort = (new Str())->limit($basketItem->item->name, 15);
+                    $lineChartModel->addSeriesPoint($nameShort, $date->format('Y-m-d'), $basketItem->unit_price);
+                    continue;
+                }
+            }
+            $date->addDay();
+        }
+        return $lineChartModel;
+    }
+
+    private function getFrequentPcsBasketItems($number)
+    {
+        // Gather the last $number basket connected to the current user
+        $quantityUnitIdPcs = QuantityUnit::where('name', QuantityUnit::UNIT_PCS)->first()->id;
+
+        return BasketItem::where('quantity_unit_id', $quantityUnitIdPcs)
+            ->join('baskets as b', 'b.id', '=', 'basket_items.basket_id')
+            ->where('b.user_id', auth()->user()->id)
+            ->with('item')
+            ->selectRaw('basket_items.item_id, sum(basket_items.quantity) as quantity')
+            ->groupBy('basket_items.item_id')
+            ->orderBy('quantity', 'desc')
+            ->take($number)
+            ->get();
     }
 }

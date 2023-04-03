@@ -12,7 +12,7 @@
             <div class="card mb-3">
                 <div class="card-header">{{ __('Last Baskets') }}</div>
 
-                <div class="card-body">
+                <div class="card-body chart-container">
                     <livewire:livewire-column-chart
                         key="{{ $lastBasketsModel->reactiveKey() }}"
                         :column-chart-model="$lastBasketsModel"
@@ -22,7 +22,7 @@
             <div class="card mb-3">
                 <div class="card-header">{{ __('Last Basket Items') }}</div>
 
-                <div class="card-body">
+                <div class="card-body chart-container">
                     <livewire:livewire-column-chart
                         key="{{ $lastItemsModel->reactiveKey() }}"
                         :column-chart-model="$lastItemsModel"
@@ -32,7 +32,7 @@
             <div class="card mb-3">
                 <div class="card-header">{{ __('Frequently Bought Items') }}</div>
 
-                <div class="card-body">
+                <div class="card-body chart-container">
                     <livewire:livewire-column-chart
                         key="{{ $frequentItemsPcsModel->reactiveKey() }}"
                         :column-chart-model="$frequentItemsPcsModel"
@@ -40,9 +40,19 @@
                 </div>
             </div>
             <div class="card mb-3">
+                <div class="card-header">{{ __('Frequently Bought Item Prices') }}</div>
+
+                <div class="card-body chart-container">
+                    <livewire:livewire-line-chart
+                        key="{{ $frequentItemsPriceModel->reactiveKey() }}"
+                        :line-chart-model="$frequentItemsPriceModel"
+                        />
+                </div>
+            </div>
+            <div class="card mb-3">
                 <div class="card-header">{{ __('Frequently Used Shops') }}</div>
 
-                <div class="card-body">
+                <div class="card-body chart-container">
                     <livewire:livewire-column-chart
                         key="{{ $frequentShopsModel->reactiveKey() }}"
                         :column-chart-model="$frequentShopsModel"
