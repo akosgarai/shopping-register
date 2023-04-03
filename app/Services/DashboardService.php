@@ -41,7 +41,7 @@ class DashboardService
         for ($index = $basketNumber -1 ; $index >= 0; $index--) {
             // format the date string
             $formattedDate = date_format(date_create($baskets[$index]->date), 'Y-m-d H:i');
-            $columnChartModel->addColumn($formattedDate, $baskets[$index]->total, fake()->hexcolor(), ['tooltip' => $baskets[$index]->total . ' HUF']);
+            $columnChartModel->addColumn($formattedDate, $baskets[$index]->total, fake()->hexcolor(), ['tooltip' => $this->monetaryUnitFormat($baskets[$index]->total)]);
         }
         return $columnChartModel;
     }
@@ -69,8 +69,8 @@ class DashboardService
                 if ($basketItem->quantityUnit->name == QuantityUnit::UNIT_PCS) {
                     $quantity = number_format($basketItem->quantity, 0, ',', ' ');
                 }
-                $tooltip = $basketItem->item->name . '<br>' . $basketItem->quantity . ' ' . $basketItem->quantityUnit->name . '<br>' . $basketItem->total . ' HUF';
-                $columnChartModel->addColumn($nameShort, $basketItem->total, fake()->hexcolor(), ['tooltip' => $tooltip]);
+                $tooltip = $basketItem->item->name . '<br>' . $basketItem->quantity . ' ' . $basketItem->quantityUnit->name . '<br>' . $this->monetaryUnitFormat($basketItem->total);
+                $columnChartModel->addColumn($nameShort, $basketItem->total, $this->itemColor($basketItem->item_id), ['tooltip' => $tooltip]);
             }
         }
         return $columnChartModel;
@@ -93,7 +93,7 @@ class DashboardService
             ->withDataLabels();
         for ($index = 0; $index < $numberOfShops; $index++) {
             $shopName = $baskets[$index]->shop->name;
-            $pieChartModel->addSlice($shopName, (float)$baskets[$index]->total, $this->shopColor($baskets[$index]->shop_id));
+            $pieChartModel->addSlice($shopName, (float)$baskets[$index]->total, $this->shopColor($baskets[$index]->shop_id), ['tooltip' => $this->monetaryUnitFormat($baskets[$index]->total)]);
         }
         return $pieChartModel;
     }
@@ -145,7 +145,7 @@ class DashboardService
                 ->first();
             // Add the points to the chart
             // If there is no basket for the current date, add 0
-            $lineChartModel->addPoint($fromDate, $basket->total ?? 0, ['tooltip' => ($basket->total ?? 0) . ' Ft']);
+            $lineChartModel->addPoint($fromDate, $basket->total ?? 0, ['tooltip' => $this->monetaryUnitFormat($basket->total ?? 0)]);
         }
         return $lineChartModel;
     }
@@ -173,7 +173,7 @@ class DashboardService
                 ->first();
             // Add the points to the chart
             // If there is no basket for the current date, add 0
-            $lineChartModel->addPoint($fromDate, $basket->total ?? 0, ['tooltip' => ($basket->total ?? 0) . ' Ft']);
+            $lineChartModel->addPoint($fromDate, $basket->total ?? 0, ['tooltip' => $this->monetaryUnitFormat($basket->total ?? 0)]);
         }
         return $lineChartModel;
     }
@@ -189,7 +189,7 @@ class DashboardService
             ->withDataLabels();
         for ($index = count($basketItems) - 1; $index >= 0; $index--) {
             $nameShort = (new Str())->limit($basketItems[$index]->item->name, 15);
-            $tooltip = $basketItems[$index]->item->name . '<br>' . number_format($basketItems[$index]->quantity, 0, ',', ' ');
+            $tooltip = $basketItems[$index]->item->name . '<br>' . $this->numberFormat($basketItems[$index]->quantity);
             $columnChartModel->addColumn($nameShort, $basketItems[$index]->quantity, $this->itemColor($basketItems[$index]->item_id), ['tooltip' => $tooltip]);
         }
         return $columnChartModel;
@@ -202,7 +202,7 @@ class DashboardService
         $basketItems = BasketItem::join('baskets as b', 'b.id', '=', 'basket_items.basket_id')
             ->where('b.user_id', auth()->user()->id)
             ->whereIn('basket_items.item_id', $frequentItemIds)
-            ->where('b.date', '>=', Carbon::now()->subMonths(3)->toDateString())
+            ->where('b.date', '>=', $this->now()->subMonths(self::BASKET_DAILY_MONTHS_NUMBER)->toDateString())
             ->with('item')
             ->selectRaw('basket_items.item_id, basket_items.unit_price, SUBSTRING(b.date, 1, 10) as date')
             ->orderBy('date', 'asc')
@@ -223,28 +223,29 @@ class DashboardService
             ->setSmoothCurve()
             ->setColors($colors)
             ->setDataLabelsEnabled(false);
-        // Loop throught the dates of the last 3 months
-        $date = $this->now()->subMonths(3);
+        // Loop throught the dates of the last BASKET_DAILY_MONTHS_NUMBER months
+        $date = $this->now()->subMonths(self::BASKET_DAILY_MONTHS_NUMBER);
         $now = $this->now();
         while ($date->lessThanOrEqualTo($now)) {
             // Add a point for each item
             foreach ($frequentItemIds as $itemId) {
                 // if there is a price for the item on the current date, add it
-                $basketItem = $basketItems->where('item_id', $itemId)->where('date', $date->format('Y-m-d'))->first();
+                $formattedDate = $date->format('Y-m-d');
+                $basketItem = $basketItems->where('item_id', $itemId)->where('date', $formattedDate)->first();
                 if ($basketItem != null) {
-                    $lineChartModel->addSeriesPoint($basketItem->item->name, $date->format('Y-m-d'), $basketItem->unit_price);
+                    $lineChartModel->addSeriesPoint($basketItem->item->name, $formattedDate, $basketItem->unit_price, ['tooltip' => $this->monetaryUnitFormat($basketItem->unit_price)]);
                     continue;
                 }
                 // if there is no price for the item on the current date, add the price of the closest date
-                $basketItem = $basketItems->where('item_id', $itemId)->where('date', '<', $date->format('Y-m-d'))->first();
+                $basketItem = $basketItems->where('item_id', $itemId)->where('date', '<', $formattedDate)->first();
                 if ($basketItem != null) {
-                    $lineChartModel->addSeriesPoint($basketItem->item->name, $date->format('Y-m-d'), $basketItem->unit_price);
+                    $lineChartModel->addSeriesPoint($basketItem->item->name, $formattedDate, $basketItem->unit_price, ['tooltip' => $this->monetaryUnitFormat($basketItem->unit_price)]);
                     continue;
                 }
                 // if there is no price for the item on the current date, add the price of the closest date
-                $basketItem = $basketItems->where('item_id', $itemId)->where('date', '>', $date->format('Y-m-d'))->first();
+                $basketItem = $basketItems->where('item_id', $itemId)->where('date', '>', $formattedDate)->first();
                 if ($basketItem != null) {
-                    $lineChartModel->addSeriesPoint($basketItem->item->name, $date->format('Y-m-d'), $basketItem->unit_price);
+                    $lineChartModel->addSeriesPoint($basketItem->item->name, $formattedDate, $basketItem->unit_price, ['tooltip' => $this->monetaryUnitFormat($basketItem->unit_price)]);
                     continue;
                 }
             }
@@ -271,7 +272,17 @@ class DashboardService
 
     private function now()
     {
-        return Carbon::now();
+        return (new Carbon())->now();
+    }
+
+    private function numberFormat($number)
+    {
+        return number_format($number, 0, ',', ' ');
+    }
+
+    private function monetaryUnitFormat($number)
+    {
+        return $this->numberFormat($number) . ' HUF';
     }
 
     private function getFrequentPcsBasketItems()
