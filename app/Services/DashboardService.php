@@ -26,22 +26,23 @@ class DashboardService
     public function lastBasketsColumnChart(): ColumnChartModel
     {
         // Gather maximum LAST_BASKETS_NUMBER basket connected to the current user
-
         $baskets = Basket::where('user_id', auth()->user()->id)
             ->orderBy('date', 'desc')
             ->take(self::LAST_BASKETS_NUMBER)
             ->get();
         $basketNumber = count($baskets);
+
         $columnChartModel = (new ColumnChartModel())
             ->setTitle(trans('Total'))
             ->setAnimated(true)
             ->withoutLegend()
             ->withGrid()
             ->withDataLabels();
+        $basketColor = fake()->hexcolor();
         for ($index = $basketNumber -1 ; $index >= 0; $index--) {
             // format the date string
             $formattedDate = date_format(date_create($baskets[$index]->date), 'Y-m-d H:i');
-            $columnChartModel->addColumn($formattedDate, $baskets[$index]->total, fake()->hexcolor(), ['tooltip' => $this->monetaryUnitFormat($baskets[$index]->total)]);
+            $columnChartModel->addColumn($formattedDate, $baskets[$index]->total, $basketColor, ['tooltip' => $this->monetaryUnitFormat($baskets[$index]->total)]);
         }
         return $columnChartModel;
     }
@@ -178,9 +179,9 @@ class DashboardService
         return $lineChartModel;
     }
 
-    public function frequentItemsPcsColumnChart(): ColumnChartModel
+    public function frequentItemsColumnChart(): ColumnChartModel
     {
-        $basketItems = $this->getFrequentPcsBasketItems();
+        $basketItems = $this->getFrequentBasketItems();
         $columnChartModel = (new ColumnChartModel())
             ->setTitle(trans('Quantity'))
             ->setAnimated(true)
@@ -195,9 +196,9 @@ class DashboardService
         return $columnChartModel;
     }
 
-    public function frequentItemsPcsMultiLineChart(): LineChartModel
+    public function frequentItemsMultiLineChart(): LineChartModel
     {
-        $frequentItemIds = $this->getFrequentPcsBasketItems()->pluck('item_id');
+        $frequentItemIds = $this->getFrequentBasketItems()->pluck('item_id');
 
         $basketItems = BasketItem::join('baskets as b', 'b.id', '=', 'basket_items.basket_id')
             ->where('b.user_id', auth()->user()->id)
@@ -285,17 +286,16 @@ class DashboardService
         return $this->numberFormat($number) . ' HUF';
     }
 
-    private function getFrequentPcsBasketItems()
+    private function getFrequentBasketItems()
     {
         // Gather the last $number basket connected to the current user
         $quantityUnitIdPcs = QuantityUnit::where('name', QuantityUnit::UNIT_PCS)->first()->id;
 
-        return BasketItem::where('quantity_unit_id', $quantityUnitIdPcs)
-            ->join('baskets as b', 'b.id', '=', 'basket_items.basket_id')
+        return BasketItem::join('baskets as b', 'b.id', '=', 'basket_items.basket_id')
             ->where('b.user_id', auth()->user()->id)
             ->with('item')
-            ->selectRaw('basket_items.item_id, sum(basket_items.quantity) as quantity')
-            ->groupBy('basket_items.item_id')
+            ->selectRaw('basket_items.item_id, CASE WHEN basket_items.quantity_unit_id = '.$quantityUnitIdPcs.' THEN sum(basket_items.quantity) ELSE count(1) END as quantity')
+            ->groupBy('basket_items.item_id', 'basket_items.quantity_unit_id')
             ->orderBy('quantity', 'desc')
             ->take(self::FREQUENT_ITEMS_NUMBER)
             ->get();

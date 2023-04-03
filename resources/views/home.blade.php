@@ -38,8 +38,8 @@
 
                 <div class="card-body chart-container">
                     <livewire:livewire-column-chart
-                        key="{{ $frequentItemsPcsModel->reactiveKey() }}"
-                        :column-chart-model="$frequentItemsPcsModel"
+                        key="{{ $frequentItemsModel->reactiveKey() }}"
+                        :column-chart-model="$frequentItemsModel"
                         />
                 </div>
             </div>
