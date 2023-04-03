@@ -35,4 +35,12 @@ class BasketItem extends Model
     {
         return $this->belongsTo(Item::class);
     }
+
+    /**
+     * Get the quantity unit of this basket item.
+     */
+    public function quantityUnit()
+    {
+        return $this->belongsTo(QuantityUnit::class);
+    }
 }

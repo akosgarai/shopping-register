@@ -9,13 +9,33 @@
     @endif
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card">
+            <div class="card mb-3">
                 <div class="card-header">{{ __('Last Baskets') }}</div>
 
                 <div class="card-body">
                     <livewire:livewire-column-chart
                         key="{{ $lastBasketsModel->reactiveKey() }}"
                         :column-chart-model="$lastBasketsModel"
+                        />
+                </div>
+            </div>
+            <div class="card mb-3">
+                <div class="card-header">{{ __('Last Basket Items') }}</div>
+
+                <div class="card-body">
+                    <livewire:livewire-column-chart
+                        key="{{ $lastItemsModel->reactiveKey() }}"
+                        :column-chart-model="$lastItemsModel"
+                        />
+                </div>
+            </div>
+            <div class="card mb-3">
+                <div class="card-header">{{ __('Frequently Used Shops') }}</div>
+
+                <div class="card-body">
+                    <livewire:livewire-column-chart
+                        key="{{ $frequentShopsModel->reactiveKey() }}"
+                        :column-chart-model="$frequentShopsModel"
                         />
                 </div>
             </div>
