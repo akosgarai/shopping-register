@@ -15,6 +15,7 @@ class HomeController extends Controller
 
     public const LAST_BASKETS_NUMBER = 5;
     public const FREQUENT_SHOPS_NUMBER = 5;
+    public const FREQUENT_ITEMS_NUMBER = 5;
     /**
      * Create a new controller instance.
      *
@@ -35,7 +36,8 @@ class HomeController extends Controller
         $lastBasketsModel = $this->lastBasketsColumnChart(self::LAST_BASKETS_NUMBER);
         $lastItemsModel = $this->lastBasketItemsColumnChart();
         $frequentShopsModel = $this->frequentShopsColumnChart(self::FREQUENT_SHOPS_NUMBER);
-        return view('home', compact('lastBasketsModel', 'lastItemsModel', 'frequentShopsModel'));
+        $frequentItemsPcsModel = $this->frequentItemsPcsColumnChart(self::FREQUENT_ITEMS_NUMBER);
+        return view('home', compact('lastBasketsModel', 'lastItemsModel', 'frequentShopsModel', 'frequentItemsPcsModel'));
     }
 
     private function lastBasketsColumnChart($number): ColumnChartModel
@@ -83,7 +85,7 @@ class HomeController extends Controller
                 if ($basketItem->quantityUnit->name == QuantityUnit::UNIT_PCS) {
                     $quantity = number_format($basketItem->quantity, 0, ',', ' ');
                 }
-                $tooltip = $basketItem->item->name . '<br>' . $basketItem->total . ' HUF<br>' . $basketItem->quantity . ' ' . $basketItem->quantityUnit->name;
+                $tooltip = $basketItem->item->name . '<br>' . $basketItem->quantity . ' ' . $basketItem->quantityUnit->name . '<br>' . $basketItem->total . ' HUF';
                 $columnChartModel->addColumn($nameShort, $basketItem->total, fake()->hexcolor(), ['tooltip' => $tooltip]);
             }
         }
@@ -110,6 +112,34 @@ class HomeController extends Controller
         for ($index = count($baskets) - 1; $index >= 0; $index--) {
             $shopName = $baskets[$index]->shop->name;
             $columnChartModel->addColumn($shopName, $baskets[$index]->baskets, fake()->hexcolor());
+        }
+        return $columnChartModel;
+    }
+
+    private function frequentItemsPcsColumnChart($number): ColumnChartModel
+    {
+        // Gather the last $number basket connected to the current user
+        $quantityUnitIdPcs = QuantityUnit::where('name', QuantityUnit::UNIT_PCS)->first()->id;
+
+        $basketItems = BasketItem::where('quantity_unit_id', $quantityUnitIdPcs)
+            ->join('baskets as b', 'b.id', '=', 'basket_items.basket_id')
+            ->where('b.user_id', auth()->user()->id)
+            ->with('item')
+            ->selectRaw('basket_items.item_id, sum(basket_items.quantity) as quantity')
+            ->groupBy('basket_items.item_id')
+            ->orderBy('quantity', 'desc')
+            ->take($number)
+            ->get();
+        $columnChartModel = (new ColumnChartModel())
+            ->setTitle(trans('Quantity'))
+            ->setAnimated(true)
+            ->withoutLegend()
+            ->withGrid()
+            ->withDataLabels();
+        for ($index = count($basketItems) - 1; $index >= 0; $index--) {
+            $nameShort = (new Str())->limit($basketItems[$index]->item->name, 15);
+            $tooltip = $basketItems[$index]->item->name . '<br>' . number_format($basketItems[$index]->quantity, 0, ',', ' ');
+            $columnChartModel->addColumn($nameShort, $basketItems[$index]->quantity, fake()->hexcolor(), ['tooltip' => $tooltip]);
         }
         return $columnChartModel;
     }

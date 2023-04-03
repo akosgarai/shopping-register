@@ -30,6 +30,16 @@
                 </div>
             </div>
             <div class="card mb-3">
+                <div class="card-header">{{ __('Frequently Bought Items') }}</div>
+
+                <div class="card-body">
+                    <livewire:livewire-column-chart
+                        key="{{ $frequentItemsPcsModel->reactiveKey() }}"
+                        :column-chart-model="$frequentItemsPcsModel"
+                        />
+                </div>
+            </div>
+            <div class="card mb-3">
                 <div class="card-header">{{ __('Frequently Used Shops') }}</div>
 
                 <div class="card-body">
