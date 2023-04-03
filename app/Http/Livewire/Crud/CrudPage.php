@@ -33,6 +33,8 @@ abstract class CrudPage extends Crud
     protected $queryString = [
         'action' => ['except' => ''],
         'modelId' => ['except' => '', 'as' => 'id'],
+        'orderColumn' => ['except' => 'id', 'as' => 'order'],
+        'orderDirection' => ['except' => self::ORDER_ASC, 'as' => 'direction'],
     ];
 
     // The pagination theme.
