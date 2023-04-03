@@ -8,6 +8,7 @@ use App\Models\QuantityUnit;
 
 use Asantibanez\LivewireCharts\Models\ColumnChartModel;
 use Asantibanez\LivewireCharts\Models\LineChartModel;
+use Asantibanez\LivewireCharts\Models\PieChartModel;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -44,7 +45,8 @@ class HomeController extends Controller
         $frequentItemsPriceModel = $this->frequentItemsPcsMultiLineChart(self::FREQUENT_ITEMS_NUMBER);
         $basketPriceModel = $this->basketsDailyMultiLineChart(3);
         $basketMonthPriceModel = $this->basketsMonthlyMultiLineChart();
-        return view('home', compact('lastBasketsModel', 'lastItemsModel', 'frequentShopsModel', 'frequentItemsPcsModel', 'frequentItemsPriceModel', 'basketPriceModel', 'basketMonthPriceModel'));
+        $expensesByShopsModel = $this->expensesByShopsPieChart();
+        return view('home', compact('lastBasketsModel', 'lastItemsModel', 'frequentShopsModel', 'frequentItemsPcsModel', 'frequentItemsPriceModel', 'basketPriceModel', 'basketMonthPriceModel', 'expensesByShopsModel'));
     }
 
     private function lastBasketsColumnChart($number): ColumnChartModel
@@ -121,6 +123,28 @@ class HomeController extends Controller
             $columnChartModel->addColumn($shopName, $baskets[$index]->baskets, fake()->hexcolor());
         }
         return $columnChartModel;
+    }
+
+    private function expensesByShopsPieChart(): PieChartModel
+    {
+        // Gather the last $number basket connected to the current user
+
+        $baskets = Basket::where('user_id', auth()->user()->id)
+            ->selectRaw('shop_id, sum(total) as total, count(1) as baskets')
+            ->groupBy('shop_id')
+            ->orderBy('total', 'asc')
+            ->with('shop')
+            ->get();
+        $numberOfShops = count($baskets);
+        $pieChartModel = (new PieChartModel())
+            ->setTitle(trans('Expanses By Shops'))
+            ->setAnimated(true)
+            ->withDataLabels();
+        for ($index = 0; $index < $numberOfShops; $index++) {
+            $shopName = $baskets[$index]->shop->name;
+            $pieChartModel->addSlice($shopName, (float)$baskets[$index]->total, fake()->hexcolor());
+        }
+        return $pieChartModel;
     }
 
     private function frequentItemsPcsColumnChart($number): ColumnChartModel

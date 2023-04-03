@@ -92,6 +92,18 @@
                 </div>
             </div>
         </div>
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header">{{ __('Expenses By Shops') }}</div>
+
+                <div class="card-body chart-container">
+                    <livewire:livewire-pie-chart
+                        key="{{ $expensesByShopsModel->reactiveKey() }}"
+                        :pie-chart-model="$expensesByShopsModel"
+                        />
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 @endsection
