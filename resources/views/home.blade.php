@@ -8,7 +8,7 @@
         </div>
     @endif
     <div class="row justify-content-center">
-        <div class="col-md-8">
+        <div class="col-md-6">
             <div class="card mb-3">
                 <div class="card-header">{{ __('Last Baskets') }}</div>
 
@@ -19,6 +19,8 @@
                         />
                 </div>
             </div>
+        </div>
+        <div class="col-md-6">
             <div class="card mb-3">
                 <div class="card-header">{{ __('Last Basket Items') }}</div>
 
@@ -29,6 +31,8 @@
                         />
                 </div>
             </div>
+        </div>
+        <div class="col-md-6">
             <div class="card mb-3">
                 <div class="card-header">{{ __('Frequently Bought Items') }}</div>
 
@@ -39,6 +43,8 @@
                         />
                 </div>
             </div>
+        </div>
+        <div class="col-md-6">
             <div class="card mb-3">
                 <div class="card-header">{{ __('Frequently Bought Item Prices') }}</div>
 
@@ -49,6 +55,8 @@
                         />
                 </div>
             </div>
+        </div>
+        <div class="col-md-6">
             <div class="card mb-3">
                 <div class="card-header">{{ __('Daily Expenses') }}</div>
 
@@ -59,6 +67,8 @@
                         />
                 </div>
             </div>
+        </div>
+        <div class="col-md-6">
             <div class="card mb-3">
                 <div class="card-header">{{ __('Frequently Used Shops') }}</div>
 

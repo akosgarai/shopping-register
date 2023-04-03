@@ -235,7 +235,7 @@ class HomeController extends Controller
                 ->first();
             // Add the points to the chart
             // If there is no basket for the current date, add 0
-            $lineChartModel->addPoint($startDate->format('Y-m-d'), $basket->total ?? 0, ['tooltip' => $basket->total ?? 0 . ' Ft']);
+            $lineChartModel->addPoint($startDate->format('Y-m-d'), $basket->total ?? 0, ['tooltip' => ($basket->total ?? 0) . ' Ft']);
             $startDate->addDay();
         }
         return $lineChartModel;
