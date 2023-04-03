@@ -70,6 +70,18 @@
         </div>
         <div class="col-md-6">
             <div class="card mb-3">
+                <div class="card-header">{{ __('Monthly Expenses') }}</div>
+
+                <div class="card-body chart-container">
+                    <livewire:livewire-line-chart
+                        key="{{ $basketMonthPriceModel->reactiveKey() }}"
+                        :line-chart-model="$basketMonthPriceModel"
+                        />
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-3">
                 <div class="card-header">{{ __('Frequently Used Shops') }}</div>
 
                 <div class="card-body chart-container">

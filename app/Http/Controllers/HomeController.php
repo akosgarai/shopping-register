@@ -42,8 +42,9 @@ class HomeController extends Controller
         $frequentShopsModel = $this->frequentShopsColumnChart(self::FREQUENT_SHOPS_NUMBER);
         $frequentItemsPcsModel = $this->frequentItemsPcsColumnChart(self::FREQUENT_ITEMS_NUMBER);
         $frequentItemsPriceModel = $this->frequentItemsPcsMultiLineChart(self::FREQUENT_ITEMS_NUMBER);
-        $basketPriceModel = $this->basketsMultiLineChart(3);
-        return view('home', compact('lastBasketsModel', 'lastItemsModel', 'frequentShopsModel', 'frequentItemsPcsModel', 'frequentItemsPriceModel', 'basketPriceModel'));
+        $basketPriceModel = $this->basketsDailyMultiLineChart(3);
+        $basketMonthPriceModel = $this->basketsMonthlyMultiLineChart();
+        return view('home', compact('lastBasketsModel', 'lastItemsModel', 'frequentShopsModel', 'frequentItemsPcsModel', 'frequentItemsPriceModel', 'basketPriceModel', 'basketMonthPriceModel'));
     }
 
     private function lastBasketsColumnChart($number): ColumnChartModel
@@ -214,7 +215,7 @@ class HomeController extends Controller
             ->get();
     }
 
-    private function basketsMultiLineChart($beforMonths): LineChartModel
+    private function basketsDailyMultiLineChart($beforMonths): LineChartModel
     {
         $startDate = Carbon::now()->subMonths($beforMonths);
         $now = Carbon::now();
@@ -228,15 +229,44 @@ class HomeController extends Controller
             ->setDataLabelsEnabled(false);
         while ($startDate->lessThanOrEqualTo($now)) {
             // Get the number of baskets, total, number of distinct items for the current date
+            $fromDate = $startDate->format('Y-m-d');
+            $toDate = $startDate->addDay()->format('Y-m-d');
             $basket = Basket::where('user_id', auth()->user()->id)
-                ->where('date', '>=', $startDate->format('Y-m-d'))
-                ->where('date', '<', $startDate->addDay()->format('Y-m-d'))
+                ->where('date', '>=', $fromDate)
+                ->where('date', '<', $toDate)
                 ->selectRaw('count(1) as baskets, sum(total) as total')
                 ->first();
             // Add the points to the chart
             // If there is no basket for the current date, add 0
-            $lineChartModel->addPoint($startDate->format('Y-m-d'), $basket->total ?? 0, ['tooltip' => ($basket->total ?? 0) . ' Ft']);
-            $startDate->addDay();
+            $lineChartModel->addPoint($fromDate, $basket->total ?? 0, ['tooltip' => ($basket->total ?? 0) . ' Ft']);
+        }
+        return $lineChartModel;
+    }
+
+    private function basketsMonthlyMultiLineChart(): LineChartModel
+    {
+        $now = Carbon::now();
+        $startDate = Carbon::now()->subMonths(12);
+
+        $lineChartModel = (new LineChartModel())
+            ->setTitle(trans('Monthly Expenses'))
+            ->setAnimated(true)
+            ->withoutLegend()
+            ->withGrid()
+            ->setSmoothCurve()
+            ->setDataLabelsEnabled(false);
+        while ($startDate->lessThanOrEqualTo($now)) {
+            // Get the number of baskets, total, number of distinct items for the current date
+            $fromDate = $startDate->format('Y-m-d');
+            $toDate = $startDate->addMonth()->format('Y-m-d');
+            $basket = Basket::where('user_id', auth()->user()->id)
+                ->where('date', '>=', $fromDate)
+                ->where('date', '<', $toDate)
+                ->selectRaw('count(1) as baskets, sum(total) as total')
+                ->first();
+            // Add the points to the chart
+            // If there is no basket for the current date, add 0
+            $lineChartModel->addPoint($fromDate, $basket->total ?? 0, ['tooltip' => ($basket->total ?? 0) . ' Ft']);
         }
         return $lineChartModel;
     }
