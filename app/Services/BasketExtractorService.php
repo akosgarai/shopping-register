@@ -38,6 +38,11 @@ class BasketExtractorService
         return $parsers;
     }
 
+    public function getParserApplicationConfig(string $parser): array
+    {
+        return $this->config[$parser]['config'] ?? [];
+    }
+
     private function getParserService(string $parser): AbstractParserService
     {
         if (!array_key_exists($parser, $this->config)) {

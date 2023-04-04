@@ -93,7 +93,7 @@ class ReceiptScan extends Component
         $step = array_search($this->action, self::ACTION_STEP);
         if ($step && $step >= array_search(self::ACTION_BASKET, self::ACTION_STEP)) {
             $this->extractText($imageService, $basketExtractor);
-            $this->parseText($this->parserApplication, $basketExtractor);
+            $this->parseText($basketExtractor);
         }
         if ($this->action != '') {
             $this->activateAction($this->action, $basketExtractor);
@@ -134,8 +134,9 @@ class ReceiptScan extends Component
 
     public function parseTextHandler($parserApplication, ImageService $imageService, BasketExtractorService $basketExtractor)
     {
+        $this->parserApplication = $parserApplication;
         $this->extractText($imageService, $basketExtractor);
-        $this->parseText($parserApplication, $basketExtractor);
+        $this->parseText($basketExtractor);
         $this->emitSelf('action.next');
     }
 
@@ -204,9 +205,8 @@ class ReceiptScan extends Component
     }
 
     // It parses the extracted text with the selected parser application.
-    private function parseText($parserApplication, BasketExtractorService $basketExtractor)
+    private function parseText(BasketExtractorService $basketExtractor)
     {
-        $this->parserApplication = $parserApplication;
         $basket = $basketExtractor->parseTextWith($this->rawExtractedText, $this->parserApplication);
         $this->basket = $basket->toArray();
 
@@ -253,9 +253,12 @@ class ReceiptScan extends Component
 
     private function extractText(ImageService $imageService, BasketExtractorService $basketExtractor)
     {
-        $this->rawExtractedText = (new TesseractOCR($imageService->tempFilePath($this->imagePath, auth()->user()->id)))
-             ->lang('hun')
-             ->run();
+        $config = $basketExtractor->getParserApplicationConfig($this->parserApplication);
+        $ocr = (new TesseractOCR($imageService->tempFilePath($this->imagePath, auth()->user()->id)));
+        if (array_key_exists('lang', $config)) {
+            $ocr->lang($config['lang']);
+        }
+        $this->rawExtractedText = $ocr->run();
     }
 
     private function addImageToBasket($targetBasketId, ImageService $imageService)
