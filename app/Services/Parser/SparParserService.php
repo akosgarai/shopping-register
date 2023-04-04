@@ -7,7 +7,6 @@ use App\Services\AbstractParserService;
 
 class SparParserService extends AbstractParserService
 {
-    public const MARKET_NAME_PATTERN = 'SPAR MARKET';
     public const TAX_NUMBER_PATTERN = 'ADÓSZÁM';
     public const TOTAL_PATTERN = 'ÖSSZESEN';
     public const CREDIT_CARD_PATTERN = 'BANKKARTYA';
