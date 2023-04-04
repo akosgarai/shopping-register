@@ -1,0 +1,8 @@
+NYUGTASZÁM:\s\d\d\d\d/\d\d\d\d\d
+ADÓSZÁM:\s\d\d\d\d\d\d\d\d-\d-\d\d
+BANKKÁRTYA:\s\d\*\sFt
+BANKKÁRTYA:\s\d\*\s\d\*\sFt
+ÖSSZESEN:\s\d\*\sFt
+ÖSSZESEN:\s\d\*\s\d\*\sFt
+\d\d\d\d.\d\d.\d\d.\s\d\d:\d\d
+

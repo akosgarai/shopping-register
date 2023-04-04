@@ -258,6 +258,15 @@ class ReceiptScan extends Component
         if (array_key_exists('lang', $config)) {
             $ocr->lang($config['lang']);
         }
+        if (array_key_exists('user-pattern-file', $config)) {
+            $ocr->userPatterns(base_path('tesseract-user-patterns/'.$config['user-pattern-file']));
+        }
+        if (array_key_exists('psm', $config)) {
+            $ocr->psm($config['psm']);
+        }
+        if (array_key_exists('oem', $config)) {
+            $ocr->oem($config['oem']);
+        }
         $this->rawExtractedText = $ocr->run();
     }
 
