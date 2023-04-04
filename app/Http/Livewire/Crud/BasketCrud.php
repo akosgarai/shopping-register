@@ -42,6 +42,7 @@ class BasketCrud extends CrudPage
         'basket.addBasketItem' => 'addBasketItem',
         'basket.deleteBasketItem' => 'deleteBasketItem',
         'action.back' => 'clearAction',
+        'search' => 'search',
     ];
 
     public function delete($modelId)
@@ -372,10 +373,15 @@ class BasketCrud extends CrudPage
 
     private function basketList()
     {
-        return  Basket::where('user_id', auth()->user()->id)
+        $list = Basket::where('user_id', auth()->user()->id)
             ->withCount('basketItems')
             ->with(['shop', 'shop.address'])
-            ->orderBy($this->orderColumn, $this->orderDirection)
-            ->paginate(parent::ITEM_LIMIT);
+            ->orderBy($this->orderColumn, $this->orderDirection);
+        if ($this->search != '') {
+            // serach for the receipt id.
+            $list = $list->where('receipt_id', 'like', '%' . $this->search . '%');
+        }
+
+        return $list->paginate(parent::ITEM_LIMIT);
     }
 }

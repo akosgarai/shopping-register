@@ -29,12 +29,16 @@ abstract class CrudPage extends Crud
     public $orderColumn = 'id';
     public $orderDirection = self::ORDER_ASC;
 
+    // The search string.
+    public $search = '';
+
     // The query string parameters.
     protected $queryString = [
         'action' => ['except' => ''],
         'modelId' => ['except' => '', 'as' => 'id'],
         'orderColumn' => ['except' => 'id', 'as' => 'order'],
         'orderDirection' => ['except' => self::ORDER_ASC, 'as' => 'direction'],
+        'search' => ['except' => ''],
     ];
 
     // The pagination theme.
@@ -117,5 +121,11 @@ abstract class CrudPage extends Crud
         }
         $this->orderColumn = $column;
         $this->orderDirection = self::ORDER_ASC;
+    }
+
+    public function search($search)
+    {
+        $this->search = $search;
+        $this->resetPage();
     }
 }
