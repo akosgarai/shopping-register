@@ -154,6 +154,15 @@ class ShopCrudTest extends TestCase
             ->assertDontSeeHtml('<button class="btn btn-danger" type="button" wire:click="loadForDelete('.$shopWithBasket->id.')">');
         $shops = $case->viewData('shops');
         $this->assertCount(2, $shops);
+        // check the search also
+        // search for the first shop
+        $case->set('search', $shop->name)
+            ->assertSeeHtml('<th scope="row">'.$shop->id.'</th>')
+            ->assertDontSeeHtml('<th scope="row">'.$shopWithBasket->id.'</th>');
+        // reset the search
+        $case->set('search', '')
+            ->assertSeeHtml('<th scope="row">'.$shop->id.'</th>')
+            ->assertSeeHtml('<th scope="row">'.$shopWithBasket->id.'</th>');
         return $case;
     }
 

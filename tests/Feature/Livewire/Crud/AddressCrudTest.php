@@ -131,6 +131,15 @@ class AddressCrudTest extends TestCase
             ->assertDontSeeHtml('<button class="btn btn-danger" type="button" wire:click="loadForDelete('.$shop->address_id.')">');
         $addresses = $case->viewData('addresses');
         $this->assertCount(3, $addresses);
+        // check the search also
+        // search for the unused address
+        $case->set('search', $unusedAddress->raw)
+            ->assertSeeHtml('<th scope="row">'.$unusedAddress->id.'</th>')
+            ->assertDontSeeHtml('<th scope="row">'.$shop->address_id.'</th>');
+        // reset the search
+        $case->set('search', '')
+            ->assertSeeHtml('<th scope="row">'.$unusedAddress->id.'</th>')
+            ->assertSeeHtml('<th scope="row">'.$shop->address_id.'</th>');
         return $case;
     }
 

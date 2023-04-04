@@ -153,6 +153,22 @@ class CompanyCrudTest extends TestCase
             ->assertDontSeeHtml('<button class="btn btn-danger" type="button" wire:click="loadForDelete('.$companyWithShop->id.')">');
         $companies = $case->viewData('companies');
         $this->assertCount(2, $companies);
+        // check the search also
+        // search for the company name without shop
+        $case->set('search', $company->name)
+            ->assertSet('search', $company->name)
+            ->assertSeeHtml('<td>'.$company->tax_number.'</td>')
+            ->assertDontSeeHtml('<td>'.$companyWithShop->tax_number.'</td>');
+        // search for the company tax_number with shop
+        $case->set('search', $companyWithShop->tax_number)
+            ->assertSet('search', $companyWithShop->tax_number)
+            ->assertDontSeeHtml('<td>'.$company->tax_number.'</td>')
+            ->assertSeeHtml('<td>'.$companyWithShop->tax_number.'</td>');
+        // reset the search
+        $case->set('search', '')
+            ->assertSet('search', '')
+            ->assertSeeHtml('<td>'.$company->tax_number.'</td>')
+            ->assertSeeHtml('<td>'.$companyWithShop->tax_number.'</td>');
         return $case;
     }
 

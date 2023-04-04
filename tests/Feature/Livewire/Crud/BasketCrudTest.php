@@ -340,6 +340,17 @@ class BasketCrudTest extends TestCase
         ;
         $baskets = $case->viewData('baskets');
         $this->assertCount(2, $baskets);
+        // check the search also
+        // search for the first basket
+        $case->set('search', $basket->receipt_id)
+            ->assertSet('search', $basket->receipt_id)
+            ->assertSeeHtml('<th scope="row">'.$basket->id.'</th>')
+            ->assertDontSeeHtml('<th scope="row">'.$basketWithItems->id.'</th>');
+        // reset the search
+        $case->set('search', '')
+            ->assertSet('search', '')
+            ->assertSeeHtml('<th scope="row">'.$basket->id.'</th>')
+            ->assertSeeHtml('<th scope="row">'.$basketWithItems->id.'</th>');
         return $case;
     }
 

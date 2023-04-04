@@ -130,6 +130,17 @@ class ItemCrudTest extends TestCase
             ->assertDontSeeHtml('<button class="btn btn-danger" type="button" wire:click="loadForDelete('.$itemWithBasket->id.')">');
         $items = $case->viewData('items');
         $this->assertCount(2, $items);
+        // check the search also
+        // search for the item name without basket
+        $case->set('search', $itemWithoutBasket->name)
+            ->assertSet('search', $itemWithoutBasket->name)
+            ->assertSeeHtml('<th scope="row">'.$itemWithoutBasket->id.'</th>')
+            ->assertDontSeeHtml('<th scope="row">'.$itemWithBasket->id.'</th>');
+        // reset the search
+        $case->set('search', '')
+            ->assertSet('search', '')
+            ->assertSeeHtml('<th scope="row">'.$itemWithoutBasket->id.'</th>')
+            ->assertSeeHtml('<th scope="row">'.$itemWithBasket->id.'</th>');
         return $case;
     }
 
