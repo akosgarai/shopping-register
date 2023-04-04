@@ -3,7 +3,6 @@
 namespace App\Providers;
 
 use App\Services\BasketExtractorService;
-use App\Services\Parsers\SparParserService;
 
 use Illuminate\Support\ServiceProvider;
 
