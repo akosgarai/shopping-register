@@ -3,6 +3,7 @@
 namespace App\Http\Livewire\Crud;
 
 use App\Traits\Livewire\WithSearch;
+use App\Traits\Livewire\WithSorting;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -12,6 +13,7 @@ abstract class CrudPage extends Crud
 {
     use WithPagination;
     use WithSearch;
+    use WithSorting;
 
     const ORDER_ASC = 'asc';
     const ORDER_DESC = 'desc';
@@ -29,10 +31,6 @@ abstract class CrudPage extends Crud
     // the timestamps of the entity.
     public $createdAt = '';
     public $updatedAt = '';
-
-    // list ordering
-    public $orderColumn = 'id';
-    public $orderDirection = self::ORDER_ASC;
 
     // The query string parameters.
     protected $queryString = [
@@ -109,21 +107,6 @@ abstract class CrudPage extends Crud
     // This method has to return the parameters that needs to be added to the
     // rendered template.
     abstract public function getTemplateParameters();
-
-    // This method is called when the orderable column is changed.
-    public function orderColumnChangeTo($column)
-    {
-        // If the column is not orderable, do nothing.
-        if (!in_array($column, static::ORDERABLE_COLUMNS)) {
-            return;
-        }
-        if ($this->orderColumn == $column) {
-            $this->orderDirection = $this->orderDirection == self::ORDER_ASC ? self::ORDER_DESC : self::ORDER_ASC;
-            return;
-        }
-        $this->orderColumn = $column;
-        $this->orderDirection = self::ORDER_ASC;
-    }
 
     // This method is called when we want the paginated data.
     protected function getPaginatedData(Builder $query): LengthAwarePaginator
