@@ -91,15 +91,12 @@ class ReceiptScan extends Component
     {
         $this->action = request()->query('action', '');
         $step = array_search($this->action, self::ACTION_STEP);
-        if ($step) {
-            $this->extractText($imageService);
-
-            if ($step >= array_search(self::ACTION_BASKET, self::ACTION_STEP)) {
-                $this->parseText($this->parserApplication, $basketExtractor);
-            }
+        if ($step && $step >= array_search(self::ACTION_BASKET, self::ACTION_STEP)) {
+            $this->extractText($imageService, $basketExtractor);
+            $this->parseText($this->parserApplication, $basketExtractor);
         }
         if ($this->action != '') {
-            $this->activateAction($this->action, $imageService, $basketExtractor);
+            $this->activateAction($this->action, $basketExtractor);
         }
     }
 
@@ -109,14 +106,14 @@ class ReceiptScan extends Component
     }
 
     // action next closes the current action and moves to the next action
-    public function actionNextHandler(ImageService $imageService, BasketExtractorService $basketExtractor)
+    public function actionNextHandler(BasketExtractorService $basketExtractor)
     {
         $currentActionIndex = array_search($this->action, self::ACTION_STEP);
         $nextActionIndex = min($currentActionIndex + 1, count(self::ACTION_STEP) - 1);
-        $this->actionChangeHandler(self::ACTION_STEP[$nextActionIndex], $imageService, $basketExtractor);
+        $this->actionChangeHandler(self::ACTION_STEP[$nextActionIndex], $basketExtractor);
     }
     // action next closes the current action and moves to the next action
-    public function actionBackHandler(ImageService $imageService, BasketExtractorService $basketExtractor)
+    public function actionBackHandler(BasketExtractorService $basketExtractor)
     {
         $currentActionIndex = array_search($this->action, self::ACTION_STEP);
         if ($currentActionIndex == 0) {
@@ -124,19 +121,20 @@ class ReceiptScan extends Component
             $this->action = '';
             return;
         }
-        $this->actionChangeHandler(self::ACTION_STEP[$currentActionIndex - 1], $imageService, $basketExtractor);
+        $this->actionChangeHandler(self::ACTION_STEP[$currentActionIndex - 1], $basketExtractor);
     }
 
     // action change handler is for the action buttons
-    public function actionChangeHandler($newAction, ImageService $imageService, BasketExtractorService $basketExtractor)
+    public function actionChangeHandler($newAction, BasketExtractorService $basketExtractor)
     {
         // close the current action
         $this->closeCurrentAction();
-        $this->activateAction($newAction, $imageService, $basketExtractor);
+        $this->activateAction($newAction, $basketExtractor);
     }
 
-    public function parseTextHandler($parserApplication, BasketExtractorService $basketExtractor)
+    public function parseTextHandler($parserApplication, ImageService $imageService, BasketExtractorService $basketExtractor)
     {
+        $this->extractText($imageService, $basketExtractor);
         $this->parseText($parserApplication, $basketExtractor);
         $this->emitSelf('action.next');
     }
@@ -165,7 +163,6 @@ class ReceiptScan extends Component
     public function imageEditingHandler($imageData = '', ImageService $imageService)
     {
         $imageService->updateTempImageOfUser($this->imagePath, auth()->user()->id, $imageData);
-        $this->extractText($imageService);
         $this->emitSelf('action.next');
     }
 
@@ -224,7 +221,7 @@ class ReceiptScan extends Component
         }
     }
 
-    private function activateAction($newAction, ImageService $imageService, BasketExtractorService $basketExtractor)
+    private function activateAction($newAction, BasketExtractorService $basketExtractor)
     {
         $this->action = $newAction;
         switch ($this->action) {
@@ -240,7 +237,7 @@ class ReceiptScan extends Component
             break;
         case self::ACTION_PARSE:
             $this->parserApplication = '';
-            $this->extractText($imageService);
+            $this->rawExtractedText = '';
             $this->emit("panel.open", self::PANEL_PARSER, ['parsers' => $basketExtractor->getParserApplications()]);
             break;
         case self::ACTION_BASKET:
@@ -254,7 +251,7 @@ class ReceiptScan extends Component
         }
     }
 
-    private function extractText(ImageService $imageService)
+    private function extractText(ImageService $imageService, BasketExtractorService $basketExtractor)
     {
         $this->rawExtractedText = (new TesseractOCR($imageService->tempFilePath($this->imagePath, auth()->user()->id)))
              ->lang('hun')
