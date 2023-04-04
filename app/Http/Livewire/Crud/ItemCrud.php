@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Crud;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Validation\ValidationException;
 
 use App\Models\Item;
@@ -19,6 +20,7 @@ class ItemCrud extends CrudPage
         'item.update' => 'update',
         'item.delete' => 'delete',
         'action.back' => 'clearAction',
+        'search' => 'search',
     ];
 
     public function delete($modelId)
@@ -121,10 +123,12 @@ class ItemCrud extends CrudPage
             ->first();
     }
 
-    private function itemList()
+    private function itemList(): LengthAwarePaginator
     {
-        return Item::withCount('basketItems')
-            ->orderBy($this->orderColumn, $this->orderDirection)
-            ->paginate(parent::ITEM_LIMIT);
+        $query = (new Item())->withCount('basketItems');
+        if ($this->search != '') {
+            $query = $query->where('name', 'like', '%' . $this->search . '%');
+        }
+        return $this->getPaginatedData($query);
     }
 }
