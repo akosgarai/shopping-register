@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Crud;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Validation\ValidationException;
 
 use App\Models\Address;
@@ -23,6 +24,7 @@ class ShopCrud extends CrudPage
         'shop.update' => 'update',
         'shop.delete' => 'delete',
         'action.back' => 'clearAction',
+        'search' => 'search',
     ];
 
     public function delete($modelId)
@@ -158,8 +160,10 @@ class ShopCrud extends CrudPage
 
     private function shopList()
     {
-        return Shop::withCount('baskets')->with(['company', 'address'])
-            ->orderBy($this->orderColumn, $this->orderDirection)
-            ->paginate(parent::ITEM_LIMIT);
+        $query = Shop::withCount('baskets')->with(['company', 'address']);
+        if ($this->search != '') {
+            $query = $query->where('name', 'like', '%' . $this->search . '%');
+        }
+        return $this->getPaginatedData($query);
     }
 }
