@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Crud;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Validation\ValidationException;
 
 use App\Models\Address;
@@ -22,6 +23,7 @@ class CompanyCrud extends CrudPage
         'company.update' => 'update',
         'company.delete' => 'delete',
         'action.back' => 'clearAction',
+        'search' => 'search',
     ];
 
     public function delete($modelId)
@@ -156,10 +158,13 @@ class CompanyCrud extends CrudPage
             ->first();
     }
 
-    private function companyList()
+    private function companyList(): LengthAwarePaginator
     {
-        return Company::withCount('shops')->with('address')
-            ->orderBy($this->orderColumn, $this->orderDirection)
-            ->paginate(parent::ITEM_LIMIT);
+        $query = (new Company())->withCount('shops')->with('address');
+        if ($this->search != '') {
+            $query = $query->where('name', 'like', '%' . $this->search . '%')
+                ->orWhere('tax_number', 'like', '%' . $this->search . '%');
+        }
+        return $this->getPaginatedData($query);
     }
 }
