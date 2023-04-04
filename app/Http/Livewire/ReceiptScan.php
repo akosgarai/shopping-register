@@ -2,9 +2,9 @@
 
 namespace App\Http\Livewire;
 
-use Alimranahmed\LaraOCR\Services\OcrAbstract;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
+use thiagoalessio\TesseractOCR\TesseractOCR;
 
 use App\Models\Basket;
 use App\Models\BasketItem;
@@ -256,8 +256,9 @@ class ReceiptScan extends Component
 
     private function extractText(ImageService $imageService)
     {
-        $ocr = app()->make(OcrAbstract::class);
-        $this->rawExtractedText = $ocr->scan($imageService->tempFilePath($this->imagePath, auth()->user()->id), 'hun');
+        $this->rawExtractedText = (new TesseractOCR($imageService->tempFilePath($this->imagePath, auth()->user()->id)))
+             ->lang('hun')
+             ->run();
     }
 
     private function addImageToBasket($targetBasketId, ImageService $imageService)
