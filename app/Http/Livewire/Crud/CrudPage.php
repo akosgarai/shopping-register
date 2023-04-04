@@ -2,6 +2,8 @@
 
 namespace App\Http\Livewire\Crud;
 
+use App\Traits\Livewire\WithSearch;
+
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\WithPagination;
@@ -9,6 +11,7 @@ use Livewire\WithPagination;
 abstract class CrudPage extends Crud
 {
     use WithPagination;
+    use WithSearch;
 
     const ORDER_ASC = 'asc';
     const ORDER_DESC = 'desc';
@@ -30,9 +33,6 @@ abstract class CrudPage extends Crud
     // list ordering
     public $orderColumn = 'id';
     public $orderDirection = self::ORDER_ASC;
-
-    // The search string.
-    public $search = '';
 
     // The query string parameters.
     protected $queryString = [
@@ -123,13 +123,6 @@ abstract class CrudPage extends Crud
         }
         $this->orderColumn = $column;
         $this->orderDirection = self::ORDER_ASC;
-    }
-
-    // This method is called when the search string is changed.
-    public function search($search)
-    {
-        $this->search = $search;
-        $this->resetPage();
     }
 
     // This method is called when we want the paginated data.
