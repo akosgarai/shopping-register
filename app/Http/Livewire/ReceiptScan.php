@@ -56,10 +56,6 @@ class ReceiptScan extends Component
         self::ACTION_BASKET_ITEMS => self::PANEL_BASKET_ITEMS,
     ];
 
-    const PARSERS = [
-        [ 'name' => 'spar', 'label' => 'Spar'],
-    ];
-
     // query parameters
     public $action = '';
     public $imagePath = '';
@@ -103,7 +99,7 @@ class ReceiptScan extends Component
             }
         }
         if ($this->action != '') {
-            $this->activateAction($this->action, $imageService);
+            $this->activateAction($this->action, $imageService, $basketExtractor);
         }
     }
 
@@ -113,14 +109,14 @@ class ReceiptScan extends Component
     }
 
     // action next closes the current action and moves to the next action
-    public function actionNextHandler(ImageService $imageService)
+    public function actionNextHandler(ImageService $imageService, BasketExtractorService $basketExtractor)
     {
         $currentActionIndex = array_search($this->action, self::ACTION_STEP);
         $nextActionIndex = min($currentActionIndex + 1, count(self::ACTION_STEP) - 1);
-        $this->actionChangeHandler(self::ACTION_STEP[$nextActionIndex], $imageService);
+        $this->actionChangeHandler(self::ACTION_STEP[$nextActionIndex], $imageService, $basketExtractor);
     }
     // action next closes the current action and moves to the next action
-    public function actionBackHandler(ImageService $imageService)
+    public function actionBackHandler(ImageService $imageService, BasketExtractorService $basketExtractor)
     {
         $currentActionIndex = array_search($this->action, self::ACTION_STEP);
         if ($currentActionIndex == 0) {
@@ -128,15 +124,15 @@ class ReceiptScan extends Component
             $this->action = '';
             return;
         }
-        $this->actionChangeHandler(self::ACTION_STEP[$currentActionIndex - 1], $imageService);
+        $this->actionChangeHandler(self::ACTION_STEP[$currentActionIndex - 1], $imageService, $basketExtractor);
     }
 
     // action change handler is for the action buttons
-    public function actionChangeHandler($newAction, ImageService $imageService)
+    public function actionChangeHandler($newAction, ImageService $imageService, BasketExtractorService $basketExtractor)
     {
         // close the current action
         $this->closeCurrentAction();
-        $this->activateAction($newAction, $imageService);
+        $this->activateAction($newAction, $imageService, $basketExtractor);
     }
 
     public function parseTextHandler($parserApplication, BasketExtractorService $basketExtractor)
@@ -228,7 +224,7 @@ class ReceiptScan extends Component
         }
     }
 
-    private function activateAction($newAction, ImageService $imageService)
+    private function activateAction($newAction, ImageService $imageService, BasketExtractorService $basketExtractor)
     {
         $this->action = $newAction;
         switch ($this->action) {
@@ -245,7 +241,7 @@ class ReceiptScan extends Component
         case self::ACTION_PARSE:
             $this->parserApplication = '';
             $this->extractText($imageService);
-            $this->emit("panel.open", self::PANEL_PARSER, ['parsers' => self::PARSERS]);
+            $this->emit("panel.open", self::PANEL_PARSER, ['parsers' => $basketExtractor->getParserApplications()]);
             break;
         case self::ACTION_BASKET:
         case self::ACTION_COMPANY:
