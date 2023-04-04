@@ -1,5 +1,7 @@
-NYUGTASZÁM:\s\d\d\d\d/\d\d\d\d\d
-ADÓSZÁM:\s\d\d\d\d\d\d\d\d-\d-\d\d
+NYUGTASZÁM:
+NYUGTASZÁM: \d{4}/\d{5}
+ADÓSZÁM:
+ADÓSZÁM: \d\d\d\d\d\d\d\d-\d-\d\d
 BANKKÁRTYA:\s\d\*\sFt
 BANKKÁRTYA:\s\d\*\s\d\*\sFt
 ÖSSZESEN:\s\d\*\sFt

@@ -541,7 +541,7 @@ NAV El lenérz6 kod: 880CA
         'marketName' => '',
         'companyAddress' => '1133 BUDAPEST POZSONYI UT 4g FSZ em. 2 aito',
         'companyName' => 'Esznin Hungary ft,',
-        'date' => '2022-09-30,T18:02',
+        'date' => '2022-09-30T18:02',
         'total' => ' 4 553',
         'items' => [
             [

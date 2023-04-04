@@ -260,12 +260,13 @@ class SparParserService extends AbstractParserService
 
     private function setupReceiptDate()
     {
-        $this->receipt->date = trim($this->lines[$this->readLineIndex]);
-        // format the date to yyyy-mm-ddThh:mm format if possible.
-        // the extracted format is yyyy.mm.dd. hh:mm.
-        $this->receipt->date = preg_replace('/\./', '-', $this->receipt->date, 2);
-        $this->receipt->date = str_replace('.', '', $this->receipt->date);
-        $this->receipt->date = str_replace(' ', 'T', $this->receipt->date);
+        $dateRaw = $this->lines[$this->readLineIndex];
+        // replace every not digit character with empty string at the beginning of the string.
+        $dateOnlyNumbers = preg_replace('/[^0-9]/', '', $dateRaw);
+        // now we supposed to have 12 numbers in the string. if not pad it with 0.
+        $dateOnlyNumbers = str_pad($dateOnlyNumbers, 12, '0', STR_PAD_RIGHT);
+        // now construct the date string.
+        $this->receipt->date = substr($dateOnlyNumbers, 0, 4) . '-' . substr($dateOnlyNumbers, 4, 2) . '-' . substr($dateOnlyNumbers, 6, 2) . 'T' . substr($dateOnlyNumbers, 8, 2) . ':' . substr($dateOnlyNumbers, 10, 2);
         $this->readLineIndex++;
     }
 }
