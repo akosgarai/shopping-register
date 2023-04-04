@@ -2,6 +2,8 @@
 
 namespace App\Http\Livewire\Crud;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Livewire\WithPagination;
 
 abstract class CrudPage extends Crud
@@ -123,9 +125,17 @@ abstract class CrudPage extends Crud
         $this->orderDirection = self::ORDER_ASC;
     }
 
+    // This method is called when the search string is changed.
     public function search($search)
     {
         $this->search = $search;
         $this->resetPage();
+    }
+
+    // This method is called when we want the paginated data.
+    protected function getPaginatedData(Builder $query): LengthAwarePaginator
+    {
+        return $query->orderBy($this->orderColumn, $this->orderDirection)
+              ->paginate(self::ITEM_LIMIT);
     }
 }

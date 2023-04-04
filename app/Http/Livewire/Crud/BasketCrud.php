@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Crud;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Storage;
 use Livewire\WithFileUploads;
@@ -371,17 +372,15 @@ class BasketCrud extends CrudPage
         return (new QuantityUnit())->all();
     }
 
-    private function basketList()
+    private function basketList(): LengthAwarePaginator
     {
-        $list = Basket::where('user_id', auth()->user()->id)
+        $query = Basket::where('user_id', auth()->user()->id)
             ->withCount('basketItems')
-            ->with(['shop', 'shop.address'])
-            ->orderBy($this->orderColumn, $this->orderDirection);
+            ->with(['shop', 'shop.address']);
         if ($this->search != '') {
             // serach for the receipt id.
-            $list = $list->where('receipt_id', 'like', '%' . $this->search . '%');
+            $query = $query->where('receipt_id', 'like', '%' . $this->search . '%');
         }
-
-        return $list->paginate(parent::ITEM_LIMIT);
+        return $this->getPaginatedData($query);
     }
 }
