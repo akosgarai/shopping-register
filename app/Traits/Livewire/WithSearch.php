@@ -8,9 +8,11 @@ trait WithSearch
     public $search = '';
 
     // This method is called when the search string is changed.
-    // The search string is emitted to the component that can handle it.
-    public function search()
+    // The search string is updated in the query string also and the page
+    // is reset to update the list.
+    public function search($search)
     {
-        $this->emit('search', $this->search);
+        $this->search = $search;
+        $this->resetPage();
     }
 }
