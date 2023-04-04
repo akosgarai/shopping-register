@@ -103,9 +103,9 @@ class ReceiptScan extends Component
         }
     }
 
-    public function render()
+    public function render(BasketExtractorService $basketExtractor)
     {
-        return view('livewire.receipt-scan', ['quantityUnits' => (new QuantityUnit())->all()])->extends('layouts.app');
+        return view('livewire.receipt-scan', ['quantityUnits' => (new QuantityUnit())->all(), 'parserApplications' => $basketExtractor->getParserApplications()])->extends('layouts.app');
     }
 
     // action next closes the current action and moves to the next action

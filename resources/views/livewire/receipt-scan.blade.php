@@ -53,7 +53,7 @@
         :panelName="self::PANEL_PARSER"
         :panelTitle="__('Select Parser')"
         :contentTemplate="'livewire.component.scan.parser-template'"
-        :contentParameters="[ 'parsers' => self::PARSERS ]">
+        :contentParameters="[ 'parsers' => $parserApplications ]">
     <livewire:component.panel :open="$action == self::ACTION_BASKET" :position="'right'"
         :panelName="self::PANEL_BASKET_ID"
         :panelTitle="__('Basket')"
