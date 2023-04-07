@@ -267,6 +267,9 @@ class ReceiptScan extends Component
         if (array_key_exists('oem', $config)) {
             $ocr->oem($config['oem']);
         }
+        if (array_key_exists('user-words-file', $config)) {
+            $ocr->userWords($config['user-words-file']);
+        }
         $this->rawExtractedText = $ocr->run();
     }
 

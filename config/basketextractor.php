@@ -8,6 +8,7 @@ return [
         'config' => [
             'lang' => 'hun',
             'user-pattern-file' => 'spar-patterns.txt',
+            'user-words-file' => 'spar-words.txt',
             'psm' => 4,
             'oem' => 3,
         ],
