@@ -1,6 +1,20 @@
 # Shopping Register
 
-Laravel based application, experiment for livewire based rendering.
+[Laravel](https://laravel.com/) application, experiment for [livewire](https://laravel-livewire.com/) based rendering and character recognition with [Tesseract OCR](https://github.com/tesseract-ocr/tesseract).
+
+This application could be used to store the data  - extracted from an image of a receipt - in a mysql database. On the `/receipt-scan` page, you can choose and upload an image, crop it if necessary, then you select a parser application and then setup the form prefilled with the text extracted from the image.
+
+## Features
+
+- Create basket, shop, company, items on the `/receipt-scan` page.
+- Create / edit / delete addresses on the `/address` page.
+- Create / edit / delete items on the `/item` page.
+- Create / edit / delete companies on the `/company` page.
+- Create / edit / delete shops on the `/shop` page.
+- Create / edit / delete baskets on the `/basket` page.
+- Dashboard about various statistics on the `/home` page.
+- Laravel based registration / login.
+- Visibility restrictions, only own baskets could be changed.
 
 ## Database
 
@@ -9,7 +23,7 @@ Laravel based application, experiment for livewire based rendering.
 Stores the addresses
 - Id
 - Timestamps (create, update)
-- Raw - the fixed value extracted from the image. It will be used for calculating levenshtein distances
+- Raw - the fixed value extracted from the image. It is used for calculating levenshtein distances
 
 ### Company
 
@@ -39,7 +53,7 @@ Stores the receipt main informations.
 - Total item price
 - Receipt identifier
 - User identifier
-TODO: add the receipt_url as optional column. Make the receipt identifier unique.
+- Receipt URL - fragmant for the image of the receipt.
 
 ### Items
 
@@ -56,21 +70,44 @@ Stores the items that were in a given basket
 - Item
 - Price
 
-## Need to be able to add/view/edit manually:
-- Addresses
-	- address - list
-	- address?id=$id&action=edit - edit
-	- address?a=new - add new
-- Companies
-	- company - list
-	- company?id=$id&action=update - edit
-	- company?a=new - add new
-- Shops
-	- shop - list
-	- shop?id=$id&action=update - edit
-	- shop?a=new - add new
-- Items
-	- item - list
-	- item?id=$id&action=edit - edit
-	- item?a=new - add new
-- Baskets (with optional items)
+## Basket Extraction
+
+To be able to understand what is in the extracted texts, we need to provide parser applications.
+These applications are responsible for providing a Scanned basket that represents the receipt.
+
+The `config/basketextractor.php` contains the list of the parser applications. Feel free to implement further parsers. When you want to use a new parser, you only have to register it in the config.
+Simply add a new entry to the array. The pattern and word files has to be located under the `tesseract-user-patterns` directory.
+
+```php
+[
+    'myParserKey' => [
+        'label' => 'My Ultimate Parser',
+        'parser' => \App\Services\Parser\UltimateParserService::class,
+        'config' => [
+            'lang' => 'eng',
+            'user-pattern-file' => 'my-patterns.txt',
+            'user-words-file' => 'my-words.txt',
+            'psm' => 4,
+            'oem' => 3,
+        ],
+    ],
+]
+```
+
+## Start the application.
+
+- Get the codebase. Clone the repository.
+- Get dependencies. Execute `composer install`. This step is necessary to have the `sail` tool. If you are not using it, you can execute it after the container start.
+- Create .env file. There is an example provided, you can start with `cp .env.example .env`.
+- Start application containers. Execute `./vendor/bin/sail up -d`.
+- Generate key for the application. Execute `./vendor/bin/sail artisan key:generate`.
+- Setup the database. Execute `./vendor/bin/sail artisan migrate`.
+- Add data to database. Execute `./vendor/bin/sail artisan migrate --seed`.
+- Setup frontend dependencies. Execute `./vendor/bin/sail npm install`.
+- Build and watch frontend resources. Execute `./vendor/bin/sail npm run dev`.
+
+## Setup OCR languages
+
+Currently it supports `eng` and `hun`.
+
+If you need further languages for the OCR application, you have to add it to the Dockerfile (docker/tesseract-ocr/Dockerfile). The tesseract and language installation is in line 47.
